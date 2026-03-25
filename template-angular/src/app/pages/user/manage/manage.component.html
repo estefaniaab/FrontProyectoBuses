@@ -1,0 +1,83 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Table -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0" *ngIf="mode==1">Detalle</h3>
+          <h3 class="mb-0" *ngIf="mode==2">Crear</h3>
+          <h3 class="mb-0" *ngIf="mode==3">Actualizar</h3>
+        </div>
+        <div class="card-body">
+          <form class="form" [formGroup]="theFormGroup">
+            <div class="card-body container">
+              <div class="row">
+                <div class="col-3">ID</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="id"  disabled>
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-3">Nombre</div>
+                <div class="col-9">
+                  <input type="text" class="form-control"  formControlName="name">
+
+                  <div
+                    *ngIf="getTheFormGroup.name.errors && (getTheFormGroup.name.dirty || getTheFormGroup.name.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.name.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.name.errors.minlength"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-3">Correo</div>
+                <div class="col-9">
+                  <input type="email" class="form-control" formControlName="email">
+
+                  <div *ngIf="getTheFormGroup.email.errors && (getTheFormGroup.email.dirty || getTheFormGroup.email.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.email.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.email.errors.email"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-3">Contraseña</div>
+                <div class="col-9">
+                  <input type="password" class="form-control" formControlName="password">
+
+                  <div *ngIf="getTheFormGroup.password.errors && (getTheFormGroup.password.dirty || getTheFormGroup.password.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.password.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.password.errors.minlength"
+                            class="msnError" >Inválido</strong>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button type="button" class="btn btn-primary btn-block" (click)="back()">Regresar</button>
+                  <button type="button" class="btn btn-success btn-block" (click)="create()"
+                          *ngIf="mode==2">Crear</button>
+                  <button type="button" class="btn btn-warning btn-block" (click)="update()"
+                          *ngIf="mode==3">Actualizar</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

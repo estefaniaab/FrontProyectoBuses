@@ -11,5 +11,15 @@ export const AdminLayoutRoutes: Routes = [
     { path: 'user-profile',   component: UserProfileComponent },
     { path: 'tables',         component: TablesComponent },
     { path: 'icons',          component: IconsComponent },
-    { path: 'maps',           component: MapsComponent }
+    { path: 'maps',           component: MapsComponent },
+  {
+    path: 'users',
+    //canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/user/users.module').then(m => m.UsersModule)
+      }
+    ]
+  }
 ];
