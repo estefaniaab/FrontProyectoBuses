@@ -12,14 +12,24 @@ export const AdminLayoutRoutes: Routes = [
     { path: 'tables',         component: TablesComponent },
     { path: 'icons',          component: IconsComponent },
     { path: 'maps',           component: MapsComponent },
-  {
-    path: 'users',
-    //canActivate: [AuthenticatedGuard],
-    children: [
-      {
-        path: '',
-        loadChildren: () => import('src/app/pages/user/users.module').then(m => m.UsersModule)
-      }
-    ]
-  }
+    {
+      path: 'users',
+      //canActivate: [AuthenticatedGuard],
+      children: [
+        {
+          path: '',
+          loadChildren: () => import('src/app/pages/user/users.module').then(m => m.UsersModule)
+        }
+      ]
+    },
+    {
+      path: 'roles',
+      //canActivate: [AuthenticatedGuard],
+      children: [
+        {
+          path: '',
+          loadChildren: () => import('src/app/pages/role/role.module').then(m => m.RolesModule)
+        }
+      ]
+    }
 ];

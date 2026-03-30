@@ -30,7 +30,7 @@ import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
   declarations: [
     AppComponent,
     AdminLayoutComponent,
-    AuthLayoutComponent
+    AuthLayoutComponent,
   ],
   providers: [
     {
