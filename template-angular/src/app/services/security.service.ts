@@ -95,7 +95,7 @@ export class SecurityService {
   * @returns
   */
   getSessionData() {
-    let sesionActual = localStorage.getItem('sesion');
-    return sesionActual;
+    let sessionActual = localStorage.getItem('session');
+    return sessionActual;
   }
 }
