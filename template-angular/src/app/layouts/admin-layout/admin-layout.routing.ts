@@ -31,5 +31,15 @@ export const AdminLayoutRoutes: Routes = [
           loadChildren: () => import('src/app/pages/role/role.module').then(m => m.RolesModule)
         }
       ]
-    }
+    },
+    {
+      path: 'user-role',
+      //canActivate: [AuthenticatedGuard],
+      children: [
+        {
+          path: '',
+          loadChildren: () => import('src/app/pages/userRole/usersRoles.module').then(m => m.UsersRolesModule)
+        }
+      ]
+    },
 ];

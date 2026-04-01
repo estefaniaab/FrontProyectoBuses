@@ -1,7 +1,7 @@
-export interface RolePermission {
+import { Role } from '../Roles/role.model';
+
+export class RolePermission {
   id?: string;
-  role_id: number;
+  role_id: Role[];
   permission_id: number;
-  created_at?: string;
-  updated_at?: string;
 }

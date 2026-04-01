@@ -1,0 +1,58 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+    <!-- Table -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form class="form" [formGroup]="theFormGroup">
+                        <div class="card-body container">
+                            <div class="row">
+                                <div class="col-3">ID</div>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" formControlName="id" disabled >
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-3">Usuario</div>
+                                <div class="col-9">
+                                    <select class="form-control" formControlName="user_id" >
+                                        <option value="">Seleccione un usuario</option>
+                                        <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
+                                    </select>
+                                    <div *ngIf="getTheFormGroup.user_id.errors && (getTheFormGroup.user_id.dirty || getTheFormGroup.user_id.touched || trySend)">
+                                        <strong *ngIf="getTheFormGroup.user_id.errors.required" class="msnError">Requerido</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-3">Rol</div>
+                                <div class="col-9">
+                                    <select class="form-control" formControlName="role_id" >
+                                        <option value="">Seleccione un rol</option>
+                                        <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+                                    </select>
+                                    <div *ngIf="getTheFormGroup.role_id.errors && (getTheFormGroup.role_id.dirty || getTheFormGroup.role_id.touched || trySend)">
+                                        <strong *ngIf="getTheFormGroup.role_id.errors.required" class="msnError">Requerido</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-3"></div>
+                                <div class="col-9">
+                                    <button type="button" class="btn btn-success btn-block" (click)="create()"
+                                        *ngIf="mode==2">Crear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
