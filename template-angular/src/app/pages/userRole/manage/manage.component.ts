@@ -30,7 +30,7 @@ export class ManageComponent implements OnInit {
     private roleService: RoleService
   ) {
     this.trySend = false;
-    this.userRole = { id: '', user_id: [], role_id: [] };
+    this.userRole = { id: '', user: null, role: null};
     this.configFormGroup()
   }
 
@@ -48,10 +48,10 @@ export class ManageComponent implements OnInit {
     if (this.mode === 1) {
       this.theFormGroup.disable();
     }
-    //if (this.activatedRoute.snapshot.params.id) {
-    //  this.userRole.id = this.activatedRoute.snapshot.params.id;
-    //  this.getUserRole(this.userRole.id); // Pasar como string
-    //}
+    if (this.activatedRoute.snapshot.params.id) {
+      this.userRole.id = this.activatedRoute.snapshot.params.id;
+      this.getUserRole(this.userRole.id); // Pasar como string
+    }
 
   }
   loadUsers() {
@@ -71,8 +71,8 @@ export class ManageComponent implements OnInit {
   configFormGroup() {
     this.theFormGroup = this.theFormBuilder.group({
       id: ['', []], // Cambiado a string vacío por defecto
-      user_id: [null, [Validators.required]], // null por defecto
-      role_id: [null, [Validators.required]], // null por defecto
+      user: [null, [Validators.required]], // null por defecto
+      role: [null, [Validators.required]], // null por defecto
     })
   }
 
@@ -81,8 +81,24 @@ export class ManageComponent implements OnInit {
     return this.theFormGroup.controls
   }
 
+  getUserRole(id: string) {
+    this.usersRolesService.view(id).subscribe({
+      next: (response) => {
+        this.userRole = response;
+        this.theFormGroup.patchValue({
+          id: this.userRole.id,
+          user: this.userRole.user?.id,
+          role: this.userRole.role?.id,
+          });
+        console.log('role fetched successfully:', this.userRole);
+      },
+      error: (error) => {
+        console.error('Error fetching role:', error);
+      }
+    });
+  }
   back() {
-    this.router.navigate(['/user-role/create']);
+    this.router.navigate(['/user-role/list']);
   }
 
   create() {
@@ -95,8 +111,11 @@ export class ManageComponent implements OnInit {
       })
       return;
     }
-
-    this.usersRolesService.create(this.theFormGroup.value).subscribe({
+      const formValue = this.theFormGroup.value;
+      const profileToSend = {
+        user: { id: formValue.user },
+        role: { id: formValue.role }};
+    this.usersRolesService.create(profileToSend).subscribe({
       next: (role) => {
         console.log('role created successfully:', role);
         Swal.fire({
@@ -104,10 +123,41 @@ export class ManageComponent implements OnInit {
           text: 'Registro creado correctamente.',
           icon: 'success',
         })
-        this.router.navigate(['/user-role/create']);
+        this.router.navigate(['/user-role/list']);
       },
       error: (error) => {
         console.error('Error creating role:', error);
+      }
+    });
+  }
+  update() {
+    this.trySend = true;
+    if (this.theFormGroup.invalid) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Por favor, complete todos los campos requeridos.',
+        icon: 'error',
+      })
+      return;
+    }
+      const formValue = this.theFormGroup.value;
+      const profileToSend = {
+        user: { id: formValue.user },
+        role: { id: formValue.role }
+      };
+
+    this.usersRolesService.update(profileToSend).subscribe({
+      next: (userRole) => {
+        console.log('Role updated successfully:', userRole);
+        Swal.fire({
+          title: 'Actualizado!',
+          text: 'Registro actualizado correctamente.',
+          icon: 'success',
+        })
+        this.router.navigate(['/user-role/list']);
+      },
+      error: (error) => {
+        console.error('Error updating role:', error);
       }
     });
   }

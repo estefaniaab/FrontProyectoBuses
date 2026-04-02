@@ -1,0 +1,48 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Table -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-danger">
+            <h4 class="card-title">Rol de los usuarios</h4>
+             <button class="btn btn-success btn-sm" (click)="create()" title="Agregar">
+                <i class="material-icons">add</i>
+             </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-primary">
+                  <td>Id</td>
+                  <td>Usuario</td>
+                  <td>Rol</td>
+                  <td>Acciones</td>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let userRole of usersRoles">
+                    <td>{{ userRole.id  | slice:0:8 }}</td>
+                    <td>{{ getUserName(userRole.user) }}</td>
+                    <td>{{ getRoleName(userRole.role) }}</td>
+                     <td>
+                      <button class="btn btn-info btn-sm" (click)="view(userRole.id)" title="Ver">
+                        <i class="material-icons">visibility</i>
+                      </button>
+                      <button class="btn btn-warning btn-sm" (click)="edit(userRole.id)" title="Editar">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button class="btn btn-danger btn-sm" (click)="delete(userRole.id)" title="Elminar">
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
