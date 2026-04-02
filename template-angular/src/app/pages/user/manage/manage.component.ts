@@ -21,7 +21,7 @@ export class ManageComponent implements OnInit {
               private theFormBuilder: FormBuilder //Definir las reglas
   ) {
     this.trySend = false;
-    this.user = { id: 0, name: '', email: '', password: ''};
+    this.user = { id: '', name: '', email: '', password: ''};
     this.configFormGroup()
   }
 
@@ -47,7 +47,7 @@ export class ManageComponent implements OnInit {
     this.theFormGroup = this.theFormBuilder.group({
       // primer elemento del vector, valor por defecto
       // lista, serán las reglas
-      id: [0,[]],
+      id: ['',[]],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
       password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]],
@@ -59,7 +59,7 @@ export class ManageComponent implements OnInit {
     return this.theFormGroup.controls
   }
 
-  getUser(id: number) {
+  getUser(id:string) {
     this.usersService.view(id).subscribe({
       next: (response) => {
         this.user = response;

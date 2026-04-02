@@ -28,13 +28,13 @@ export class ListComponent implements OnInit {
   create(){
     this.router.navigate(['/roles/create']);
   }
-  view(id:number){
+  view(id:string){
     this.router.navigate(['/roles/view/'+id]);
   }
-  edit(id:number){
+  edit(id:string){
     this.router.navigate(['/roles/update/'+id]);
   }
-  delete(id:number){
+  delete(id:string){
     console.log("Delete role with id:", id);
     Swal.fire({
       title: 'Eliminar',

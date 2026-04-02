@@ -42,4 +42,14 @@ export const AdminLayoutRoutes: Routes = [
         }
       ]
     },
+    {
+        path: 'profiles',
+        //canActivate: [AuthenticatedGuard],
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('src/app/pages/profile/profile.module').then(m => m.ProfilesModule)
+          }
+        ]
+      },
 ];

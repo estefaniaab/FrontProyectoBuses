@@ -1,6 +1,6 @@
 // role.model.ts
 export class Role {
-    id?: number;
+    id?: string;
     name?: string;
     description?: string;
 }

@@ -1,42 +1,48 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from 'src/app/models/Users/user.model';
-import { UserService } from 'src/app/services/User/user.service';
+import { Profile } from 'src/app/models/Profiles/profile.model';
+import { ProfileService } from 'src/app/services/Profile/profile.service';
+
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
+
 })
 export class ListComponent implements OnInit {
-  users: User[] = [];
-  constructor(private usersService:UserService,
+  profiles: Profile[] = [];
+
+  constructor(
+    private profilesService:ProfileService,
+
               private router:Router
   ) { }
 
   ngOnInit(): void {
+
     this.list();
   }
 
   list(){
-    this.usersService.list().subscribe({
-      next: (users) => {
-        this.users = users;
+    this.profilesService.list().subscribe({
+      next: (profiles) => {
+        this.profiles = profiles;
       }
     });
   }
   create(){
-    this.router.navigate(['/users/create']);
+    this.router.navigate(['/profiles/create']);
   }
   view(id:string){
-    this.router.navigate(['/users/view/'+id]);
+    this.router.navigate(['/profiles/view/'+id]);
   }
   edit(id:string){
-    this.router.navigate(['/users/update/'+id]);
+    this.router.navigate(['/profiles/update/'+id]);
   }
   delete(id:string){
-    console.log("Delete user with id:", id);
+    console.log("Delete profile with id:", id);
     Swal.fire({
       title: 'Eliminar',
       text: "Está seguro que quiere eliminar el registro?",
@@ -48,7 +54,7 @@ export class ListComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.usersService.delete(id).
+        this.profilesService.delete(id).
         subscribe(data => {
           Swal.fire(
             'Eliminado!',
@@ -59,6 +65,10 @@ export class ListComponent implements OnInit {
         });
       }
     })
+  }
+
+  getUserName(user: any): string {
+    return user ? user.name : 'Sin usuario';
   }
 
 }
