@@ -37,6 +37,13 @@ export class SecurityService {
     localStorage.setItem('session', JSON.stringify(data));
     this.setUser(data);
   }
+
+  saveToken(token: string) {
+    let currentSession = JSON.parse(this.getSessionData() || '{}');
+    currentSession.token = token;
+    localStorage.setItem('session', JSON.stringify(currentSession));
+    this.setUser(currentSession);
+  }
   /**
     * Permite actualizar la información del usuario
     * que acabó de validarse correctamente

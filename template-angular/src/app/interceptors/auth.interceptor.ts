@@ -20,7 +20,9 @@ export class AuthInterceptor implements HttpInterceptor {
     let theUser = this.securityService.activeUserSession
     const token = theUser["token"];
     // Si la solicitud es para la ruta de "login", no adjuntes el token
-    if (request.url.includes('/login') || request.url.includes('/token-validation')) {
+    if (request.url.includes('/login') ||
+           request.url.includes('/token-validation') ||
+           request.url.includes('/auth/github')) {
       console.log("no se pone token")
       return next.handle(request);
     } else {
