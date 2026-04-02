@@ -10,6 +10,7 @@ import { catchError, Observable } from 'rxjs';
 import { SecurityService } from '../services/security.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { throwError } from 'rxjs';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -47,12 +48,10 @@ export class AuthInterceptor implements HttpInterceptor {
             });
           }
 
-          return new Observable<never>();
-
-        }));
+          return throwError(() => err);
+        })
+      );
     }
-    // Continúa con la solicitud modificada
-
   }
 
 }

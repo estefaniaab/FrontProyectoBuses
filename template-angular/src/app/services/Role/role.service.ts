@@ -23,8 +23,10 @@ export class RoleService {
     return this.http.put<Role>(`${environment.url_ms_security}/roles/${theRole.id}`, theRole);
   }
 
-  delete(id: string) {
-    return this.http.delete<Role>(`${environment.url_ms_security}/roles/${id}`);
+  delete(id: string): Observable<any> {
+    return this.http.delete<Role>(`${environment.url_ms_security}/roles/${id}`,
+      { observe: 'response' }
+    );
   }
 
 }

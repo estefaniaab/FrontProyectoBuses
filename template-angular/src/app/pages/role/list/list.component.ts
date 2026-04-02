@@ -47,17 +47,22 @@ export class ListComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.rolesService.delete(id).
-          subscribe(data => {
-            Swal.fire(
-              'Eliminado!',
-              'Registro eliminado correctamente.',
-              'success'
-            )
+        this.rolesService.delete(id).subscribe({  // ✅ objeto con {}
+          next: () => {
+            Swal.fire('Eliminado!', 'Registro eliminado correctamente.', 'success');
             this.ngOnInit();
-          });
+          },
+          error: (err) => {
+            console.log('Status:', err.status);      // ✅ agrega esto
+              console.log('Error completo:', err);
+            if (err.status === 409) {
+              Swal.fire('No permitido', 'No se puede eliminar el rol porque tiene usuarios asignados.', 'warning');
+            } else {
+              Swal.fire('Error', 'Ocurrió un error al eliminar.', 'error');
+            }
+          }
+        });
       }
-    })
+    });
   }
-
 }
