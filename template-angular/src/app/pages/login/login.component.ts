@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { User } from '../../models/Users/user.model';
 import { SecurityService } from '../../services/security.service';
 import { GithubAuthService } from '../../services/OAuth/github-auth.service';
+import { MicrosoftAuthService } from '../../services/OAuth/microsoft-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private securityService: SecurityService,
     private githubAuthService: GithubAuthService,
+    private microsoftAuthService: MicrosoftAuthService,
     private router: Router
   ) {}
 
@@ -37,6 +39,16 @@ export class LoginComponent implements OnInit, OnDestroy {
   // login con GitHub
   loginWithGithub() {
     this.githubAuthService.getGithubUrl().subscribe({
+      next: (res) => {
+        window.location.href = res.url;
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  // login con Microsoft
+  loginWithMicrosoft() {
+    this.microsoftAuthService.getMicrosoftUrl().subscribe({
       next: (res) => {
         window.location.href = res.url;
       },
