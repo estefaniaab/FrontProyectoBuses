@@ -26,5 +26,12 @@ export class UserService {
   delete(id: string) {
     return this.http.delete<User>(`${environment.url_ms_security}/users/${id}`);
   }
+  unlinkGithub(userId: string): Observable<any> {
+    return this.http.put(
+      `${environment.url_ms_security}/users/${userId}/unlink-github`,
+      null,
+      { responseType: 'text' }
+    );
+  }
 
 }

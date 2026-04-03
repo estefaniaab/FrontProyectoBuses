@@ -164,7 +164,7 @@ export class ManageComponent implements OnInit {
       photo: formValue.photo,
       user: { id: formValue.user }
     };
-    this.profilesService.update(profileToSend).subscribe({
+    this.profilesService.update(this.profile.id, profileToSend).subscribe({
       next: (profile) => {
         console.log('Profile updated successfully:', profile);
         Swal.fire({
@@ -176,6 +176,26 @@ export class ManageComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating profile:', error);
+      }
+    });
+  }
+  unlinkGithub() {
+    Swal.fire({
+      title: '¿Desvincular GitHub?',
+      text: '¿Está seguro que desea desvincular su cuenta de GitHub?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, desvincular',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.unlinkGithub(this.profile.user.id).subscribe({
+          next: () => {
+            Swal.fire('Desvinculado', 'Cuenta GitHub desvinculada correctamente.', 'success');
+            this.profile.user.githubUsername = null;
+          },
+          error: (err) => console.error(err)
+        });
       }
     });
   }

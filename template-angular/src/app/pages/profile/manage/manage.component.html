@@ -21,6 +21,15 @@
                 </div>
               </div>
               <br>
+              <div class="row" *ngIf="profile.user?.githubUsername">
+                <div class="col-3">GitHub</div>
+                <div class="col-9">
+                  <input type="text" class="form-control"
+                         [value]="profile.user?.githubUsername"
+                         disabled>
+                </div>
+              </div>
+              <br>
               <div class="row">
                 <div class="col-3">Usuario</div>
                 <div class="col-9">
@@ -51,7 +60,12 @@
               <div class="row">
                 <div class="col-3">Foto</div>
                 <div class="col-9">
-                  <input type="file" class="form-control" (change)="onFileSelected($event)">
+                  <!-- ✅ Solo mostrar input en create y update -->
+                  <input type="file" class="form-control"
+                         (change)="onFileSelected($event)"
+                         *ngIf="mode==2 || mode==3">
+
+                  <!-- ✅ En view solo mostrar la foto -->
                   <div *ngIf="photoPreview" class="mt-2">
                     <img [src]="photoPreview" alt="Preview" width="80" height="80" class="rounded-circle" />
                   </div>
@@ -71,6 +85,8 @@
                           *ngIf="mode==2">Crear</button>
                   <button type="button" class="btn btn-warning btn-block" (click)="update()"
                           *ngIf="mode==3">Actualizar</button>
+                  <button type="button" class="btn btn-danger btn-block" (click)="unlinkGithub()"
+                          *ngIf="mode==3">Desvincular GitHub</button>
                 </div>
               </div>
             </div>

@@ -19,8 +19,8 @@ export class ProfileService {
     delete newProfile.id;
     return this.http.post<Profile>(`${environment.url_ms_security}/profiles`, newProfile);
   }
-  update(theProfile: Profile): Observable<Profile> {
-    return this.http.put<Profile>(`${environment.url_ms_security}/profiles/${theProfile.id}`, theProfile);
+  update(id: string, data: any): Observable<Profile> {
+    return this.http.put<Profile>(`${environment.url_ms_security}/profiles/${id}`, data);
   }
 
   delete(id: string) {

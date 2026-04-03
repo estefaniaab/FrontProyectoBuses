@@ -12,4 +12,19 @@ export class GithubAuthService {
       `${environment.url_ms_security}/auth/github/url`
     );
   }
+  completeRegistration(
+    githubUsername: string,
+    name: string,
+    photo: string,
+    email: string
+  ): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(
+      `${environment.url_ms_security}/auth/github/complete-registration`,
+      null,
+      {
+        params: { githubUsername, name, photo, email }
+      }
+    );
+  }
+
 }

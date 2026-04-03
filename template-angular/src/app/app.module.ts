@@ -15,6 +15,7 @@ import { ComponentsModule } from './components/components.module';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthenticatedGuard} from './guards/authenticated.guard';
 import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
+import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
     AppComponent,
     AdminLayoutComponent,
     AuthLayoutComponent,
+    GithubEmailComponent,
   ],
   providers: [
     {
