@@ -107,4 +107,19 @@ export class SecurityService {
     let sessionActual = localStorage.getItem('session');
     return sessionActual;
   }
+
+  saveOAuthSession(token: string) {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    let data: any = {
+      id: payload.id,
+      name: payload.name,
+      email: payload.email,
+      password: '',
+      token: token
+    };
+
+    localStorage.setItem('session', JSON.stringify(data));
+    this.setUser(data);
+  }
 }

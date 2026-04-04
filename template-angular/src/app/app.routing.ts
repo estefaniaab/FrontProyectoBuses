@@ -6,13 +6,16 @@ import { Routes, RouterModule } from '@angular/router';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
+import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
+import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
 
 const routes: Routes =[
+    {
+      path: '',
+      redirectTo: 'login',
+      pathMatch: 'full',
+    },
   {
-    path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full',
-  }, {
     path: '',
     component: AdminLayoutComponent,
     children: [
@@ -34,6 +37,14 @@ const routes: Routes =[
   {
     path: 'auth/github/email-required',
     component: GithubEmailComponent
+  },
+  {
+    path: 'auth/github/success',
+    component: GithubSuccessComponent
+  },
+  {
+    path: 'auth/microsoft/success',
+    component: MicrosoftSuccessComponent
   },
   {
     path: '**',

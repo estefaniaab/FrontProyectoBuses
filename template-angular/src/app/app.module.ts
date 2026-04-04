@@ -16,6 +16,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthenticatedGuard} from './guards/authenticated.guard';
 import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
+import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
+import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
 
 
 @NgModule({
@@ -33,6 +35,8 @@ import { GithubEmailComponent } from './pages/oauth/github-email/github-email.co
     AdminLayoutComponent,
     AuthLayoutComponent,
     GithubEmailComponent,
+    MicrosoftSuccessComponent,
+    GithubSuccessComponent,
   ],
   providers: [
     {
