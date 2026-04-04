@@ -4,6 +4,7 @@ import { User } from '../../models/Users/user.model';
 import { SecurityService } from '../../services/security.service';
 import { GithubAuthService } from '../../services/OAuth/github-auth.service';
 import { MicrosoftAuthService } from '../../services/OAuth/microsoft-auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -27,11 +28,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   login() {
     this.securityService.login(this.user).subscribe({
       next: (response) => {
+        console.log('LOGIN RESPONSE:', response);
         this.securityService.saveSession(response);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Error en login:', err);
+        Swal.fire({
+          title: 'Error',
+          text: 'Email o contraseña incorrectos.',
+          icon: 'error',
+        });
       }
     });
   }
