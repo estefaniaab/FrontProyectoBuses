@@ -8,31 +8,13 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
 import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
 import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
+import { GoogleSuccessComponent } from './pages/oauth/google-success/google-success.component';
 
-const routes: Routes =[
-    {
-      path: '',
-      redirectTo: 'login',
-      pathMatch: 'full',
-    },
+const routes: Routes = [
   {
     path: '',
-    component: AdminLayoutComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: () => import('src/app/layouts/admin-layout/admin-layout.module').then(m => m.AdminLayoutModule)
-      }
-    ]
-  }, {
-    path: '',
-    component: AuthLayoutComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: () => import('src/app/layouts/auth-layout/auth-layout.module').then(m => m.AuthLayoutModule)
-      }
-    ]
+    redirectTo: 'login',
+    pathMatch: 'full',
   },
   {
     path: 'auth/github/email-required',
@@ -47,21 +29,43 @@ const routes: Routes =[
     component: MicrosoftSuccessComponent
   },
   {
+    path: 'auth/google/success',
+    component: GoogleSuccessComponent
+  },
+  {
+    path: '',
+    component: AdminLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/layouts/admin-layout/admin-layout.module').then(m => m.AdminLayoutModule)
+      }
+    ]
+  },
+  {
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/layouts/auth-layout/auth-layout.module').then(m => m.AuthLayoutModule)
+      }
+    ]
+  },
+  {
     path: '**',
     redirectTo: 'dashboard'
   },
-
 ];
 
 @NgModule({
   imports: [
     CommonModule,
     BrowserModule,
-    RouterModule.forRoot(routes,{
+    RouterModule.forRoot(routes, {
       useHash: true
     })
   ],
-  exports: [
-  ],
+  exports: [],
 })
 export class AppRoutingModule { }

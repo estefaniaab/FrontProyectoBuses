@@ -18,6 +18,7 @@ import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
 import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
 import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
+import { GoogleSuccessComponent } from './pages/oauth/google-success/google-success.component';
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { GithubSuccessComponent } from './pages/oauth/github-success/github-succ
     GithubEmailComponent,
     MicrosoftSuccessComponent,
     GithubSuccessComponent,
+    GoogleSuccessComponent,
   ],
   providers: [
     {
