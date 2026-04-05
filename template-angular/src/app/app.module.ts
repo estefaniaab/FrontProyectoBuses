@@ -18,6 +18,9 @@ import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
 import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
 import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
+import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component'
 
 
 @NgModule({
@@ -27,6 +30,8 @@ import { GithubSuccessComponent } from './pages/oauth/github-success/github-succ
     HttpClientModule,
     ComponentsModule,
     NgbModule,
+    RecaptchaModule,
+    RecaptchaFormsModule,
     RouterModule,
     AppRoutingModule
   ],
@@ -37,6 +42,8 @@ import { GithubSuccessComponent } from './pages/oauth/github-success/github-succ
     GithubEmailComponent,
     MicrosoftSuccessComponent,
     GithubSuccessComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   providers: [
     {

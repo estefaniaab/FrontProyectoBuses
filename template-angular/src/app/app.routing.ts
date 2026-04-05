@@ -8,12 +8,34 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
 import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
 import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 
 const routes: Routes =[
     {
       path: '',
       redirectTo: 'login',
       pathMatch: 'full',
+    },
+  {
+      path: 'auth/github/email-required',
+      component: GithubEmailComponent
+    },
+    {
+      path: 'auth/github/success',
+      component: GithubSuccessComponent
+    },
+    {
+      path: 'auth/microsoft/success',
+      component: MicrosoftSuccessComponent
+    },
+    {
+      path: 'forgot-password',
+      component: ForgotPasswordComponent
+    },
+    {
+      path: 'reset-password',
+      component: ResetPasswordComponent
     },
   {
     path: '',
@@ -33,18 +55,6 @@ const routes: Routes =[
         loadChildren: () => import('src/app/layouts/auth-layout/auth-layout.module').then(m => m.AuthLayoutModule)
       }
     ]
-  },
-  {
-    path: 'auth/github/email-required',
-    component: GithubEmailComponent
-  },
-  {
-    path: 'auth/github/success',
-    component: GithubSuccessComponent
-  },
-  {
-    path: 'auth/microsoft/success',
-    component: MicrosoftSuccessComponent
   },
   {
     path: '**',

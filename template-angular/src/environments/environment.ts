@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  url_ms_security: 'http://localhost:8080'
+  url_ms_security: 'http://localhost:8080',
+  recaptcha_site_key: '6LebPqgsAAAAADnnWbA-DjkrFKqiBYGrvrN9iS0m'
 };
 
 /*

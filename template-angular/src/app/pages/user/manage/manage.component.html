@@ -58,8 +58,9 @@
                   <div *ngIf="getTheFormGroup.password.errors && (getTheFormGroup.password.dirty || getTheFormGroup.password.touched || trySend)">
                     <strong *ngIf="getTheFormGroup.password.errors.required"
                             class="msnError">Requerido</strong>
-                    <strong *ngIf="getTheFormGroup.password.errors.minlength"
-                            class="msnError" >Inválido</strong>
+                    <strong *ngIf="getTheFormGroup.password.errors?.pattern" class="msnError">
+                      La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.
+                    </strong>
                   </div>
                 </div>
               </div>
