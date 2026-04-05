@@ -9,10 +9,10 @@ import { environment } from '../../../environments/environment';
 export class PasswordResetService {
   constructor(private http: HttpClient) {}
 
-  forgotPassword(email: string, recaptchaToken: string): Observable<any> {
+  forgotPassword(email: string, recaptchaTokenV3: string): Observable<any> {
     const params = new HttpParams()
       .set('email', email)
-      .set('recaptchaToken', recaptchaToken);
+      .set('recaptchaTokenV3', recaptchaTokenV3);
     return this.http.post(
       `${environment.url_ms_security}/auth/password/forgot`,
       null,
