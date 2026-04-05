@@ -22,7 +22,9 @@ export class AuthInterceptor implements HttpInterceptor {
     // Si la solicitud es para la ruta de "login", no adjuntes el token
     if (request.url.includes('/login') ||
            request.url.includes('/token-validation') ||
-           request.url.includes('/auth/github')) {
+           request.url.includes('/auth/github')||
+           request.url.includes('recaptcha.google.com') ||  // ✅ agregar
+           request.url.includes('/auth/password')){
       console.log("no se pone token")
       return next.handle(request);
     } else {
