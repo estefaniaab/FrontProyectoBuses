@@ -29,8 +29,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.securityService.login(this.user).subscribe({
       next: (response) => {
         console.log('LOGIN RESPONSE:', response);
-        this.securityService.saveSession(response);
-        this.router.navigate(['/dashboard']);
+
+        sessionStorage.setItem('twoFactorData', JSON.stringify({
+          challengeId: response.challengeId,
+          maskedEmail: response.maskedEmail,
+          expiresInSeconds: response.expiresInSeconds,
+          remainingAttempts: response.remainingAttempts
+        }));
+
+        this.router.navigate(['/verify-2fa']);
       },
       error: (err) => {
         console.error('Error en login:', err);

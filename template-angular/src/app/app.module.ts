@@ -22,6 +22,7 @@ import { RecaptchaModule, RecaptchaFormsModule, RECAPTCHA_V3_SITE_KEY, Recaptcha
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component'
 import { environment } from '../environments/environment';
+import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 
 
 @NgModule({
@@ -46,6 +47,7 @@ import { environment } from '../environments/environment';
     GithubSuccessComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    Verify2faComponent,
   ],
   providers: [
     {

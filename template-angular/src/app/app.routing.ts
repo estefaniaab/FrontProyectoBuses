@@ -10,6 +10,7 @@ import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/micro
 import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 
 const routes: Routes =[
     {
@@ -36,6 +37,10 @@ const routes: Routes =[
     {
       path: 'reset-password',
       component: ResetPasswordComponent
+    },
+    {
+      path: 'verify-2fa',
+      component: Verify2faComponent
     },
   {
     path: '',
