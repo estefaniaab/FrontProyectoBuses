@@ -11,6 +11,7 @@ import { GithubSuccessComponent } from './pages/oauth/github-success/github-succ
 import { GoogleSuccessComponent } from './pages/oauth/google-success/google-success.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 
 const routes: Routes = [
   {
@@ -37,6 +38,29 @@ const routes: Routes = [
     path: 'reset-password',
     component: ResetPasswordComponent
   },
+  { path: 'auth/github/email-required',
+      component: GithubEmailComponent
+    },
+    {
+      path: 'auth/github/success',
+      component: GithubSuccessComponent
+    },
+    {
+      path: 'auth/microsoft/success',
+      component: MicrosoftSuccessComponent
+    },
+    {
+      path: 'forgot-password',
+      component: ForgotPasswordComponent
+    },
+    {
+      path: 'reset-password',
+      component: ResetPasswordComponent
+    },
+    {
+      path: 'verify-2fa',
+      component: Verify2faComponent
+    },
   {
     path: '',
     redirectTo: 'login',
@@ -66,6 +90,7 @@ const routes: Routes = [
     path: '**',
     redirectTo: 'dashboard'
   },
+
 ];
 
 @NgModule({
