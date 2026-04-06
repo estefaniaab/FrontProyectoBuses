@@ -13,20 +13,16 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from './app.routing';
 import { ComponentsModule } from './components/components.module';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { AuthenticatedGuard} from './guards/authenticated.guard';
+import { AuthenticatedGuard } from './guards/authenticated.guard';
 import { NoAuthenticatedGuard } from './guards/no-authenticated.guard';
 import { GithubEmailComponent } from './pages/oauth/github-email/github-email.component';
 import { MicrosoftSuccessComponent } from './pages/oauth/microsoft-success/microsoft-success.component';
 import { GithubSuccessComponent } from './pages/oauth/github-success/github-success.component';
-<<<<<<< HEAD
 import { GoogleSuccessComponent } from './pages/oauth/google-success/google-success.component';
-=======
 import { RecaptchaModule, RecaptchaFormsModule, RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './pages/reset-password/reset-password.component'
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { environment } from '../environments/environment';
->>>>>>> 867845e9c83e0d4e0f3488a8817f86cc3dc15d71
-
 
 @NgModule({
   imports: [
@@ -48,12 +44,9 @@ import { environment } from '../environments/environment';
     GithubEmailComponent,
     MicrosoftSuccessComponent,
     GithubSuccessComponent,
-<<<<<<< HEAD
     GoogleSuccessComponent,
-=======
     ForgotPasswordComponent,
     ResetPasswordComponent,
->>>>>>> 867845e9c83e0d4e0f3488a8817f86cc3dc15d71
   ],
   providers: [
     {
@@ -67,7 +60,6 @@ import { environment } from '../environments/environment';
       provide: RECAPTCHA_V3_SITE_KEY,
       useValue: environment.recaptcha_site_key_v3
     }
-
   ],
   bootstrap: [AppComponent]
 })
