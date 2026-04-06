@@ -30,8 +30,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   login() {
     this.securityService.login(this.user).subscribe({
       next: (response) => {
-        this.securityService.saveSession(response);
-        this.router.navigate(['/dashboard']);
         console.log('LOGIN RESPONSE:', response);
 
         sessionStorage.setItem('twoFactorData', JSON.stringify({
