@@ -9,7 +9,7 @@ export class MicrosoftAuthService {
 
   getMicrosoftUrl(): Observable<{ url: string }> {
     return this.http.get<{ url: string }>(
-      `${environment.url_ms_security}/auth/microsoft/url`
+      `${environment.url_ms_security}/public/auth/microsoft/url`
     );
   }
 }

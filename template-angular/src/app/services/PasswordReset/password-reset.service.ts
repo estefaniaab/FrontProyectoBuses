@@ -14,7 +14,7 @@ export class PasswordResetService {
       .set('email', email)
       .set('recaptchaTokenV3', recaptchaTokenV3);
     return this.http.post(
-      `${environment.url_ms_security}/auth/password/forgot`,
+      `${environment.url_ms_security}/public/auth/password/forgot`,
       null,
       { params, responseType: 'text' }
     );
@@ -25,7 +25,7 @@ export class PasswordResetService {
       .set('token', token)
       .set('newPassword', newPassword);
     return this.http.post(
-      `${environment.url_ms_security}/auth/password/reset`,
+      `${environment.url_ms_security}/public/auth/password/reset`,
       null,
       { params, responseType: 'text' }
     );
