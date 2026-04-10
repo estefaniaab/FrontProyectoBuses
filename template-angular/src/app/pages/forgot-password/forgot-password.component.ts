@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PasswordResetService } from '../../services/PasswordReset/password-reset.service';
@@ -11,7 +11,7 @@ import { ReCaptchaV3Service } from 'ng-recaptcha';
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss']
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnInit, OnDestroy {
   email: string = '';
 
   constructor(
@@ -19,7 +19,17 @@ export class ForgotPasswordComponent {
     private recaptchaV3Service: ReCaptchaV3Service,
     private router: Router
   ) {}
+  ngOnInit(): void {
+      // Mostrar el badge al entrar a esta página
+      const badge = document.querySelector('.grecaptcha-badge') as HTMLElement;
+      if (badge) badge.style.visibility = 'visible';
+    }
 
+    ngOnDestroy(): void {
+      // Ocultarlo al salir de esta página
+      const badge = document.querySelector('.grecaptcha-badge') as HTMLElement;
+      if (badge) badge.style.visibility = 'hidden';
+    }
 
   submit() {
     if (!this.email) {
