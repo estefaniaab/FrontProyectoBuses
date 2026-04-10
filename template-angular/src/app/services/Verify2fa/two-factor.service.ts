@@ -10,18 +10,18 @@ export class TwoFactorService {
   constructor(private http: HttpClient) {}
 
   verifyCode(challengeId: string, code: string): Observable<any> {
-    return this.http.post(`${environment.url_ms_security}/security/2fa/verify`, {
+    return this.http.post(`${environment.url_ms_security}/public/security/2fa/verify`, {
       challengeId,
       code
     });
   }
   resendCode(challengeId: string): Observable<any> {
-    return this.http.post(`${environment.url_ms_security}/security/2fa/resend`, {
+    return this.http.post(`${environment.url_ms_security}/public/security/2fa/resend`, {
       challengeId
     });
   }
   cancel(challengeId: string): Observable<any> {
-    return this.http.post(`${environment.url_ms_security}/security/2fa/cancel`, {
+    return this.http.post(`${environment.url_ms_security}/public/security/2fa/cancel`, {
       challengeId
     });
   }
