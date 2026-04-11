@@ -85,6 +85,9 @@ export class Verify2faComponent implements OnInit, OnDestroy {
 
     this.twoFactorService.verifyCode(this.challengeId, this.code).subscribe({
       next: (res: any) => {
+        console.log('Respuesta 2FA:', res); // ✅ agregar
+              console.log('Token:', res.token);   // ✅ agregar
+              console.log('User:', res.user);
         sessionStorage.removeItem('twoFactorData');
         this.securityService.saveSession(res);
         this.router.navigate(['/dashboard']);

@@ -5,16 +5,27 @@ import { IconsComponent } from '../../pages/icons/icons.component';
 import { MapsComponent } from '../../pages/maps/maps.component';
 import { UserProfileComponent } from '../../pages/user-profile/user-profile.component';
 import { TablesComponent } from '../../pages/tables/tables.component';
+import { AuthenticatedGuard } from 'src/app/guards/authenticated.guard';
 
 export const AdminLayoutRoutes: Routes = [
-    { path: 'dashboard',      component: DashboardComponent },
-    { path: 'user-profile',   component: UserProfileComponent },
-    { path: 'tables',         component: TablesComponent },
-    { path: 'icons',          component: IconsComponent },
-    { path: 'maps',           component: MapsComponent },
+    {
+      path: 'dashboard',
+      component: DashboardComponent,
+      canActivate: [AuthenticatedGuard]
+    },
+    {
+      path: 'user-profile',
+      component: UserProfileComponent,
+      canActivate: [AuthenticatedGuard]
+    },
+    {
+      path: 'tables',
+      component: TablesComponent,
+      canActivate: [AuthenticatedGuard]
+    },
     {
       path: 'users',
-      //canActivate: [AuthenticatedGuard],
+      canActivate: [AuthenticatedGuard],
       children: [
         {
           path: '',
@@ -24,7 +35,7 @@ export const AdminLayoutRoutes: Routes = [
     },
     {
       path: 'roles',
-      //canActivate: [AuthenticatedGuard],
+      canActivate: [AuthenticatedGuard],
       children: [
         {
           path: '',
@@ -34,7 +45,7 @@ export const AdminLayoutRoutes: Routes = [
     },
     {
       path: 'user-role',
-      //canActivate: [AuthenticatedGuard],
+      canActivate: [AuthenticatedGuard],
       children: [
         {
           path: '',
@@ -44,7 +55,7 @@ export const AdminLayoutRoutes: Routes = [
     },
     {
         path: 'profiles',
-        //canActivate: [AuthenticatedGuard],
+        canActivate: [AuthenticatedGuard],
         children: [
           {
             path: '',

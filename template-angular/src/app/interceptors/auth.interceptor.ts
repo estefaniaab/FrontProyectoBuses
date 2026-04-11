@@ -50,9 +50,18 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           Swal.fire({
-            title: 'No está autorizado para esta operación',
+            title: 'Sesión expirada o inválida',
             icon: 'error',
-            timer: 5000
+            timer: 3000
+          });
+          localStorage.removeItem('session');
+          this.router.navigateByUrl('/login');
+        } else if (err.status === 403) {  // ✅ agregar
+          Swal.fire({
+            title: 'Acceso denegado',
+            text: 'No tienes permisos para acceder a este recurso.',
+            icon: 'error',
+            timer: 3000
           });
           this.router.navigateByUrl('/dashboard');
         } else if (err.status === 400) {
@@ -62,7 +71,6 @@ export class AuthInterceptor implements HttpInterceptor {
             timer: 5000
           });
         }
-
         return throwError(() => err);
       })
     );

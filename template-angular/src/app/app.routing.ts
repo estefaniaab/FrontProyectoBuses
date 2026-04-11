@@ -57,15 +57,16 @@ const routes: Routes = [
       path: 'reset-password',
       component: ResetPasswordComponent
     },
-    {
-      path: 'verify-2fa',
-      component: Verify2faComponent
-    },
+
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
   },
+ {
+      path: 'verify-2fa',
+      component: Verify2faComponent
+    },
   {
     path: '',
     component: AdminLayoutComponent,
