@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-register',
@@ -7,9 +8,100 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RegisterComponent implements OnInit {
 
-  constructor() { }
+  registerForm!: FormGroup;
 
-  ngOnInit() {
+  showPassword        = false;
+  showConfirmPassword = false;
+
+  req = {
+    length:  false,
+    upper:   false,
+    lower:   false,
+    number:  false,
+    special: false,
+  };
+
+  strengthScore = 0;
+
+  private readonly strengthColors = ['', '#E24B4A', '#BA7517', '#639922', '#0F6E56'];
+  private readonly strengthTexts  = ['—', 'Débil', 'Regular', 'Buena', 'Fuerte'];
+
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
+      nombre:          ['', Validators.required],
+      apellido:        ['', Validators.required],
+      email:           ['', [Validators.required, Validators.email]],
+      password:        ['', Validators.required],
+      confirmPassword: ['', Validators.required],
+      acceptTerms:     [false, Validators.requiredTrue],
+    });
+
+    this.registerForm.get('password')?.valueChanges.subscribe((val: string) => {
+      this.evaluatePassword(val || '');
+    });
   }
 
+  // ── Toggle visibilidad ────────────────────────────────────────────────────
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  // ── Evaluación de contraseña ──────────────────────────────────────────────
+
+  private evaluatePassword(val: string): void {
+    this.req.length  = val.length >= 8;
+    this.req.upper   = /[A-Z]/.test(val);
+    this.req.lower   = /[a-z]/.test(val);
+    this.req.number  = /[0-9]/.test(val);
+    this.req.special = /[^A-Za-z0-9]/.test(val);
+    this.strengthScore = Object.values(this.req).filter(Boolean).length;
+  }
+
+  // ── Getters de fortaleza ──────────────────────────────────────────────────
+
+  get strengthColor(): string {
+    return this.strengthColors[this.strengthScore] ?? '#8898aa';
+  }
+
+  get strengthText(): string {
+    const pass = this.registerForm.get('password')?.value;
+    return pass ? (this.strengthTexts[this.strengthScore] ?? '—') : '—';
+  }
+
+  strengthSegColor(index: number): string {
+    return index < this.strengthScore
+      ? (this.strengthColors[this.strengthScore] ?? '#dee2e6')
+      : '#dee2e6';
+  }
+
+  // ── Validación de coincidencia ────────────────────────────────────────────
+
+  get passwordsMatch(): boolean {
+    const p = this.registerForm.get('password')?.value;
+    const c = this.registerForm.get('confirmPassword')?.value;
+    return p === c;
+  }
+
+  // ── Helper errores ────────────────────────────────────────────────────────
+
+  isInvalid(field: string): boolean {
+    const ctrl = this.registerForm.get(field);
+    return !!ctrl && ctrl.invalid && (ctrl.dirty || ctrl.touched);
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+
+  onSubmit(): void {
+    if (this.registerForm.invalid || !this.passwordsMatch) return;
+    const { nombre, apellido, email, password } = this.registerForm.value;
+    console.log('Registrando usuario:', { nombre, apellido, email, password });
+    // this.authService.register(...)
+  }
 }

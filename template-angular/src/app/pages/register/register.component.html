@@ -15,68 +15,191 @@
     </svg>
   </div>
 </div>
+
 <!-- Page content -->
 <div class="container mt--8 pb-5">
-  <!-- Table -->
   <div class="row justify-content-center">
     <div class="col-lg-6 col-md-8">
       <div class="card bg-secondary shadow border-0">
-        <div class="card-header bg-transparent pb-5">
-          <div class="text-muted text-center mt-2 mb-4"><small>Sign up with</small></div>
-          <div class="text-center">
-            <a href="javascript:void(0)" class="btn btn-neutral btn-icon mr-4">
-              <span class="btn-inner--icon"><img src="assets/img/icons/common/github.svg"></span>
-              <span class="btn-inner--text">Github</span>
-            </a>
-            <a href="javascript:void(0)" class="btn btn-neutral btn-icon">
-              <span class="btn-inner--icon"><img src="assets/img/icons/common/google.svg"></span>
-              <span class="btn-inner--text">Google</span>
-            </a>
-          </div>
-        </div>
         <div class="card-body px-lg-5 py-lg-5">
+
           <div class="text-center text-muted mb-4">
-            <small>Or sign up with credentials</small>
+            <small>Crea tu cuenta</small>
           </div>
-          <form role="form">
-            <div class="form-group">
-              <div class="input-group input-group-alternative mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="ni ni-hat-3"></i></span>
+
+          <form [formGroup]="registerForm" role="form">
+
+            <!-- Nombre y Apellido -->
+            <div class="row">
+              <div class="col-6">
+                <div class="form-group">
+                  <div class="input-group input-group-alternative mb-1"
+                       [class.is-invalid]="isInvalid('nombre')">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                    </div>
+                    <input class="form-control"
+                           formControlName="nombre"
+                           placeholder="Nombre"
+                           type="text">
+                  </div>
+                  <small class="text-danger" *ngIf="isInvalid('nombre')">Campo requerido</small>
                 </div>
-                <input class="form-control" placeholder="Name" type="text">
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <div class="input-group input-group-alternative mb-1"
+                       [class.is-invalid]="isInvalid('apellido')">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                    </div>
+                    <input class="form-control"
+                           formControlName="apellido"
+                           placeholder="Apellido"
+                           type="text">
+                  </div>
+                  <small class="text-danger" *ngIf="isInvalid('apellido')">Campo requerido</small>
+                </div>
               </div>
             </div>
+
+            <!-- Email -->
             <div class="form-group">
-              <div class="input-group input-group-alternative mb-3">
+              <div class="input-group input-group-alternative mb-1"
+                   [class.is-invalid]="isInvalid('email')">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="ni ni-email-83"></i></span>
                 </div>
-                <input class="form-control" placeholder="Email" type="email">
+                <input class="form-control"
+                       formControlName="email"
+                       placeholder="Email"
+                       type="email">
               </div>
+              <small class="text-danger" *ngIf="isInvalid('email')">
+                Ingresa un email válido
+              </small>
             </div>
+
+            <!-- Contraseña -->
             <div class="form-group">
-              <div class="input-group input-group-alternative">
+              <div class="input-group input-group-alternative"
+                   [class.is-invalid]="isInvalid('password')">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                 </div>
-                <input class="form-control" placeholder="Password" type="password">
+                <input class="form-control"
+                       formControlName="password"
+                       placeholder="Contraseña"
+                       [type]="showPassword ? 'text' : 'password'">
+                <div class="input-group-append">
+                  <span class="input-group-text cursor-pointer" (click)="togglePassword()">
+                    <i [class]="showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="text-muted font-italic"><small>password strength: <span class="text-success font-weight-700">strong</span></small></div>
+
+            <!-- Barra de fortaleza -->
+            <div class="strength-bar-wrap">
+              <div class="strength-seg" [style.background]="strengthSegColor(0)"></div>
+              <div class="strength-seg" [style.background]="strengthSegColor(1)"></div>
+              <div class="strength-seg" [style.background]="strengthSegColor(2)"></div>
+              <div class="strength-seg" [style.background]="strengthSegColor(3)"></div>
+            </div>
+            <div class="strength-label text-muted font-italic mb-2">
+              <small>Fortaleza: <span [style.color]="strengthColor" [style.fontWeight]="'600'">{{ strengthText }}</span></small>
+            </div>
+
+            <!-- Requisitos de contraseña -->
+            <div class="req-list mb-3">
+              <div class="req-item" [class.met]="req.length">
+                <div class="req-dot">
+                  <i class="ni ni-check-bold" *ngIf="req.length"></i>
+                </div>
+                <span>Mínimo 8 caracteres</span>
+              </div>
+              <div class="req-item" [class.met]="req.upper">
+                <div class="req-dot">
+                  <i class="ni ni-check-bold" *ngIf="req.upper"></i>
+                </div>
+                <span>Al menos una mayúscula</span>
+              </div>
+              <div class="req-item" [class.met]="req.lower">
+                <div class="req-dot">
+                  <i class="ni ni-check-bold" *ngIf="req.lower"></i>
+                </div>
+                <span>Al menos una minúscula</span>
+              </div>
+              <div class="req-item" [class.met]="req.number">
+                <div class="req-dot">
+                  <i class="ni ni-check-bold" *ngIf="req.number"></i>
+                </div>
+                <span>Al menos un número</span>
+              </div>
+              <div class="req-item" [class.met]="req.special">
+                <div class="req-dot">
+                  <i class="ni ni-check-bold" *ngIf="req.special"></i>
+                </div>
+                <span>Al menos un carácter especial (!@#$%...)</span>
+              </div>
+            </div>
+
+            <!-- Confirmar contraseña -->
+            <div class="form-group">
+              <div class="input-group input-group-alternative"
+                   [class.is-invalid]="isInvalid('confirmPassword')">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                </div>
+                <input class="form-control"
+                       formControlName="confirmPassword"
+                       placeholder="Confirmar contraseña"
+                       [type]="showConfirmPassword ? 'text' : 'password'">
+                <div class="input-group-append">
+                  <span class="input-group-text cursor-pointer" (click)="toggleConfirmPassword()">
+                    <i [class]="showConfirmPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+                  </span>
+                </div>
+              </div>
+              <small class="text-success" *ngIf="passwordsMatch && registerForm.get('confirmPassword')?.value">
+                ✓ Las contraseñas coinciden
+              </small>
+              <small class="text-danger" *ngIf="!passwordsMatch && registerForm.get('confirmPassword')?.value">
+                ✗ Las contraseñas no coinciden
+              </small>
+            </div>
+
+            <!-- Checkbox -->
             <div class="row my-4">
               <div class="col-12">
                 <div class="custom-control custom-control-alternative custom-checkbox">
-                  <input class="custom-control-input" id="customCheckRegister" type="checkbox">
+                  <input class="custom-control-input"
+                         id="customCheckRegister"
+                         type="checkbox"
+                         formControlName="acceptTerms">
                   <label class="custom-control-label" for="customCheckRegister">
-                    <span class="text-muted">I agree with the <a href="#!">Privacy Policy</a></span>
+                    <span class="text-muted">Acepto la <a href="#!">Política de privacidad</a></span>
                   </label>
                 </div>
               </div>
             </div>
+
+            <!-- Botón -->
             <div class="text-center">
-              <button type="button" class="btn btn-primary mt-4">Create account</button>
+              <button type="button"
+                      class="btn btn-primary mt-4"
+                      [disabled]="registerForm.invalid || !passwordsMatch"
+                      (click)="onSubmit()">
+                Crear cuenta
+              </button>
             </div>
+
+            <div class="text-center mt-3">
+              <a routerLink="/login" class="text-light">
+                <small>Volver al login</small>
+              </a>
+            </div>
+
           </form>
         </div>
       </div>

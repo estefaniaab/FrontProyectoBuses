@@ -36,7 +36,8 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
     RecaptchaFormsModule,
     RecaptchaV3Module,
     RouterModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ReactiveFormsModule
   ],
   declarations: [
     AppComponent,

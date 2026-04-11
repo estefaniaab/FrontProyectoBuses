@@ -22,7 +22,7 @@ export class SecurityService {
   * @returns Respuesta HTTP la cual indica si el usuario tiene permiso de acceso
   */
   login(user: User): Observable<any> {
-    return this.http.post<any>(`${environment.url_ms_security}/security/login`, user);
+    return this.http.post<any>(`${environment.url_ms_security}/public/security/login`, user);
   }
 
   /**

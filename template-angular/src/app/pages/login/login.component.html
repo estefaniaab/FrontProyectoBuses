@@ -61,7 +61,12 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                 </div>
-                <input class="form-control" placeholder="Password" type="password" [(ngModel)]="user.password">
+                  <input class="form-control" placeholder="Password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="user.password" #pwdField>
+                <div class="input-group-append">
+                  <span class="input-group-text" style="cursor: pointer;" (click)="showPassword = !showPassword">
+                    <i [ngClass]="showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+                  </span>
+                </div>
               </div>
             </div>
             <div class="custom-control custom-control-alternative custom-checkbox">
@@ -81,7 +86,7 @@
           <a routerLink="/forgot-password" class="text-light"><small>¿Olvidó su contraseña?</small></a>
         </div>
         <div class="col-6 text-right">
-          <a href="javascript:void(0)" class="text-light"><small>Create new account</small></a>
+          <a routerLink="/register" class="text-light"><small>Create new account</small></a>
         </div>
       </div>
     </div>
