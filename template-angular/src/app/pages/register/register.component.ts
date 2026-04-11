@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { UserService } from 'src/app/services/User/user.service';
 
 @Component({
   selector: 'app-register',
@@ -26,12 +28,15 @@ export class RegisterComponent implements OnInit {
   private readonly strengthColors = ['', '#E24B4A', '#BA7517', '#639922', '#0F6E56'];
   private readonly strengthTexts  = ['—', 'Débil', 'Regular', 'Buena', 'Fuerte'];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
       nombre:          ['', Validators.required],
-      apellido:        ['', Validators.required],
       email:           ['', [Validators.required, Validators.email]],
       password:        ['', Validators.required],
       confirmPassword: ['', Validators.required],
@@ -43,17 +48,8 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  // ── Toggle visibilidad ────────────────────────────────────────────────────
-
-  togglePassword(): void {
-    this.showPassword = !this.showPassword;
-  }
-
-  toggleConfirmPassword(): void {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
-
-  // ── Evaluación de contraseña ──────────────────────────────────────────────
+  togglePassword(): void { this.showPassword = !this.showPassword; }
+  toggleConfirmPassword(): void { this.showConfirmPassword = !this.showConfirmPassword; }
 
   private evaluatePassword(val: string): void {
     this.req.length  = val.length >= 8;
@@ -64,11 +60,7 @@ export class RegisterComponent implements OnInit {
     this.strengthScore = Object.values(this.req).filter(Boolean).length;
   }
 
-  // ── Getters de fortaleza ──────────────────────────────────────────────────
-
-  get strengthColor(): string {
-    return this.strengthColors[this.strengthScore] ?? '#8898aa';
-  }
+  get strengthColor(): string { return this.strengthColors[this.strengthScore] ?? '#8898aa'; }
 
   get strengthText(): string {
     const pass = this.registerForm.get('password')?.value;
@@ -81,27 +73,50 @@ export class RegisterComponent implements OnInit {
       : '#dee2e6';
   }
 
-  // ── Validación de coincidencia ────────────────────────────────────────────
-
   get passwordsMatch(): boolean {
     const p = this.registerForm.get('password')?.value;
     const c = this.registerForm.get('confirmPassword')?.value;
     return p === c;
   }
 
-  // ── Helper errores ────────────────────────────────────────────────────────
-
   isInvalid(field: string): boolean {
     const ctrl = this.registerForm.get(field);
     return !!ctrl && ctrl.invalid && (ctrl.dirty || ctrl.touched);
   }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
-
   onSubmit(): void {
-    if (this.registerForm.invalid || !this.passwordsMatch) return;
-    const { nombre, apellido, email, password } = this.registerForm.value;
-    console.log('Registrando usuario:', { nombre, apellido, email, password });
-    // this.authService.register(...)
+   
+
+    if (this.registerForm.invalid || !this.passwordsMatch) {
+      console.log("Formulario inválido ❌");
+      return;
+    }
+
+    console.log("Formulario válido ✅");
+
+    const { nombre, email, password } = this.registerForm.value;
+
+    const newUser: any = {
+      name: nombre,
+      lastName: "",
+      email: email,
+      password: password,
+      confirmPassword: password
+    };
+
+    console.log("Enviando usuario:", newUser);
+
+    this.userService.create(newUser).subscribe({
+      next: (response) => {
+        console.log("Usuario creado:", response);
+        alert("Cuenta creada correctamente. Inicia sesión.");
+        this.registerForm.reset();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error("Error al crear usuario:", error);
+        alert("Error al crear cuenta");
+      }
+    });
   }
 }

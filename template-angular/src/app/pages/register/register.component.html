@@ -31,7 +31,7 @@
 
             <!-- Nombre y Apellido -->
             <div class="row">
-              <div class="col-6">
+              <div class="col-12">
                 <div class="form-group">
                   <div class="input-group input-group-alternative mb-1"
                        [class.is-invalid]="isInvalid('nombre')">
@@ -40,27 +40,13 @@
                     </div>
                     <input class="form-control"
                            formControlName="nombre"
-                           placeholder="Nombre"
+                           placeholder="Nombre y Apellido"
                            type="text">
                   </div>
                   <small class="text-danger" *ngIf="isInvalid('nombre')">Campo requerido</small>
                 </div>
               </div>
-              <div class="col-6">
-                <div class="form-group">
-                  <div class="input-group input-group-alternative mb-1"
-                       [class.is-invalid]="isInvalid('apellido')">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-single-02"></i></span>
-                    </div>
-                    <input class="form-control"
-                           formControlName="apellido"
-                           placeholder="Apellido"
-                           type="text">
-                  </div>
-                  <small class="text-danger" *ngIf="isInvalid('apellido')">Campo requerido</small>
-                </div>
-              </div>
+             
             </div>
 
             <!-- Email -->

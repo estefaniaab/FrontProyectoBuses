@@ -33,7 +33,7 @@ export class SecurityService {
    * @returns Respuesta HTTP del backend
    */
   register(data: { nombre: string; apellido: string; email: string; password: string }): Observable<any> {
-    return this.http.post<any>(`${environment.url_ms_security}/security/register`, data);
+    return this.http.post<any>(`${environment.url_ms_security}/public/security/register`, data);
   }
 
   /*
