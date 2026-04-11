@@ -21,7 +21,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     HttpClientModule,
     NgbModule,
-    ClipboardModule
+    ClipboardModule,
+    ReactiveFormsModule,
   ],
   declarations: [
     DashboardComponent,

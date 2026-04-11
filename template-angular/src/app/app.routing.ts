@@ -12,6 +12,7 @@ import { GoogleSuccessComponent } from './pages/oauth/google-success/google-succ
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
+import { RegisterComponent } from './pages/register/register.component'; // ← NUEVO
 
 const routes: Routes = [
   {
@@ -38,29 +39,14 @@ const routes: Routes = [
     path: 'reset-password',
     component: ResetPasswordComponent
   },
-  { path: 'auth/github/email-required',
-      component: GithubEmailComponent
-    },
-    {
-      path: 'auth/github/success',
-      component: GithubSuccessComponent
-    },
-    {
-      path: 'auth/microsoft/success',
-      component: MicrosoftSuccessComponent
-    },
-    {
-      path: 'forgot-password',
-      component: ForgotPasswordComponent
-    },
-    {
-      path: 'reset-password',
-      component: ResetPasswordComponent
-    },
-    {
-      path: 'verify-2fa',
-      component: Verify2faComponent
-    },
+  {
+    path: 'verify-2fa',
+    component: Verify2faComponent
+  },
+  {
+    path: 'register',          // ← NUEVO
+    component: RegisterComponent
+  },
   {
     path: '',
     redirectTo: 'login',
@@ -72,7 +58,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadChildren: () => import('src/app/layouts/admin-layout/admin-layout.module').then(m => m.AdminLayoutModule)
+       loadChildren: () => import('./layouts/admin-layout/admin-layout.module').then(m => m.AdminLayoutModule)
       }
     ]
   },
@@ -82,7 +68,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadChildren: () => import('src/app/layouts/auth-layout/auth-layout.module').then(m => m.AuthLayoutModule)
+      loadChildren: () => import('./layouts/auth-layout/auth-layout.module').then(m => m.AuthLayoutModule)
       }
     ]
   },
@@ -90,7 +76,6 @@ const routes: Routes = [
     path: '**',
     redirectTo: 'dashboard'
   },
-
 ];
 
 @NgModule({

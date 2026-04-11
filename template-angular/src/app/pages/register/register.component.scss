@@ -1,0 +1,82 @@
+// ── Cursor ────────────────────────────────────────────────────────────────
+
+.cursor-pointer {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    color: #525f7f;
+  }
+}
+
+// ── Barra de fortaleza ────────────────────────────────────────────────────
+
+.strength-bar-wrap {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0 4px;
+}
+
+.strength-seg {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: #dee2e6;
+  transition: background 0.3s ease;
+}
+
+.strength-label {
+  margin-bottom: 6px;
+}
+
+// ── Lista de requisitos ───────────────────────────────────────────────────
+
+.req-list {
+  background: #f6f9fc;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.req-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #8898aa;
+  padding: 3px 0;
+  transition: color 0.2s ease;
+
+  &.met {
+    color: #3B6D11;
+
+    .req-dot {
+      background: #639922;
+      border-color: #639922;
+    }
+  }
+}
+
+.req-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 8px;
+    color: #fff;
+  }
+}
+
+// ── Estados inválidos ─────────────────────────────────────────────────────
+
+.input-group.is-invalid {
+  border: 1px solid #f5365c;
+  border-radius: 4px;
+}
