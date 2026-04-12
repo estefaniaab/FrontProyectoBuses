@@ -142,6 +142,7 @@ export class ManageComponent implements OnInit {
     }
       const formValue = this.theFormGroup.value;
       const profileToSend = {
+        id: this.userRole.id,
         user: { id: formValue.user },
         role: { id: formValue.role }
       };

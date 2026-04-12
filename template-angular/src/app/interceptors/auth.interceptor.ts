@@ -6,54 +6,65 @@ import {
   HttpInterceptor,
   HttpErrorResponse
 } from '@angular/common/http';
-import { catchError, Observable } from 'rxjs';
-import { SecurityService } from '../services/security.service';
+import { catchError, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { throwError } from 'rxjs';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private securityService: SecurityService,
-    private router: Router) { }
+  constructor(private router: Router) {}
+
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    let theUser = this.securityService.activeUserSession
-    const token = theUser["token"];
-    // Si la solicitud es para la ruta de "login", no adjuntes el token
-    if (request.url.includes('/login') ||
-           request.url.includes('/token-validation') ||
-           request.url.includes('/auth/github')) {
-      console.log("no se pone token")
-      return next.handle(request);
-    } else {
-      console.log("colocando token " + token)
-      // Adjunta el token a la solicitud
-      const authRequest = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return next.handle(authRequest).pipe(
-        catchError((err: HttpErrorResponse) => {
-          if (err.status === 401) {
-            Swal.fire({
-              title: 'No está autorizado para esta operación',
-              icon: 'error',
-              timer: 5000
-            });
-            this.router.navigateByUrl('/dashboard');
-          } else if (err.status === 400) {
-            Swal.fire({
-              title: 'Existe un error, contacte al administrador',
-              icon: 'error',
-              timer: 5000
-            });
-          }
+    const session = localStorage.getItem('session');
+    let token: string | null = null;
 
-          return throwError(() => err);
-        })
-      );
+    if (session) {
+      const data = JSON.parse(session);
+      token = data?.token || null;
     }
-  }
 
+    if (
+      request.url.includes('/login') ||
+      request.url.includes('/token-validation') ||
+      request.url.includes('/auth/github') ||
+      request.url.includes('/auth/google') ||
+      request.url.includes('/auth/microsoft') ||
+      request.url.includes('recaptcha.google.com') ||
+      request.url.includes('/auth/password') ||
+      request.method === 'OPTIONS'
+    ) {
+      return next.handle(request);
+    }
+
+    if (!token) {
+      return next.handle(request);
+    }
+
+    const authRequest = request.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return next.handle(authRequest).pipe(
+      catchError((err: HttpErrorResponse) => {
+        if (err.status === 401) {
+          Swal.fire({
+            title: 'No está autorizado para esta operación',
+            icon: 'error',
+            timer: 5000
+          });
+          this.router.navigateByUrl('/dashboard');
+        } else if (err.status === 400) {
+          Swal.fire({
+            title: 'Existe un error, contacte al administrador',
+            icon: 'error',
+            timer: 5000
+          });
+        }
+
+        return throwError(() => err);
+      })
+    );
+  }
 }

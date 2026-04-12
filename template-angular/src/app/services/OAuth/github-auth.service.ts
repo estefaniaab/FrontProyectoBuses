@@ -9,7 +9,7 @@ export class GithubAuthService {
 
   getGithubUrl(): Observable<{ url: string }> {
     return this.http.get<{ url: string }>(
-      `${environment.url_ms_security}/auth/github/url`
+      `${environment.url_ms_security}/public/auth/github/url`
     );
   }
   completeRegistration(
@@ -19,7 +19,7 @@ export class GithubAuthService {
     email: string
   ): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(
-      `${environment.url_ms_security}/auth/github/complete-registration`,
+      `${environment.url_ms_security}/public/auth/github/complete-registration`,
       null,
       {
         params: { githubUsername, name, photo, email }

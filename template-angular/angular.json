@@ -25,14 +25,17 @@
             "allowedCommonJsDependencies": [
               "chart.js"
             ],
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
+          "assets": [
+  "src/favicon.ico",
+  "src/assets"
+],
             "styles": [
-              "src/styles.scss",
-              "src/assets/scss/argon.scss"
-            ],
+  "src/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css",
+  "src/assets/vendor/nucleo/css/nucleo.css",
+  "src/assets/vendor/nucleo/css/nucleo-svg.css",
+  "src/styles.scss",
+  "src/assets/scss/argon.scss"
+],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js",
               "node_modules/clipboard/dist/clipboard.min.js"
@@ -113,7 +116,7 @@
             "scripts": [],
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/app/assets"
             ]
           }
         },

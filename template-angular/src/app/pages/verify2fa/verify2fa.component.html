@@ -1,0 +1,99 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0">Verificación de segundo factor</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form">
+            <div class="card-body container">
+
+              <div class="row">
+                <div class="col-12 text-center">
+                  <p class="mb-0">
+                    Ingrese el código de 6 dígitos enviado a su email
+                    <strong>{{ maskedEmail }}</strong>
+                  </p>
+                </div>
+              </div>
+              <br>
+
+              <div class="row">
+                <div class="col-3">Código 2FA</div>
+                <div class="col-9">
+                  <input
+                    type="text"
+                    class="form-control text-center"
+                    maxlength="6"
+                    [value]="code"
+                    (input)="onCodeInput($event)"
+                    (paste)="onPaste($event)"
+                    placeholder="Ingrese el código de 6 dígitos"
+                  >
+                  <small class="text-muted">
+                    Solo números, máximo 6 dígitos.
+                  </small>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Tiempo restante</div>
+                <div class="col-9">
+                  <span class="font-weight-bold">{{ formatTime(timeLeft) }}</span>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Intentos restantes</div>
+                <div class="col-9">
+                  <span class="font-weight-bold">{{ remainingAttempts }}</span>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Ayuda</div>
+                <div class="col-9">
+                  <span>¿No recibió el código? Revisar spam o </span>
+                  <a href="javascript:void(0)" (click)="resendCode()">reenviar</a>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button
+                    type="button"
+                    class="btn btn-primary mr-2"
+                    (click)="verifyCode()">
+                    Verificar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="cancelAndBack()">
+                    Volver a login
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

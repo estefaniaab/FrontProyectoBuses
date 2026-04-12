@@ -21,7 +21,7 @@ export class UserRoleService {
     delete newUserRole.id;
     // Construir la URL con los IDs de usuario y rol
     return this.http.post<UserRole>(
-      `${environment.url_ms_security}/user-role/user/${newUserRole.user}/role/${newUserRole.role}`,
+      `${environment.url_ms_security}/user-role/user/${newUserRole.user.id}/role/${newUserRole.role.id}`,
       newUserRole
     );
   }
