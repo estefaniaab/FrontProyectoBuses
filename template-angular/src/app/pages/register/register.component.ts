@@ -85,7 +85,7 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
-   
+
 
     if (this.registerForm.invalid || !this.passwordsMatch) {
       console.log("Formulario inválido ❌");
@@ -113,9 +113,26 @@ export class RegisterComponent implements OnInit {
         this.registerForm.reset();
         this.router.navigate(['/login']);
       },
+
       error: (error) => {
         console.error("Error al crear usuario:", error);
-        alert("Error al crear cuenta");
+        console.error("error.status:", error.status);
+        console.error("error.error:", error.error);
+
+        let mensaje = "Error al crear cuenta";
+
+        if (error.status === 409 || error.status === 400) {
+          // Conflicto: email ya registrado (ajusta el código según tu backend)
+          mensaje = "El correo ya está registrado. Intenta con otro.";
+        } else if (typeof error.error === 'string' && error.error.trim() !== '') {
+          mensaje = error.error;
+        } else if (error.error?.message) {
+          mensaje = error.error.message;
+        } else if (error.message) {
+          mensaje = error.message;
+        }
+
+        alert(mensaje);
       }
     });
   }
