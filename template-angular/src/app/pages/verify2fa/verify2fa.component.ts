@@ -117,17 +117,21 @@ export class Verify2faComponent implements OnInit, OnDestroy {
         }
         this.timeLeft = res.expiresInSeconds;
         this.remainingAttempts = res.remainingAttempts;
+        sessionStorage.setItem('twoFactorData', JSON.stringify({
+          challengeId: this.challengeId,
+          maskedEmail: this.maskedEmail,
+          remainingAttempts: this.remainingAttempts,
+          expiresInSeconds: this.timeLeft
+        }));
+
         this.startTimer();
-
-
         Swal.fire('Enviado', 'Se reenvió un nuevo código a su correo.', 'success');
       },
       error: (err) => {
         const error = err.error;
-
         Swal.fire('Error', error.message || 'No fue posible reenviar el código.', 'error');
 
-        if (error.message?.includes('volver a iniciar sesión') || error.message?.includes('expiró')) {
+        if (error.message?.includes('volver a iniciar sesión') ||error.message?.includes('expiró')) {
           sessionStorage.removeItem('twoFactorData');
           this.router.navigate(['/login']);
         }
