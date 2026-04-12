@@ -25,6 +25,7 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 import { environment } from '../environments/environment';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 
+
 @NgModule({
   imports: [
     BrowserAnimationsModule,

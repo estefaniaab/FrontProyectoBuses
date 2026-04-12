@@ -16,24 +16,24 @@
             <div class="table-responsive">
               <table class="table">
                 <thead class="text-primary">
-                  <td>Id</td>
                   <td>Usuario</td>
+                  <td>Email</td>
                   <td>Rol</td>
                   <td>Acciones</td>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let userRole of usersRoles">
-                    <td>{{ userRole.id  | slice:0:8 }}</td>
-                    <td>{{ getUserName(userRole.user) }}</td>
-                    <td>{{ getRoleName(userRole.role) }}</td>
-                     <td>
-                      <button class="btn btn-info btn-sm" (click)="view(userRole.id)" title="Ver">
+                <tr *ngFor="let item of usersRoles">
+                  <td>{{ item.user?.name }}</td>
+                  <td>{{ item.user?.email }}</td>
+                  <td>{{ getRoleNames(item.roles) }}</td>
+                  <td>
+                      <button class="btn btn-info btn-sm" (click)="view(item.user.id)" title="Ver">
                         <i class="material-icons">visibility</i>
                       </button>
-                      <button class="btn btn-warning btn-sm" (click)="edit(userRole.id)" title="Editar">
+                      <button class="btn btn-warning btn-sm" (click)="edit(item.user.id)" title="Editar">
                         <i class="material-icons">edit</i>
                       </button>
-                      <button class="btn btn-danger btn-sm" (click)="delete(userRole.id)" title="Elminar">
+                      <button class="btn btn-danger btn-sm" (click)="delete(item.user.id)" title="Elminar">
                         <i class="material-icons">delete</i>
                       </button>
                     </td>

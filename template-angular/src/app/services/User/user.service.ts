@@ -27,4 +27,10 @@ export class UserService {
     return this.http.delete<User>(`${environment.url_ms_security}/users/${id}`);
   }
 
+  search(query: string) {
+    return this.http.get<User[]>(
+      `${environment.url_ms_security}/users/search?query=${encodeURIComponent(query)}`
+    );
+  }
+
 }

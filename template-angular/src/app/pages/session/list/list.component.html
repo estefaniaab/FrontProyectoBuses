@@ -1,0 +1,57 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Table -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0">Sessiones</h3>
+         <!-- <button class="btn btn-success btn-sm" (click)="create()" title="Agregar">
+            <i class="material-icons">add</i>
+          </button> -->
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Id</td>
+                <td>Tocken</td>
+                <td>Expiración</td>
+                <td>Code2FA</td>
+                <td>Type</td>
+                <td>Attempts</td>
+                <td>Active</td>
+                <td>Nombre Usuario</td>
+                <td>Id Usuario</td>
+              </tr>
+              <tr *ngFor="let session of sessions">
+                <td>{{session.id}}</td>
+                <td>{{session.token}}</td>
+                <td>{{session.expiration}}</td>
+                <td>{{session.code2FA ?? 'N/A'}}</td>
+                <td>{{session.type ?? 'N/A'}}</td>
+                <td>{{session.attempts ?? 'N/A'}}</td>
+                <td>{{session.active ?? 'N/A'}}</td>
+                <td>{{session.user?.name ?? 'N/A'}}</td>
+                <td>{{session.user?.id ?? 'N/A'}}</td>
+                <!-- <td>
+                  <button class="btn btn-info btn-sm" (click)="view(session.id)" title="Ver">
+                    <i class="material-icons">visibility</i>
+                  </button>
+                  <button class="btn btn-warning btn-sm" (click)="edit(session.id)" title="Editar">
+                    <i class="material-icons">edit</i>
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="delete(session.id)" title="Elminar">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>-->
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

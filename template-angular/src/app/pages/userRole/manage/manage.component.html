@@ -14,35 +14,58 @@
         <div class="card-body">
           <form class="form" [formGroup]="theFormGroup">
             <div class="card-body container">
-              <div class="row">
-                <div class="col-3">ID</div>
-                <div class="col-9">
-                  <input type="text" class="form-control" formControlName="id" disabled >
-                </div>
-              </div>
               <br>
               <div class="row">
                 <div class="col-3">Usuario</div>
                 <div class="col-9">
-                  <select class="form-control" formControlName="user" >
-                    <option value="">Seleccione un usuario</option>
-                    <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
-                  </select>
-                  <div *ngIf="getTheFormGroup.user.errors && (getTheFormGroup.user.dirty || getTheFormGroup.user.touched || trySend)">
-                    <strong *ngIf="getTheFormGroup.user.errors.required" class="msnError">Requerido</strong>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="searchText"
+                    [ngModelOptions]="{standalone: true}"
+                    (focus)="onUserInputFocus()"
+                    (input)="filterUsers()"
+                    (blur)="hideUserOptions()"
+                    [readonly]="mode !== 2"
+                    placeholder="Buscar por nombre o email">
+
+                  <div class="list-group mt-2" *ngIf="mode==2 && showUserOptions">
+                    <button
+                      type="button"
+                      class="list-group-item list-group-item-action"
+                      *ngFor="let user of filteredUsers"
+                      (click)="selectUser(user)">
+                      {{ user.name }} - {{ user.email }}
+                    </button>
+
+                    <div class="list-group-item text-muted" *ngIf="filteredUsers.length === 0">
+                      No se encontraron usuarios.
+                    </div>
+                  </div>
+
+                  <input type="hidden" formControlName="userId">
+
+                  <div *ngIf="getTheFormGroup['userId']?.errors && (getTheFormGroup['userId']?.dirty || getTheFormGroup['userId']?.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup['userId']?.errors?.['required']" class="msnError">
+                      Requerido
+                    </strong>
                   </div>
                 </div>
               </div>
               <br>
               <div class="row">
-                <div class="col-3">Rol</div>
+                <div class="col-3">Roles</div>
                 <div class="col-9">
-                  <select class="form-control" formControlName="role" >
-                    <option value="">Seleccione un rol</option>
-                    <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
-                  </select>
-                  <div *ngIf="getTheFormGroup.role.errors && (getTheFormGroup.role.dirty || getTheFormGroup.touched || trySend)">
-                    <strong *ngIf="getTheFormGroup.role.errors.required" class="msnError">Requerido</strong>
+                  <div *ngFor="let role of roles" class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [checked]="isChecked(role.id)"
+                      (change)="onRoleChange(role.id, $event)"
+                      [disabled]="mode==1">
+                    <label class="form-check-label">
+                      {{ role.name }}
+                    </label>
                   </div>
                 </div>
               </div>
