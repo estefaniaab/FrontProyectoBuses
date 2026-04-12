@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/Users/user.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +24,18 @@ export class SecurityService {
   login(user: User): Observable<any> {
     return this.http.post<any>(`${environment.url_ms_security}/public/security/login`, user);
   }
+
+  /**
+   * Registra un nuevo usuario en el sistema
+   * Envía nombre, apellido, email y contraseña al backend
+   * El backend se encarga de cifrar la contraseña y enviar el email de confirmación
+   * @param data Objeto con nombre, apellido, email y password
+   * @returns Respuesta HTTP del backend
+   */
+  register(data: { nombre: string; apellido: string; email: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${environment.url_ms_security}/public/security/register`, data);
+  }
+
   /*
   Guardar la información de usuario en el local storage
   */
@@ -70,7 +82,6 @@ export class SecurityService {
   public get activeUserSession(): User {
     return this.theUser.value;
   }
-
 
   /**
   * Permite cerrar la sesión del usuario

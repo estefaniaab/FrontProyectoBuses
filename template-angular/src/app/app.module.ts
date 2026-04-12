@@ -1,6 +1,6 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // ← ReactiveFormsModule agregado
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
@@ -25,6 +25,7 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 import { environment } from '../environments/environment';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 
+
 @NgModule({
   imports: [
     BrowserAnimationsModule,
@@ -36,7 +37,8 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
     RecaptchaFormsModule,
     RecaptchaV3Module,
     RouterModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ReactiveFormsModule
   ],
   declarations: [
     AppComponent,

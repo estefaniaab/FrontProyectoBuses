@@ -12,6 +12,7 @@ import { GoogleSuccessComponent } from './pages/oauth/google-success/google-succ
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
+import { RegisterComponent } from './pages/register/register.component'; // ← NUEVO
 
 const routes: Routes = [
   {
@@ -58,6 +59,10 @@ const routes: Routes = [
       component: ResetPasswordComponent
     },
 
+  {
+    path: 'register',          // ← NUEVO
+    component: RegisterComponent
+  },
   {
     path: '',
     redirectTo: 'login',

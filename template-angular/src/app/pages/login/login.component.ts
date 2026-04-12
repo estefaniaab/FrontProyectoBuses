@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 })
 export class LoginComponent implements OnInit, OnDestroy {
   user: User = new User();
+  showPassword: boolean = false;
 
   constructor(
     private securityService: SecurityService,
@@ -28,6 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   login() {
+    console.log("USER ENVIADO:", this.user);
     this.securityService.login(this.user).subscribe({
       next: (response) => {
         console.log('LOGIN RESPONSE:', response);

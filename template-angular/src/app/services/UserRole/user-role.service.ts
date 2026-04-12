@@ -2,35 +2,36 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { UserRole } from '../../models/UsersRoles/user-role.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserRoleService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  list(): Observable<UserRole[]> {
-      return this.http.get<UserRole[]>(`${environment.url_ms_security}/user-role`);
-    }
+  list(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.url_ms_security}/user-role/user`);
+  }
 
-  view(id: string): Observable<UserRole> {
-      return this.http.get<UserRole>(`${environment.url_ms_security}/user-role/${id}`);
-    }
-  create(newUserRole: UserRole): Observable<UserRole> {
-    delete newUserRole.id;
-    // Construir la URL con los IDs de usuario y rol
-    return this.http.post<UserRole>(
-      `${environment.url_ms_security}/user-role/user/${newUserRole.user.id}/role/${newUserRole.role.id}`,
-      newUserRole
+  view(userId: string): Observable<any> {
+    return this.http.get<any>(`${environment.url_ms_security}/user-role/user/${userId}`);
+  }
+
+  create(userId: string, roleIds: string[]): Observable<any> {
+    return this.http.post<any>(
+      `${environment.url_ms_security}/user-role/user/${userId}`,
+      { roleIds }
     );
   }
-  update(theUserRole: UserRole): Observable<UserRole> {
-    return this.http.put<UserRole>(`${environment.url_ms_security}/user-role/${theUserRole.id}`, theUserRole);
+
+  update(userId: string, roleIds: string[]): Observable<any> {
+    return this.http.put<any>(
+      `${environment.url_ms_security}/user-role/user/${userId}`,
+      { roleIds }
+    );
   }
 
-  delete(id: string) {
-    return this.http.delete<UserRole>(`${environment.url_ms_security}/user-role/${id}`);
+  delete(userId: string): Observable<any> {
+    return this.http.delete<any>(`${environment.url_ms_security}/user-role/user/${userId}`);
   }
-
 }

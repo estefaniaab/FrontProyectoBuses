@@ -1,11 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { Role } from '../../../models/Roles/role.model';
-import { User } from '../../../models/Users/user.model';
-import { UserRole } from '../../../models/UsersRoles/user-role.model';
-import { RoleService } from '../../../services/Role/role.service';
-import { UserService } from '../../../services/User/user.service';
 import { UserRoleService } from '../../../services/UserRole/user-role.service';
 
 @Component({
@@ -13,57 +8,45 @@ import { UserRoleService } from '../../../services/UserRole/user-role.service';
   templateUrl: './list.component.html',
 })
 export class ListComponent implements OnInit {
-  usersRoles: UserRole[] = [];
-  users: User[] = [];
-  roles: Role[] = [];
+  usersRoles: any[] = [];
+
   constructor(
     private usersRolesService: UserRoleService,
-    private userService: UserService,
-    private roleService: RoleService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.loadUsers();
-    this.loadRoles();
     this.list();
   }
 
-  loadUsers() {
-    this.userService.list().subscribe({
-      next: (users) => { this.users = users; },
-      error: () => { this.users = []; }
-    });
-  }
-
-  loadRoles() {
-    this.roleService.list().subscribe({
-      next: (roles) => { this.roles = roles; },
-      error: () => { this.roles = []; }
-    });
-  }
-
-  list(){
+  list(): void {
     this.usersRolesService.list().subscribe({
-      next: (usersRoles) => {
-        this.usersRoles = usersRoles;
+      next: (data) => {
+        this.usersRoles = data;
+      },
+      error: (error) => {
+        console.error(error);
+        this.usersRoles = [];
       }
     });
   }
-  create(){
+
+  create(): void {
     this.router.navigate(['/user-role/create']);
   }
-  view(id:string){
-    this.router.navigate(['/user-role/view/'+id]);
+
+  view(userId: string): void {
+    this.router.navigate(['/user-role/view/' + userId]);
   }
-  edit(id:string){
-    this.router.navigate(['/user-role/update/'+id]);
+
+  edit(userId: string): void {
+    this.router.navigate(['/user-role/update/' + userId]);
   }
-  delete(id:string){
-    console.log("Delete role with id:", id);
+
+  delete(userId: string): void {
     Swal.fire({
       title: 'Eliminar',
-      text: "Está seguro que quiere eliminar el registro?",
+      text: 'Está seguro que quiere eliminar todos los roles del usuario?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -72,25 +55,25 @@ export class ListComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.usersRolesService.delete(id).
-          subscribe(data => {
+        this.usersRolesService.delete(userId).subscribe({
+          next: () => {
             Swal.fire(
               'Eliminado!',
-              'Registro eliminado correctamente.',
+              'Roles eliminados correctamente.',
               'success'
-            )
-            this.ngOnInit();
-          });
+            );
+            this.list();
+          },
+          error: (error) => {
+            console.error(error);
+          }
+        });
       }
-    })
+    });
   }
 
-  getUserName(user: any): string {
-      return user ? user.name : 'Sin usuario';
-    }
-
-  getRoleName(role: any): string {
-    return role ? role.name : 'Sin usuario';
+  getRoleNames(roles: any[]): string {
+    if (!roles || roles.length === 0) return 'Sin roles';
+    return roles.map(role => role.name).join(', ');
   }
-
 }

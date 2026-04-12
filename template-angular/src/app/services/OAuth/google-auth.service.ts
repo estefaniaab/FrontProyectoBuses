@@ -9,7 +9,7 @@ export class GoogleAuthService {
 
   getGoogleUrl(): Observable<{ url: string }> {
     return this.http.get<{ url: string }>(
-      `${environment.url_ms_security}/auth/google/url`
+      `${environment.url_ms_security}/public/auth/google/url`
     );
   }
 }
