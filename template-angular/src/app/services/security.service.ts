@@ -21,10 +21,12 @@ export class SecurityService {
   * @param infoUsuario JSON con la información de correo y contraseña
   * @returns Respuesta HTTP la cual indica si el usuario tiene permiso de acceso
   */
-  login(user: User): Observable<any> {
-    return this.http.post<any>(`${environment.url_ms_security}/public/security/login`, user);
+  login(user: User, captchaToken: string): Observable<any> {
+    return this.http.post<any>(
+      `${environment.url_ms_security}/public/security/login?captchaToken=${captchaToken}`,
+      user
+    );
   }
-
   /**
    * Registra un nuevo usuario en el sistema
    * Envía nombre, apellido, email y contraseña al backend
