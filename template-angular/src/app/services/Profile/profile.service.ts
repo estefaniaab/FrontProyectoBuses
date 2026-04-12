@@ -26,4 +26,8 @@ export class ProfileService {
   delete(id: string) {
     return this.http.delete<Profile>(`${environment.url_ms_security}/profiles/${id}`);
   }
+
+  getMyProfile(): Observable<Profile> {
+    return this.http.get<Profile>(`${environment.url_ms_security}/profiles/me`);
+  }
 }

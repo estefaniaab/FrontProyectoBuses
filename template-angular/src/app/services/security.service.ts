@@ -44,6 +44,7 @@ export class SecurityService {
       id: dataSession["user"]["id"],
       name: dataSession["user"]["name"],
       email: dataSession["user"]["email"],
+      githubUsername: dataSession["user"]["githubUsername"],
       password: "",
       token: dataSession["token"]
     };
@@ -126,6 +127,7 @@ export class SecurityService {
       id: payload.id,
       name: payload.name,
       email: payload.email,
+      githubUsername: payload.githubUsername,
       password: '',
       token: token
     };

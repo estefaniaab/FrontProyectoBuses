@@ -1,40 +1,89 @@
-import { Component, OnInit, ElementRef} from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
-import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { SecurityService } from '../../services/security.service';
 import { User } from '../../models/Users/user.model';
 import { Subscription } from 'rxjs';
+import { ProfileService } from '../../services/Profile/profile.service';
+import { Profile } from '../../models/Profiles/profile.model';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
-  public focus;
+export class NavbarComponent implements OnInit, OnDestroy {
+  public focus: boolean;
   public listTitles: any[];
   public location: Location;
-  constructor(location: Location,  private element: ElementRef, private router: Router) {
+
+  currentUser: User | null = null;
+  userSubscription!: Subscription;
+
+  displayName: string = 'Usuario';
+  profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
+
+  constructor(
+    location: Location,
+    private element: ElementRef,
+    private router: Router,
+    private securityService: SecurityService,
+    private profileService: ProfileService
+  ) {
     this.location = location;
   }
 
   ngOnInit() {
     this.listTitles = ROUTES.filter(listTitle => listTitle);
+
+    this.userSubscription = this.securityService.theUser.subscribe((user: User) => {
+      if (!user || !user.id) return;
+        console.log('USER EN NAVBAR:', user);
+            console.log('githubUsername:', user.githubUsername);
+            console.log('name:', user.name);
+
+      this.currentUser = user;
+
+      this.displayName = user.githubUsername && user.githubUsername.trim() !== ''
+        ? user.githubUsername
+        : (user.name || 'Usuario');
+
+      this.profileService.getMyProfile().subscribe({
+        next: (profile: Profile) => {
+          if (profile?.photo && profile.photo.trim() !== '') {
+            this.profileImage = profile.photo;
+          } else {
+            this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
+          }
+        },
+        error: (error) => {
+          console.error('Error cargando perfil:', error);
+          this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
+        }
+      });
+    });
   }
-  getTitle(){
-    var titlee = this.location.prepareExternalUrl(this.location.path());
-    if(titlee.charAt(0) === '#'){
-        titlee = titlee.slice( 1 );
+
+  getTitle() {
+    let titlee = this.location.prepareExternalUrl(this.location.path());
+
+    if (titlee.charAt(0) === '#') {
+      titlee = titlee.slice(1);
     }
 
-    for(var item = 0; item < this.listTitles.length; item++){
-        if(this.listTitles[item].path === titlee){
-            return this.listTitles[item].title;
-        }
+    for (let item = 0; item < this.listTitles.length; item++) {
+      if (this.listTitles[item].path === titlee) {
+        return this.listTitles[item].title;
+      }
     }
+
     return 'Dashboard';
   }
 
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
 }
-
