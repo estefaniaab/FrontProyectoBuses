@@ -32,15 +32,21 @@ export class ListComponent implements OnInit {
   }
 
   create(): void {
-    this.router.navigate(['/user-role/create']);
+    this.router.navigate(['/user-role/create'], {
+      queryParams: { returnTo: 'user-role-list' }
+    });
   }
 
   view(userId: string): void {
-    this.router.navigate(['/user-role/view/' + userId]);
+    this.router.navigate(['/user-role/view', userId], {
+      queryParams: { returnTo: 'user-role-list' }
+    });
   }
 
   edit(userId: string): void {
-    this.router.navigate(['/user-role/update/' + userId]);
+    this.router.navigate(['/user-role/update', userId], {
+      queryParams: { returnTo: 'user-role-list' }
+    });
   }
 
   delete(userId: string): void {

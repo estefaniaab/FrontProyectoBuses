@@ -22,6 +22,7 @@ export class ManageComponent implements OnInit {
   searchText: string = '';
   filteredUsers: User[] = [];
   showUserOptions: boolean = false;
+  returnTo: string = 'user-role-list';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -47,6 +48,10 @@ export class ManageComponent implements OnInit {
       this.mode = 2;
     } else if (currentUrl.includes('update')) {
       this.mode = 3;
+    }
+    const returnTo = this.activatedRoute.snapshot.queryParams['returnTo'];
+    if (returnTo) {
+        this.returnTo = returnTo;
     }
 
     if (this.activatedRoute.snapshot.params.id) {
@@ -147,7 +152,11 @@ export class ManageComponent implements OnInit {
   }
 
   back(): void {
-    this.router.navigate(['/user-role/list']);
+    if (this.returnTo === 'users-list') {
+      this.router.navigate(['/users/list']);
+    } else {
+      this.router.navigate(['/user-role/list']);
+    }
   }
 
   isChecked(roleId: string): boolean {
@@ -233,7 +242,9 @@ export class ManageComponent implements OnInit {
             : 'Registro actualizado correctamente.',
           icon: 'success',
         });
-        this.router.navigate(['/user-role/list']);
+        if (this.returnTo !== 'users-list') {
+          this.router.navigate(['/user-role/list']);
+        }
       },
       error: (error) => {
         console.error('Error updating grouped user roles:', error);

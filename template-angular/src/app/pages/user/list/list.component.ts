@@ -11,8 +11,9 @@ import Swal from 'sweetalert2';
 })
 export class ListComponent implements OnInit {
   users: User[] = [];
-  constructor(private usersService:UserService,
-              private router:Router
+  constructor(
+    private usersService:UserService,
+    private router:Router
   ) { }
 
   ngOnInit(): void {
@@ -61,4 +62,9 @@ export class ListComponent implements OnInit {
     })
   }
 
+ manageRoles(userId: string): void {
+   this.router.navigate(['/user-role/update', userId], {
+     queryParams: { returnTo: 'users-list' }
+   });
+ }
 }
