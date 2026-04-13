@@ -1,0 +1,38 @@
+/* Backdrop oscuro */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+/* Modal principal */
+.modal.d-block {
+  z-index: 1050;
+  overflow-y: auto;
+}
+
+/* Altura máxima del modal */
+.modal-content {
+  max-height: 90vh;
+}
+
+/* Scroll dentro del body */
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Scroll dentro de la tabla */
+.table-responsive {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+/* Hover bonito */
+tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
