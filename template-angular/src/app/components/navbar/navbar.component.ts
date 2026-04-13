@@ -23,12 +23,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   displayName: string = 'Usuario';
   profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
+  myProfileId: string = '';
 
   constructor(
     location: Location,
     private element: ElementRef,
     private router: Router,
-    private securityService: SecurityService,
+    public securityService: SecurityService,
     private profileService: ProfileService
   ) {
     this.location = location;
@@ -39,9 +40,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     this.userSubscription = this.securityService.theUser.subscribe((user: User) => {
       if (!user || !user.id) return;
-        console.log('USER EN NAVBAR:', user);
-            console.log('githubUsername:', user.githubUsername);
-            console.log('name:', user.name);
 
       this.currentUser = user;
 
@@ -51,6 +49,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       this.profileService.getMyProfile().subscribe({
         next: (profile: Profile) => {
+          this.myProfileId = profile?.id || '';
+
           if (profile?.photo && profile.photo.trim() !== '') {
             this.profileImage = profile.photo;
           } else {
@@ -63,6 +63,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  goToMyProfile(): void {
+    if (this.myProfileId) {
+      this.router.navigate(['/profiles/update', this.myProfileId]);
+    } else {
+      console.error('No se encontró el profileId del usuario logueado');
+    }
+  }
+
+  logout(): void {
+    this.securityService.logout();
   }
 
   getTitle() {

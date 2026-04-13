@@ -11,9 +11,9 @@ import { environment } from '../../environments/environment';
 export class SecurityService {
 
   theUser = new BehaviorSubject<User>(new User);
-  constructor(private http: HttpClient) {
-    this.verifyActualSession()
-  }
+  constructor(private http: HttpClient, private router: Router) {
+      this.verifyActualSession();
+    }
 
   /**
   * Realiza la petición al backend con el correo y la contraseña
@@ -88,9 +88,12 @@ export class SecurityService {
   * Permite cerrar la sesión del usuario
   * que estaba previamente logueado
   */
-  logout() {
-    localStorage.removeItem('session');
-    this.setUser(new User());
+  logout(): void {
+      localStorage.removeItem('session');
+      sessionStorage.removeItem('token');
+      sessionStorage.clear(); // opcional, pero útil si guardas más cosas temporales
+      this.setUser(new User());
+      this.router.navigate(['/login']);
   }
   /**
   * Permite verificar si actualmente en el local storage
