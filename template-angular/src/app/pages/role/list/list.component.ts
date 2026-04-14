@@ -56,15 +56,17 @@ export class ListComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.rolesService.delete(id).subscribe({
-          next: () => {
+          next: (response) => {
+            console.log('Delete response:', response);
             Swal.fire('Eliminado!', 'Registro eliminado correctamente.', 'success');
             this.list();
           },
           error: (err) => {
+            console.error('Error deleting role:', err);
             if (err.status === 409) {
               Swal.fire('No permitido', 'No se puede eliminar el rol porque tiene usuarios asignados.', 'warning');
             } else {
-              Swal.fire('Error', 'Ocurrió un error al eliminar.', 'error');
+              Swal.fire('Error', err.error || 'Ocurrió un error al eliminar.', 'error');
             }
           }
         });
