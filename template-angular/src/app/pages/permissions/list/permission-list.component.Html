@@ -1,0 +1,61 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">Permisos</h3>
+          <button class="btn btn-success btn-sm" (click)="create()" title="Agregar">
+            <i class="material-icons">add</i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-items-center">
+              <thead>
+              <tr>
+                <th>URL</th>
+                <th>Método</th>
+                <th>Módulo</th>
+                <th>Acciones</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let permission of permissions">
+                <td>{{ permission.url }}</td>
+                <td>
+                    <span class="badge"
+                          [ngClass]="{
+                        'badge-success': permission.method === 'GET',
+                        'badge-primary': permission.method === 'POST',
+                        'badge-warning': permission.method === 'PUT',
+                        'badge-danger':  permission.method === 'DELETE'
+                      }">
+                      {{ permission.method }}
+                    </span>
+                </td>
+                <td>{{ permission.model }}</td>
+                <td>
+                  <button class="btn btn-info btn-sm" (click)="view(permission.id!)" title="Ver">
+                    <i class="material-icons">visibility</i>
+                  </button>
+                  <button class="btn btn-warning btn-sm" (click)="edit(permission.id!)" title="Editar">
+                    <i class="material-icons">edit</i>
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="delete(permission.id!)" title="Eliminar">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="permissions.length === 0">
+                <td colspan="4" class="text-center text-muted">No hay permisos registrados.</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

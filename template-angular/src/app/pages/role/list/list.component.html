@@ -1,12 +1,11 @@
-<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
-</div>
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
 <!-- Page content -->
 <div class="container-fluid mt--7">
-  <!-- Table -->
   <div class="row">
     <div class="col">
       <div class="card shadow">
-        <div class="card-header bg-transparent">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
           <h3 class="mb-0">Roles</h3>
           <button class="btn btn-success btn-sm" (click)="create()" title="Agregar">
             <i class="material-icons">add</i>
@@ -15,28 +14,36 @@
         <div class="card-body">
           <div class="table-responsive">
             <table class="table">
+              <thead>
               <tr>
-                <td>Id</td>
-                <td>Nombre</td>
-                <td>Descripción</td>
-                <td>Acciones</td>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
               </tr>
+              </thead>
+              <tbody>
               <tr *ngFor="let role of roles">
-                <td>{{role.id}}</td>
-                <td>{{role.name}}</td>
-                <td>{{role.description}}</td>
+                <td>{{ role.id }}</td>
+                <td>{{ role.name }}</td>
+                <td>{{ role.description }}</td>
                 <td>
-                  <button class="btn btn-info btn-sm" (click)="view(role.id)" title="Ver">
+                  <button class="btn btn-info btn-sm" (click)="view(role.id!)" title="Ver">
                     <i class="material-icons">visibility</i>
                   </button>
-                  <button class="btn btn-warning btn-sm" (click)="edit(role.id)" title="Editar">
+                  <button class="btn btn-warning btn-sm" (click)="edit(role.id!)" title="Editar">
                     <i class="material-icons">edit</i>
                   </button>
-                  <button class="btn btn-danger btn-sm" (click)="delete(role.id)" title="Elminar">
+                  <button class="btn btn-danger btn-sm" (click)="delete(role.id!)" title="Eliminar">
                     <i class="material-icons">delete</i>
+                  </button>
+                  <!-- Botón que abre el modal de permisos -->
+                  <button class="btn btn-secondary btn-sm" (click)="openPermissionsModal(role)" title="Permisos">
+                    <i class="material-icons">lock</i>
                   </button>
                 </td>
               </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -44,3 +51,108 @@
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════
+     MODAL DE PERMISOS
+══════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+<div class="modal d-block" tabindex="-1" role="dialog" *ngIf="showModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Permisos del rol: <strong>{{ selectedRole?.name }}</strong>
+        </h5>
+        <button type="button" class="close" (click)="closeModal()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Spinner mientras carga -->
+        <div class="text-center py-4" *ngIf="loadingPermissions">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted">Cargando permisos...</p>
+        </div>
+
+        <!-- Tabla de permisos -->
+        <div class="table-responsive" *ngIf="!loadingPermissions">
+          <p class="text-muted mb-3">
+            Activa o desactiva los permisos que tendrá el rol <strong>{{ selectedRole?.name }}</strong>.
+          </p>
+          <table class="table table-hover align-items-center">
+            <thead class="thead-light">
+            <tr>
+              <th style="width: 60px;">Asignado</th>
+              <th>Módulo</th>
+              <th>URL</th>
+              <th>Método</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let perm of allPermissions"
+                [class.table-success]="isAssigned(perm.id!)"
+                style="cursor: pointer;"
+                (click)="togglePermission(perm.id!)">
+              <td class="text-center">
+                  <span *ngIf="isAssigned(perm.id!)" class="text-success">
+                    <i class="material-icons" style="font-size:20px;">check_circle</i>
+                  </span>
+                <span *ngIf="!isAssigned(perm.id!)" class="text-muted">
+                    <i class="material-icons" style="font-size:20px;">radio_button_unchecked</i>
+                  </span>
+              </td>
+              <td>{{ perm.model }}</td>
+              <td><code>{{ perm.url }}</code></td>
+              <td>
+                  <span class="badge"
+                        [ngClass]="{
+                      'badge-success': perm.method === 'GET',
+                      'badge-primary': perm.method === 'POST',
+                      'badge-warning': perm.method === 'PUT',
+                      'badge-danger':  perm.method === 'DELETE',
+                      'badge-info':    perm.method === 'PATCH'
+                    }">
+                    {{ perm.method }}
+                  </span>
+              </td>
+            </tr>
+            <tr *ngIf="allPermissions.length === 0">
+              <td colspan="4" class="text-center text-muted">No hay permisos disponibles.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <span class="text-muted mr-auto">
+          {{ assignedRolePermissions.length }} de {{ allPermissions.length }} permisos asignados
+        </span>
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Estilos del modal backdrop -->
+<style>
+  .modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+  }
+  .modal.d-block {
+    z-index: 1050;
+  }
+  tbody tr:hover {
+    background-color: rgba(0,0,0,0.04);
+  }
+</style>

@@ -17,7 +17,7 @@ export class UserService {
   }
   create(newUser: User): Observable<User> {
     delete newUser.id;
-    return this.http.post<User>(`${environment.url_ms_security}/users`, newUser);
+    return this.http.post<User>(`${environment.url_ms_security}/public/security/register`, newUser);
   }
   update(theUser: User): Observable<User> {
     return this.http.put<User>(`${environment.url_ms_security}/users/${theUser.id}`, theUser);
