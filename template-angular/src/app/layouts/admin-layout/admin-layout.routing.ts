@@ -74,5 +74,15 @@ export const AdminLayoutRoutes: Routes = [
               }
             ]
           },
+        {
+                path: 'permissions',
+                canActivate: [AuthenticatedGuard],
+                children: [
+                  {
+                    path: '',
+                    loadChildren: () => import('src/app/pages/permissions/permissions.module').then(m => m.PermissionsModule)
+                  }
+                ]
+              },
 
 ];
