@@ -15,7 +15,6 @@ export const ROUTES: RouteInfo[] = [
   { path: '/user-role/list',   title: 'Usuario-Rol',  icon: 'ni-bullet-list-67 text-orange',class: '' },
   { path: '/profiles/list',    title: 'Perfiles',     icon: 'ni-circle-08 text-pink',      class: '' },
   { path: '/icons',            title: 'Icons',        icon: 'ni-planet text-blue',         class: '' },
-  { path: '/user-profile',     title: 'User profile', icon: 'ni-settings-gear-65 text-gray',class: '' },
 ];
 
 @Component({
