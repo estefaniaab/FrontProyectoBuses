@@ -20,6 +20,7 @@ export class ManageComponent implements OnInit {
   trySend: boolean;
   photoFile: File | null = null;
   photoPreview: string | null = null;
+  isMyProfileRoute: boolean = false;
   constructor(private activatedRoute: ActivatedRoute,
               private profilesService: ProfileService,
               private userService: UserService,
@@ -32,23 +33,57 @@ export class ManageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadUsers();
     const currentUrl = this.activatedRoute.snapshot.url.join('/');
+    this.isMyProfileRoute = currentUrl.includes('me');
+
     if (currentUrl.includes('view')) {
       this.mode = 1;
     } else if (currentUrl.includes('create')) {
       this.mode = 2;
     } else if (currentUrl.includes('update')) {
       this.mode = 3;
+    } else if (currentUrl.includes('me')) {
+      this.mode = 3;
     }
+
     if (this.mode === 1) {
       this.theFormGroup.disable();
     }
-    if (this.activatedRoute.snapshot.params.id) {
-      this.profile.id = this.activatedRoute.snapshot.params.id
-      this.getProfile(this.profile.id)
+
+    // Solo cargar usuarios cuando NO sea "mi perfil"
+    if (!currentUrl.includes('me')) {
+      this.loadUsers();
     }
 
+    if (currentUrl.includes('me')) {
+      this.profilesService.getMyProfile().subscribe({
+        next: (response) => {
+          this.profile = response;
+
+          this.theFormGroup.patchValue({
+            id: this.profile.id,
+            user: this.profile.user?.id,
+            phone: this.profile.phone,
+            photo: this.profile.photo,
+          });
+
+          // Bloquear el select de usuario en mi perfil
+          this.theFormGroup.get('user')?.disable();
+
+          if (this.profile.photo) {
+            this.photoPreview = this.profile.photo;
+          }
+
+          console.log('Mi perfil cargado correctamente:', this.profile);
+        },
+        error: (error) => {
+          console.error('Error cargando mi perfil:', error);
+        }
+      });
+    } else if (this.activatedRoute.snapshot.params.id) {
+      this.profile.id = this.activatedRoute.snapshot.params.id;
+      this.getProfile(this.profile.id);
+    }
   }
 
   loadUsers() {
@@ -150,20 +185,24 @@ export class ManageComponent implements OnInit {
   }
   update() {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
       Swal.fire({
         title: 'Error!',
         text: 'Por favor, complete todos los campos requeridos.',
         icon: 'error',
-      })
+      });
       return;
     }
-    const formValue = this.theFormGroup.value;
+
+    const formValue = this.theFormGroup.getRawValue();
+
     const profileToSend = {
       phone: formValue.phone,
       photo: formValue.photo,
-      user: { id: formValue.user }
+      user: { id: formValue.user || this.profile.user?.id }
     };
+
     this.profilesService.update(this.profile.id, profileToSend).subscribe({
       next: (profile) => {
         console.log('Profile updated successfully:', profile);
@@ -171,7 +210,7 @@ export class ManageComponent implements OnInit {
           title: 'Actualizado!',
           text: 'Registro actualizado correctamente.',
           icon: 'success',
-        })
+        });
         this.router.navigate(['/profiles/list']);
       },
       error: (error) => {

@@ -15,7 +15,7 @@ import { Profile } from '../../models/Profiles/profile.model';
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   public focus: boolean;
-  public listTitles: any[];
+  public listTitles: any[] = [];
   public location: Location;
 
   currentUser: User | null = null;
@@ -23,7 +23,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   displayName: string = 'Usuario';
   profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
-  myProfileId: string = '';
 
   constructor(
     location: Location,
@@ -49,16 +48,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       this.profileService.getMyProfile().subscribe({
         next: (profile: Profile) => {
-          this.myProfileId = profile?.id || '';
-
           if (profile?.photo && profile.photo.trim() !== '') {
             this.profileImage = profile.photo;
           } else {
             this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
           }
         },
-        error: (error) => {
-          console.error('Error cargando perfil:', error);
+        error: () => {
           this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
         }
       });
@@ -66,11 +62,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   goToMyProfile(): void {
-    if (this.myProfileId) {
-      this.router.navigate(['/profiles/update', this.myProfileId]);
-    } else {
-      console.error('No se encontró el profileId del usuario logueado');
-    }
+    this.router.navigate(['/profiles/me']);
   }
 
   logout(): void {
