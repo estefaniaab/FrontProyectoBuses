@@ -1,7 +1,8 @@
 import { Role } from '../Roles/role.model';
+import { Permission } from '../Permissions/permission.model';
 
 export class RolePermission {
   id?: string;
-  role_id: Role[];
-  permission_id: number;
+  role?: Role;
+  permission?: Permission;
 }

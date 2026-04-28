@@ -1,0 +1,62 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0">
+            {{ mode === 'create' ? 'Nuevo Permiso' : mode === 'update' ? 'Editar Permiso' : 'Ver Permiso' }}
+          </h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="form">
+
+            <div class="form-group">
+              <label>URL</label>
+              <input type="text" class="form-control" formControlName="url"
+                     placeholder="/api/users" [readOnly]="isReadOnly">
+              <small class="text-danger"
+                     *ngIf="form.get('url')?.invalid && form.get('url')?.touched">
+                La URL es requerida.
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label>Método HTTP</label>
+              <select class="form-control" formControlName="method" [attr.disabled]="isReadOnly ? true : null">
+                <option value="">Seleccione...</option>
+                <option *ngFor="let m of methods" [value]="m">{{ m }}</option>
+              </select>
+              <small class="text-danger"
+                     *ngIf="form.get('method')?.invalid && form.get('method')?.touched">
+                El método es requerido.
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label>Módulo</label>
+              <input type="text" class="form-control" formControlName="model"
+                     placeholder="Users" [readOnly]="isReadOnly">
+              <small class="text-danger"
+                     *ngIf="form.get('model')?.invalid && form.get('model')?.touched">
+                El módulo es requerido.
+              </small>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-secondary" type="button" (click)="cancel()">
+                Cancelar
+              </button>
+              <button class="btn btn-primary" type="button" (click)="save()"
+                      *ngIf="!isReadOnly">
+                {{ mode === 'create' ? 'Crear' : 'Actualizar' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -37,6 +37,12 @@
                     <option value="">Seleccione un usuario</option>
                     <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
                   </select>
+                  <input
+                    *ngIf="isMyProfileRoute"
+                    type="text"
+                    class="form-control"
+                    [value]="profile?.user?.name || profile?.user?.email || 'Usuario actual'"
+                    readonly>
                   <div *ngIf="getTheFormGroup.user.errors && (getTheFormGroup.user.dirty || getTheFormGroup.user.touched || trySend)">
                     <strong *ngIf="getTheFormGroup.user.errors.required" class="msnError">Requerido</strong>
                   </div>

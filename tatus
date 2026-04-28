@@ -1,0 +1,11 @@
+[33md08f4e0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mIsabela[m[33m, [m[1;31morigin/Luisa[m[33m, [m[1;31morigin/Isabela[m[33m)[m Adición de requicitos y mejoras a la autenticación con git
+[33m375a9c8[m Implementación autenticación con ithub
+[33m9ab3678[m Implementación de la restriccion al eliminar un rol
+[33me53d915[m Adicion de GET y PUT a la clase UserRole
+[33m42d2be7[m Creación CRUD Profile y pequeñas correcciones en definición de Id
+[33m69d5cc5[m Creación entidad intermedia UserRole
+[33m4930414[m pequeña correción
+[33md1225da[m Creación de models UserRole, RolePermission y Profile
+[33md7ac489[m Creación CRUD roles
+[33m12fa019[m Mejoras e implementación de usuario
+[33m3bb978d[m Cargue del archivo

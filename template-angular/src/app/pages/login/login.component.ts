@@ -5,6 +5,7 @@ import { SecurityService } from '../../services/security.service';
 import { GithubAuthService } from '../../services/OAuth/github-auth.service';
 import { MicrosoftAuthService } from '../../services/OAuth/microsoft-auth.service';
 import { GoogleAuthService } from '../../services/OAuth/google-auth.service';
+import { ReCaptchaV3Service } from 'ng-recaptcha';  // ← añade
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,7 +22,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private githubAuthService: GithubAuthService,
     private microsoftAuthService: MicrosoftAuthService,
     private googleAuthService: GoogleAuthService,
-    private router: Router
+    private router: Router,
+    private recaptchaV3Service: ReCaptchaV3Service  // ← añade
   ) {}
 
   ngOnInit() {}
@@ -29,24 +31,33 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   login() {
-    console.log("USER ENVIADO:", this.user);
-    this.securityService.login(this.user).subscribe({
-      next: (response) => {
-        console.log('LOGIN RESPONSE:', response);
-
-        sessionStorage.setItem('twoFactorData', JSON.stringify({
-          challengeId: response.challengeId,
-          maskedEmail: response.maskedEmail,
-          expiresInSeconds: response.expiresInSeconds,
-          remainingAttempts: response.remainingAttempts
-        }));
-
-        this.router.navigate(['/verify-2fa']);
+    this.recaptchaV3Service.execute('login').subscribe({  // ← envuelve el login
+      next: (token) => {
+        console.log("USER ENVIADO:", this.user);
+        this.securityService.login(this.user, token).subscribe({  // ← pasa el token
+          next: (response) => {
+            console.log('LOGIN RESPONSE:', response);
+            sessionStorage.setItem('twoFactorData', JSON.stringify({
+              challengeId: response.challengeId,
+              maskedEmail: response.maskedEmail,
+              expiresInSeconds: response.expiresInSeconds,
+              remainingAttempts: response.remainingAttempts
+            }));
+            this.router.navigate(['/verify-2fa']);
+          },
+          error: (err) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Email o contraseña incorrectos.',
+              icon: 'error',
+            });
+          }
+        });
       },
-      error: (err) => {
+      error: () => {
         Swal.fire({
           title: 'Error',
-          text: 'Email o contraseña incorrectos.',
+          text: 'Error al verificar reCAPTCHA.',
           icon: 'error',
         });
       }

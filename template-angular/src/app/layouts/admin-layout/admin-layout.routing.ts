@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+
 import { DashboardComponent } from '../../pages/dashboard/dashboard.component';
 import { IconsComponent } from '../../pages/icons/icons.component';
 import { MapsComponent } from '../../pages/maps/maps.component';
@@ -73,5 +74,15 @@ export const AdminLayoutRoutes: Routes = [
               }
             ]
           },
+        {
+                path: 'permissions',
+                canActivate: [AuthenticatedGuard],
+                children: [
+                  {
+                    path: '',
+                    loadChildren: () => import('src/app/pages/permissions/permissions.module').then(m => m.PermissionsModule)
+                  }
+                ]
+              },
 
 ];
