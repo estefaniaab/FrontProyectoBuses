@@ -24,7 +24,7 @@ export class ManageComponent implements OnInit {
   ) {
     this.trySend = false;
     this.ruta = {
-      id: '',
+      id: 0,
       nombre: '',
       descripcion: '',
       tarifa: 0,
@@ -57,7 +57,7 @@ export class ManageComponent implements OnInit {
 
   configFormGroup() {
     this.theFormGroup = this.theFormBuilder.group({
-      id: ['', []],
+      id: [0, []],
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
       descripcion: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
       tarifa: [0, [Validators.required, Validators.min(0)]],
@@ -69,7 +69,7 @@ export class ManageComponent implements OnInit {
     return this.theFormGroup.controls;
   }
 
-  getRuta(id: string) {
+  getRuta(id: number) {
     this.rutasService.view(id).subscribe({
       next: (response) => {
         this.ruta = response;

@@ -1,5 +1,5 @@
 export class Ruta {
-  id?: string;
+  id?: number;
   nombre: string;
   descripcion: string;
   tarifa: number;

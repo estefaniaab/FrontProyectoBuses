@@ -14,7 +14,7 @@ export class RutaService {
     return this.http.get<Ruta[]>(`${environment.url_ms_business}/rutas`);
   }
 
-  view(id: string): Observable<Ruta> {
+  view(id: number): Observable<Ruta> {
     return this.http.get<Ruta>(`${environment.url_ms_business}/rutas/${id}`);
   }
 
