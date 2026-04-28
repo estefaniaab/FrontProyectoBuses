@@ -65,24 +65,35 @@ export const AdminLayoutRoutes: Routes = [
         ]
       },
     {
-            path: 'sessions',
-            //canActivate: [AuthenticatedGuard],
-            children: [
-              {
-                path: '',
-                loadChildren: () => import('src/app/pages/session/session.module').then(m => m.SessionsModule)
-              }
-            ]
-          },
+      path: 'sessions',
+      //canActivate: [AuthenticatedGuard],
+      children: [
         {
-                path: 'permissions',
-                canActivate: [AuthenticatedGuard],
-                children: [
-                  {
-                    path: '',
-                    loadChildren: () => import('src/app/pages/permissions/permissions.module').then(m => m.PermissionsModule)
-                  }
-                ]
-              },
+          path: '',
+          loadChildren: () => import('src/app/pages/session/session.module').then(m => m.SessionsModule)
+        }
+      ]
+    },
+    {
+      path: 'permissions',
+      canActivate: [AuthenticatedGuard],
+      children: [
+        {
+          path: '',
+          loadChildren: () => import('src/app/pages/permissions/permissions.module').then(m => m.PermissionsModule)
+        }
+      ]
+    },
+    {
+      path: 'rutas',
+      canActivate: [AuthenticatedGuard],
+      children: [
+        {
+          path: '',
+          loadChildren: () => import('src/app/pages/ruta/ruta.module').then(m => m.RutaModule)
+        }
+      ]
+    },
+
 
 ];

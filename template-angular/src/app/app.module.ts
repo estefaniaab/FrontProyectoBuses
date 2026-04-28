@@ -67,4 +67,4 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

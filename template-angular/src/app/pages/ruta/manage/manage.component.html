@@ -1,0 +1,117 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Form -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0" *ngIf="mode==1">Detalle</h3>
+          <h3 class="mb-0" *ngIf="mode==2">Crear</h3>
+          <h3 class="mb-0" *ngIf="mode==3">Actualizar</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="theFormGroup">
+            <div class="card-body container">
+
+              <div class="row">
+                <div class="col-3">ID</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="id" disabled>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Nombre</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="nombre">
+
+                  <div
+                    *ngIf="getTheFormGroup.nombre.errors && (getTheFormGroup.nombre.dirty || getTheFormGroup.nombre.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.nombre.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.nombre.errors.minlength"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Descripción</div>
+                <div class="col-9">
+                  <textarea class="form-control" formControlName="descripcion"></textarea>
+
+                  <div
+                    *ngIf="getTheFormGroup.descripcion.errors && (getTheFormGroup.descripcion.dirty || getTheFormGroup.descripcion.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.descripcion.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.descripcion.errors.minlength"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Tarifa</div>
+                <div class="col-9">
+                  <input type="number" class="form-control" formControlName="tarifa">
+
+                  <div
+                    *ngIf="getTheFormGroup.tarifa.errors && (getTheFormGroup.tarifa.dirty || getTheFormGroup.tarifa.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.tarifa.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.tarifa.errors.min"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Tiempo estimado total</div>
+                <div class="col-9">
+                  <input type="number" class="form-control" formControlName="tiempoEstimadoTotal">
+
+                  <div
+                    *ngIf="getTheFormGroup.tiempoEstimadoTotal.errors && (getTheFormGroup.tiempoEstimadoTotal.dirty || getTheFormGroup.tiempoEstimadoTotal.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.tiempoEstimadoTotal.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.tiempoEstimadoTotal.errors.min"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button type="button" class="btn btn-primary btn-block" (click)="back()">Regresar</button>
+
+                  <button type="button" class="btn btn-success btn-block" (click)="create()"
+                          *ngIf="mode==2">Crear</button>
+
+                  <button type="button" class="btn btn-warning btn-block" (click)="update()"
+                          *ngIf="mode==3">Actualizar</button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
