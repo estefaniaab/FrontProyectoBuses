@@ -1,17 +1,41 @@
 <div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
 </div>
 
-<!-- Page content -->
 <div class="container-fluid mt--7">
-  <!-- Table -->
   <div class="row">
     <div class="col">
       <div class="card shadow">
         <div class="card-header bg-transparent">
-          <h3 class="mb-0">Rutas</h3>
-          <button class="btn btn-success btn-sm" (click)="create()" title="Agregar">
-            <i class="material-icons">add</i>
-          </button>
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Rutas</h3>
+              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Agregar">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+
+            <div class="col-md-8 d-flex justify-content-end">
+              <form class="navbar-search navbar-search-light form-inline">
+                <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
+                  <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                      </span>
+                    </div>
+
+                    <input
+                      class="form-control"
+                      placeholder="Buscar ruta"
+                      type="text"
+                      [(ngModel)]="filtroNombre"
+                      name="filtroNombre"
+                      (input)="filtrarRutas()">
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
 
         <div class="card-body">

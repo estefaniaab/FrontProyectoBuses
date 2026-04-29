@@ -11,6 +11,9 @@ import Swal from 'sweetalert2';
 })
 export class ListComponent implements OnInit {
   rutas: Ruta[] = [];
+  rutasFiltradas: Ruta[] = [];
+  filtroNombre: string = '';
+  focus = false;
 
   constructor(
     private rutasService: RutaService,
@@ -22,11 +25,15 @@ export class ListComponent implements OnInit {
   }
 
   list() {
-    this.rutasService.list().subscribe({
+    this.rutasService.list(this.filtroNombre).subscribe({
       next: (rutas) => {
         this.rutas = rutas;
       }
     });
+  }
+
+  filtrarRutas() {
+    this.list();
   }
 
   create() {
@@ -42,8 +49,6 @@ export class ListComponent implements OnInit {
   }
 
   delete(id: string) {
-    console.log("Delete ruta with id:", id);
-
     Swal.fire({
       title: 'Eliminar',
       text: "Está seguro que quiere eliminar el registro?",
@@ -55,13 +60,13 @@ export class ListComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.rutasService.delete(id).subscribe(data => {
+        this.rutasService.delete(id).subscribe(() => {
           Swal.fire(
             'Eliminado!',
             'Registro eliminado correctamente.',
             'success'
           );
-          this.ngOnInit();
+          this.list();
         });
       }
     });

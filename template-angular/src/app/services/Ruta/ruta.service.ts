@@ -10,9 +10,15 @@ import { Ruta } from '../../models/Rutas/ruta.model';
 export class RutaService {
   constructor(private http: HttpClient) { }
 
-  list(): Observable<Ruta[]> {
-    return this.http.get<Ruta[]>(`${environment.url_ms_business}/rutas`);
-  }
+   list(nombre?: string): Observable<Ruta[]> {
+      let url = `${environment.url_ms_business}/rutas`;
+
+      if (nombre && nombre.trim() !== '') {
+        url += `?nombre=${encodeURIComponent(nombre.trim())}`;
+      }
+
+      return this.http.get<Ruta[]>(url);
+    }
 
   view(id: number): Observable<Ruta> {
     return this.http.get<Ruta>(`${environment.url_ms_business}/rutas/${id}`);
