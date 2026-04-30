@@ -26,6 +26,8 @@ import { environment } from '../environments/environment';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 
 
+
+
 @NgModule({
   imports: [
     BrowserAnimationsModule,
@@ -51,6 +53,8 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     Verify2faComponent,
+
+
   ],
   providers: [
     {

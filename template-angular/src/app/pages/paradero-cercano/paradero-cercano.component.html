@@ -1,0 +1,107 @@
+<div class="pc-shell">
+
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <!-- Se añade fondo sólido y z-index para tapar elementos de fondo -->
+  <aside class="pc-sidebar" style="background-color: #fff; position: relative; z-index: 10;">
+
+    <!-- Se añade fondo oscuro sólido para ocultar el letrero "PANEL" que se asoma -->
+    <header class="pc-header" style="background-color: #1a2537; color: white; padding: 20px; position: relative; z-index: 20;">
+      <div class="pc-header__logo">
+        <span class="pc-header__icon">🚏</span>
+        <div>
+          <h1 style="margin: 0; color: white;">Paraderos</h1>
+          <p style="margin: 0; opacity: 0.8;">Búsqueda cercana</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Estado: cargando -->
+    <div *ngIf="estado === 'cargando'" class="pc-state">
+      <div class="pc-spinner"></div>
+      <p>Obteniendo tu ubicación…</p>
+    </div>
+
+    <!-- Estado: error -->
+    <div *ngIf="estado === 'error'" class="pc-state pc-state--error">
+      <span class="pc-state__icon">⚠️</span>
+      <p>{{ errorMsg }}</p>
+      <button class="pc-btn pc-btn--outline" (click)="solicitarUbicacion()">
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Estado: idle -->
+    <div *ngIf="estado === 'idle'" class="pc-state">
+      <span class="pc-state__icon">📡</span>
+      <p>Activa tu ubicación para encontrar paraderos cercanos.</p>
+      <button class="pc-btn pc-btn--primary" (click)="solicitarUbicacion()">
+        Activar GPS
+      </button>
+    </div>
+
+    <!-- Lista de paraderos -->
+    <ng-container *ngIf="estado === 'ok'">
+
+      <div class="pc-count">
+        <span>{{ paraderos.length }}</span> paraderos encontrados
+        <span class="pc-live"><span class="pc-live__dot"></span>En vivo</span>
+      </div>
+
+      <ul class="pc-list">
+        <li
+          *ngFor="let p of paraderos; let i = index"
+          class="pc-card"
+          [class.pc-card--active]="paraderoSeleccionado?.id === p.id"
+          (click)="seleccionarParadero(p)"
+        >
+          <div class="pc-card__num" [style.background]="getColor(p.clasificacion)">
+            {{ i + 1 }}
+          </div>
+
+          <div class="pc-card__info">
+            <p class="pc-card__nombre">{{ p.nombre }}</p>
+            <span class="pc-tag pc-tag--{{ p.clasificacion }}">
+              {{ CLASIFICACION_LABEL[p.clasificacion] }}
+            </span>
+          </div>
+
+          <div class="pc-card__dist">
+            {{ formatearDistancia(p.distancia_metros) }}
+          </div>
+        </li>
+      </ul>
+
+    </ng-container>
+  </aside>
+
+  <!-- ══════════════ MAPA ══════════════ -->
+  <main class="pc-map-wrapper">
+    <div id="mapa-paraderos" class="pc-map"></div>
+
+    <!-- Panel de detalle al seleccionar un paradero -->
+    <div class="pc-detail" *ngIf="paraderoSeleccionado" style="z-index: 30;">
+      <button class="pc-detail__close" (click)="cerrarDetalle()">✕</button>
+
+      <p class="pc-detail__tipo pc-tag pc-tag--{{ paraderoSeleccionado.clasificacion }}">
+        {{ CLASIFICACION_LABEL[paraderoSeleccionado.clasificacion] }}
+      </p>
+      <h2 class="pc-detail__nombre">{{ paraderoSeleccionado.nombre }}</h2>
+
+      <div class="pc-detail__stats">
+        <div class="pc-stat">
+          <span class="pc-stat__val">{{ formatearDistancia(paraderoSeleccionado.distancia_metros) }}</span>
+          <span class="pc-stat__key">distancia</span>
+        </div>
+        <div class="pc-stat">
+          <span class="pc-stat__val">{{ paraderoSeleccionado.latitud | number:'1.4-4' }}</span>
+          <span class="pc-stat__key">latitud</span>
+        </div>
+        <div class="pc-stat">
+          <span class="pc-stat__val">{{ paraderoSeleccionado.longitud | number:'1.4-4' }}</span>
+          <span class="pc-stat__key">longitud</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>

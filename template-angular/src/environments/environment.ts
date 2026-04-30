@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   url_ms_security: 'http://localhost:8080/api',
-  recaptcha_site_key_v3: '6LdhnKgsAAAAAHq9EtCkq_0mtlSchufvq8HhF933'
+  recaptcha_site_key_v3: '6LdhnKgsAAAAAHq9EtCkq_0mtlSchufvq8HhF933',
+  url_ms_business: 'http://localhost:3000'
 };
 
 /*
