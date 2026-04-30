@@ -30,9 +30,16 @@ export class RutaService {
   }
 
   update(theRuta: Ruta): Observable<Ruta> {
+    const body: any = { ...theRuta };
+
+    delete body.id;
+
+    body.tarifa = Number(body.tarifa);
+    body.tiempoEstimadoTotal = Number(body.tiempoEstimadoTotal);
+
     return this.http.patch<Ruta>(
       `${environment.url_ms_business}/rutas/${theRuta.id}`,
-      theRuta
+      body
     );
   }
 

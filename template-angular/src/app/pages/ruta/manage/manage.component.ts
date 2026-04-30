@@ -78,11 +78,9 @@ export class ManageComponent implements OnInit {
           id: this.ruta.id,
           nombre: this.ruta.nombre,
           descripcion: this.ruta.descripcion,
-          tarifa: this.ruta.tarifa,
-          tiempoEstimadoTotal: this.ruta.tiempoEstimadoTotal,
+          tarifa: Number(this.ruta.tarifa),
+          tiempoEstimadoTotal: Number(this.ruta.tiempoEstimadoTotal),
         });
-
-        console.log('ruta fetched successfully:', this.ruta);
       },
       error: (error) => {
         console.error('Error fetching ruta:', error);
@@ -135,6 +133,9 @@ export class ManageComponent implements OnInit {
       });
       return;
     }
+  console.log(this.theFormGroup.value);
+  console.log(typeof this.theFormGroup.value.tarifa);
+  console.log(typeof this.theFormGroup.value.tiempoEstimadoTotal);
 
     this.rutasService.update(this.theFormGroup.value).subscribe({
       next: (ruta) => {
