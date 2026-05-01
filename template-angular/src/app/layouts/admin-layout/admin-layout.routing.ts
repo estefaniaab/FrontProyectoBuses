@@ -94,6 +94,16 @@ export const AdminLayoutRoutes: Routes = [
         }
       ]
     },
+  {
+        path: 'buses',
+        canActivate: [AuthenticatedGuard],
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('src/app/pages/bus/bus.module').then(m => m.BusModule)
+          }
+        ]
+      },
 
 
 ];

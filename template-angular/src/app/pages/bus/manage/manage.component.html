@@ -1,0 +1,189 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Form -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0" *ngIf="mode==1">Detalle</h3>
+          <h3 class="mb-0" *ngIf="mode==2">Crear</h3>
+          <h3 class="mb-0" *ngIf="mode==3">Actualizar</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="theFormGroup">
+            <div class="card-body container">
+
+              <div class="row">
+                <div class="col-3">ID</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="id" disabled>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Placa</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="placa">
+
+                  <div
+                    *ngIf="getTheFormGroup.placa.errors && (getTheFormGroup.placa.dirty || getTheFormGroup.placa.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.placa.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.placa.errors.minlength || getTheFormGroup.placa.errors.maxlength"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Modelo</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="modelo">
+
+                  <div
+                    *ngIf="getTheFormGroup.modelo.errors && (getTheFormGroup.modelo.dirty || getTheFormGroup.modelo.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.modelo.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.modelo.errors.minlength || getTheFormGroup.modelo.errors.maxlength"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Año</div>
+                <div class="col-9">
+                  <input type="number" class="form-control" formControlName="anio">
+
+                  <div
+                    *ngIf="getTheFormGroup.anio.errors && (getTheFormGroup.anio.dirty || getTheFormGroup.anio.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.anio.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.anio.errors.min || getTheFormGroup.anio.errors.max"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Capacidad máxima</div>
+                <div class="col-9">
+                  <input type="number" class="form-control" formControlName="capacidadMaximaPasajeros">
+
+                  <div
+                    *ngIf="getTheFormGroup.capacidadMaximaPasajeros.errors && (getTheFormGroup.capacidadMaximaPasajeros.dirty || getTheFormGroup.capacidadMaximaPasajeros.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.capacidadMaximaPasajeros.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.capacidadMaximaPasajeros.errors.min || getTheFormGroup.capacidadMaximaPasajeros.errors.max"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Capacidad sentados</div>
+                <div class="col-9">
+                  <input type="number" class="form-control" formControlName="capacidadSentados">
+
+                  <div
+                    *ngIf="getTheFormGroup.capacidadSentados.errors && (getTheFormGroup.capacidadSentados.dirty || getTheFormGroup.capacidadSentados.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.capacidadSentados.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.capacidadSentados.errors.min || getTheFormGroup.capacidadSentados.errors.max"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Capacidad parados</div>
+                <div class="col-9">
+                  <input type="number" class="form-control" formControlName="capacidadParados">
+
+                  <div
+                    *ngIf="getTheFormGroup.capacidadParados.errors && (getTheFormGroup.capacidadParados.dirty || getTheFormGroup.capacidadParados.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.capacidadParados.errors.required"
+                            class="msnError">Requerido</strong>
+                    <strong *ngIf="getTheFormGroup.capacidadParados.errors.min || getTheFormGroup.capacidadParados.errors.max"
+                            class="msnError">Inválido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Estado</div>
+                <div class="col-9">
+                  <select class="form-control" formControlName="estado">
+                    <option value="">Seleccione un estado</option>
+                    <option value="operativo">Operativo</option>
+                    <option value="mantenimiento">Mantenimiento</option>
+                    <option value="fuera_de_servicio">Fuera de servicio</option>
+                  </select>
+
+                  <div
+                    *ngIf="getTheFormGroup.estado.errors && (getTheFormGroup.estado.dirty || getTheFormGroup.estado.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.estado.errors.required"
+                            class="msnError">Requerido</strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row">
+                <div class="col-3">Foto URL</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="fotoUrl">
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row" *ngIf="mode==1 || mode==3">
+                <div class="col-3">Código QR</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="codigoQr" disabled>
+                </div>
+              </div>
+
+              <br *ngIf="mode==1 || mode==3">
+
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button type="button" class="btn btn-primary btn-block" (click)="back()">Regresar</button>
+
+                  <button type="button" class="btn btn-success btn-block" (click)="create()"
+                          *ngIf="mode==2">Crear</button>
+
+                  <button type="button" class="btn btn-warning btn-block" (click)="update()"
+                          *ngIf="mode==3">Actualizar</button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
