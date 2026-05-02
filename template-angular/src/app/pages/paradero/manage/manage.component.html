@@ -48,13 +48,19 @@
                 <div class="col-9">
                   <select class="form-control" formControlName="clasificacion">
                     <option value="" disabled>Selecciona una clasificación</option>
+
                     <option *ngFor="let c of CLASIFICACIONES" [value]="c">
-                      {{ c | titlecase }}
+                      {{ getClasificacionLabel(c) }}
                     </option>
                   </select>
+
                   <div *ngIf="getTheFormGroup['clasificacion'].errors &&
-                              (getTheFormGroup['clasificacion'].dirty || getTheFormGroup['clasificacion'].touched || trySend)">
-                    <strong *ngIf="getTheFormGroup['clasificacion'].errors?.['required']" class="msnError">Requerido</strong>
+                (getTheFormGroup['clasificacion'].dirty || getTheFormGroup['clasificacion'].touched || trySend)">
+                    <strong
+                      *ngIf="getTheFormGroup['clasificacion'].errors?.['required']"
+                      class="msnError">
+                      Requerido
+                    </strong>
                   </div>
                 </div>
               </div>
@@ -64,8 +70,9 @@
               <div class="row">
                 <div class="col-3">Latitud</div>
                 <div class="col-9">
-                  <input type="number" class="form-control" formControlName="latitud"
-                         placeholder="6.24220" step="0.00001">
+                  <input
+                    type="number" class="form-control" formControlName="latitud"
+                    placeholder="5.05690" step="0.00001">
                   <div *ngIf="getTheFormGroup['latitud'].errors &&
                               (getTheFormGroup['latitud'].dirty || getTheFormGroup['latitud'].touched || trySend)">
                     <strong *ngIf="getTheFormGroup['latitud'].errors?.['required']" class="msnError">Requerido</strong>
@@ -79,7 +86,7 @@
                 <div class="col-3">Longitud</div>
                 <div class="col-9">
                   <input type="number" class="form-control" formControlName="longitud"
-                         placeholder="-75.58120" step="0.00001">
+                         placeholder="-75.48700" step="0.00001">
                   <div *ngIf="getTheFormGroup['longitud'].errors &&
                               (getTheFormGroup['longitud'].dirty || getTheFormGroup['longitud'].touched || trySend)">
                     <strong *ngIf="getTheFormGroup['longitud'].errors?.['required']" class="msnError">Requerido</strong>

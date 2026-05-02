@@ -9,7 +9,10 @@ import {
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ParaderoService } from '../../services/Paradero/paradero.service';
-import { ParaderoCercano } from 'src/app/models/Paradero/paradero.model'; // ← CAMBIO 1
+import { Paradero } from 'src/app/models/Paradero/paradero.model'; // ← CAMBIO 1
+import { ClasificacionParadero } from 'src/app/models/Paradero/clasificacion-paradero.enum';
+import { Nodo } from 'src/app/models/Nodos/nodo.model';
+import { NodoService } from 'src/app/services/Nodo/nodo.service';
 import * as L from 'leaflet';
 
 const iconDefault = L.icon({
@@ -30,10 +33,13 @@ L.Marker.prototype.options.icon = iconDefault;
 })
 export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  paraderos: ParaderoCercano[] = [];              // ← CAMBIO 2
+  paraderos: Paradero[] = [];              // ← CAMBIO 2
   estado: 'idle' | 'cargando' | 'ok' | 'error' = 'idle';
   errorMsg = '';
-  paraderoSeleccionado: ParaderoCercano | null = null; // ← CAMBIO 3
+  paraderoSeleccionado: Paradero | null = null; // ← CAMBIO 3
+  nodosParaderoSeleccionado: Nodo[] = [];
+  loadingRutasParadero = false;
+  errorRutasParadero = '';
 
   private map!: L.Map;
   private marcadores: L.Marker[] = [];
@@ -45,14 +51,21 @@ export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestro
   private lastLng: number | null = null;
   private readonly UMBRAL_METROS = 50;
 
-  readonly CLASIFICACION_LABEL: Record<string, string> = {
-    principal: 'Principal',
-    secundario: 'Secundario',
-    terminal: 'Terminal',
+  readonly CLASIFICACION_LABEL: Record<ClasificacionParadero, string> = {
+    [ClasificacionParadero.PRINCIPAL]: 'Principal',
+    [ClasificacionParadero.SECUNDARIO]: 'Secundario',
+    [ClasificacionParadero.TERMINAL]: 'Terminal',
+  };
+
+  readonly COLORES: Record<ClasificacionParadero, string> = {
+    [ClasificacionParadero.PRINCIPAL]: '#f59e0b',
+    [ClasificacionParadero.SECUNDARIO]: '#22c55e',
+    [ClasificacionParadero.TERMINAL]: '#a855f7',
   };
 
   constructor(
     private paraderoService: ParaderoService,
+    private nodoService: NodoService,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -72,7 +85,7 @@ export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestro
   private inicializarMapa(): void {
     this.map = L.map('mapa-paraderos', {
       zoomControl: true,
-      center: [6.2442, -75.5812],
+      center: [5.0569, -75.4870],
       zoom: 13,
     });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -168,16 +181,14 @@ export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestro
     });
   }
 
-  private pintarMarcadoresParaderos(paraderos: ParaderoCercano[]): void {
+  private pintarMarcadoresParaderos(paraderos: Paradero[]): void {
     this.marcadores.forEach(m => m.remove());
     this.marcadores = [];
-    const COLORES: Record<string, string> = {
-      principal:  '#f59e0b',
-      secundario: '#22c55e',
-      terminal:   '#a855f7',
-    };
     paraderos.forEach((p, i) => {
-      const color = COLORES[p.clasificacion] ?? '#64748b';
+      if (p.latitud === undefined || p.longitud === undefined) return;
+
+      const clasificacion = p.clasificacion ?? ClasificacionParadero.SECUNDARIO;
+      const color = this.COLORES[clasificacion] ?? '#64748b';
       const icon = L.divIcon({
         className: '',
         html: `<div style="width:32px;height:32px;background:${color};border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;">${i + 1}</div>`,
@@ -189,15 +200,15 @@ export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestro
         .bindPopup(`
           <div style="min-width:160px">
             <strong>${p.nombre}</strong><br>
-            <span style="font-size:12px;color:#64748b">${this.CLASIFICACION_LABEL[p.clasificacion]}</span><br>
+            <span style="font-size:12px;color:#64748b">${this.CLASIFICACION_LABEL[clasificacion]}</span><br>
             <span style="font-size:13px;font-weight:600;color:#f59e0b">
-              📏 ${this.formatearDistancia(p.distancia_metros)}
+              📏 ${this.formatearDistancia(p.distancia_metros ?? 0)}
             </span>
           </div>
         `)
         .on('click', () => {
           this.zone.run(() => {
-            this.paraderoSeleccionado = p;
+            this.seleccionarParadero(p);
             this.cdr.detectChanges();
           });
         });
@@ -205,11 +216,38 @@ export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestro
     });
   }
 
-  seleccionarParadero(p: ParaderoCercano): void {
+  seleccionarParadero(p: Paradero): void {
     this.paraderoSeleccionado = p;
-    this.map.flyTo([p.latitud, p.longitud], 17, { duration: 0.8 });
-    const idx = this.paraderos.indexOf(p);
-    if (idx >= 0) this.marcadores[idx]?.openPopup();
+    this.nodosParaderoSeleccionado = [];
+    this.errorRutasParadero = '';
+    this.loadingRutasParadero = true;
+
+    if (p.latitud !== undefined && p.longitud !== undefined) {
+      this.map.flyTo([Number(p.latitud), Number(p.longitud)], 17, {
+        duration: 0.8,
+      });
+
+      const idx = this.paraderos.indexOf(p);
+      if (idx >= 0) this.marcadores[idx]?.openPopup();
+    }
+
+    if (!p.id) {
+      this.loadingRutasParadero = false;
+      return;
+    }
+
+    this.nodoService.getByParadero(p.id).subscribe({
+      next: (data) => {
+        this.nodosParaderoSeleccionado = data;
+        this.loadingRutasParadero = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorRutasParadero = 'No se pudieron cargar las rutas de este paradero.';
+        this.loadingRutasParadero = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   getColor(clasificacion: string): string {
@@ -223,12 +261,16 @@ export class ParaderoCercanoComponent implements OnInit, AfterViewInit, OnDestro
 
   cerrarDetalle(): void {
     this.paraderoSeleccionado = null;
+    this.nodosParaderoSeleccionado = [];
+    this.errorRutasParadero = '';
+    this.loadingRutasParadero = false;
   }
 
-  formatearDistancia(metros: number): string {
-    return metros >= 1000
-      ? `${(metros / 1000).toFixed(1)} km`
-      : `${Math.round(metros)} m`;
+  formatearDistancia(metros?: number): string {
+    const valor = metros ?? 0;
+    return valor >= 1000
+      ? `${(valor / 1000).toFixed(1)} km`
+      : `${Math.round(valor)} m`;
   }
 
   private calcularDistancia(lat1: number, lng1: number, lat2: number, lng2: number): number {
