@@ -13,6 +13,7 @@ import { UserProfileComponent } from '../../pages/user-profile/user-profile.comp
 import { TablesComponent } from '../../pages/tables/tables.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 // import { ToastrModule } from 'ngx-toastr';
+import { ParaderoCercanoComponent } from 'src/app/pages/paradero-cercano/paradero-cercano.component';
 
 @NgModule({
   imports: [
@@ -23,13 +24,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     NgbModule,
     ClipboardModule,
     ReactiveFormsModule,
+    ParaderoCercanoComponent
   ],
   declarations: [
     DashboardComponent,
     UserProfileComponent,
     TablesComponent,
     IconsComponent,
-    MapsComponent
+    MapsComponent,
+
   ]
 })
 

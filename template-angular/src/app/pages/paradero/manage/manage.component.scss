@@ -1,0 +1,12 @@
+.msnError {
+  color: red;
+  font-size: 12px;
+}
+
+.mapa-manage {
+  width: 100%;
+  height: 350px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  z-index: 0; // Evitar que el mapa tape otros elementos
+}
