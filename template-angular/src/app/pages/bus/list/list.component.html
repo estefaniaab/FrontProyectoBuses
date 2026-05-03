@@ -1,0 +1,89 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Buses</h3>
+              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Agregar">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+
+            <div class="col-md-8 d-flex justify-content-end">
+              <form class="navbar-search navbar-search-light form-inline">
+                <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
+                  <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                      </span>
+                    </div>
+
+                    <input
+                      class="form-control"
+                      placeholder="Buscar bus por placa"
+                      type="text"
+                      [(ngModel)]="filtroPlaca"
+                      name="filtroPlaca"
+                      (input)="filtrarBuses()">
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Id</td>
+                <td>Placa</td>
+                <td>Modelo</td>
+                <td>Año</td>
+                <td>Capacidad máxima</td>
+                <td>Sentados</td>
+                <td>Parados</td>
+                <td>Estado</td>
+                <td>Código QR</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let bus of buses">
+                <td>{{ bus.id }}</td>
+                <td>{{ bus.placa }}</td>
+                <td>{{ bus.modelo }}</td>
+                <td>{{ bus.anio }}</td>
+                <td>{{ bus.capacidadMaximaPasajeros }}</td>
+                <td>{{ bus.capacidadSentados }}</td>
+                <td>{{ bus.capacidadParados }}</td>
+                <td>{{ bus.estado }}</td>
+                <td>{{ bus.codigoQr }}</td>
+                <td>
+                  <button class="btn btn-info btn-sm" (click)="view(bus.id)" title="Ver">
+                    <i class="material-icons">visibility</i>
+                  </button>
+
+                  <button class="btn btn-warning btn-sm" (click)="edit(bus.id)" title="Editar">
+                    <i class="material-icons">edit</i>
+                  </button>
+
+                  <button class="btn btn-danger btn-sm" (click)="delete(bus.id)" title="Eliminar">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
