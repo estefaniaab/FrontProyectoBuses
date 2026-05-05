@@ -24,7 +24,14 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { environment } from '../environments/environment';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
-
+import { GestionarParaderosModalComponent } from './pages/gestionar-paraderos-modal/gestionar-paraderos-modal.component';
+import {MatIconModule} from "@angular/material/icon";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatCardModule} from "@angular/material/card";
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatChipsModule} from "@angular/material/chips";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 @NgModule({
   imports: [
@@ -38,7 +45,14 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
     RecaptchaV3Module,
     RouterModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatChipsModule,
+    DragDropModule
   ],
   declarations: [
     AppComponent,
@@ -51,6 +65,7 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     Verify2faComponent,
+
   ],
   providers: [
     {
@@ -67,4 +82,4 @@ import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

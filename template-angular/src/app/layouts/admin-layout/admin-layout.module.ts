@@ -32,7 +32,6 @@ import { ParaderoCercanoComponent } from 'src/app/pages/paradero-cercano/parader
     TablesComponent,
     IconsComponent,
     MapsComponent,
-
   ]
 })
 

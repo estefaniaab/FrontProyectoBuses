@@ -1,0 +1,210 @@
+<div class="modal-backdrop-custom" *ngIf="show" (click)="cerrar()"></div>
+
+<div class="modal d-block modal-custom" tabindex="-1" role="dialog" *ngIf="show">
+  <div
+    class="modal-dialog modal-xl modal-dialog-scrollable"
+    role="document"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-content">
+
+      <div class="modal-header d-flex flex-wrap justify-content-between align-items-center">
+        <h5 class="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;">
+          <i class="material-icons align-middle mr-2">directions_bus</i>
+          Gestionar Paraderos —
+          <strong>{{ rutaNombre }}</strong>
+        </h5>
+        <button type="button" class="close" (click)="cerrar()" [disabled]="saving">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div *ngIf="errorMsg" class="alert alert-danger d-flex align-items-center">
+          <i class="material-icons mr-2">error_outline</i>
+          {{ errorMsg }}
+        </div>
+
+        <div *ngIf="loadingParaderos" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted">Cargando paraderos...</p>
+        </div>
+
+        <div *ngIf="!loadingParaderos" class="paneles-grid">
+
+          <div class="panel card shadow-sm">
+            <div class="card-header panel-header-disponibles d-flex align-items-center">
+              <i class="material-icons mr-2">list</i>
+              <span class="font-weight-bold">Paraderos disponibles</span>
+              <span class="badge badge-info ml-auto">{{ disponibles.length }}</span>
+            </div>
+
+            <div class="px-3 pt-3 pb-2">
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="material-icons" style="font-size:18px">search</i>
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Buscar por nombre..."
+                  [formControl]="searchControl"
+                />
+                <div class="input-group-append" *ngIf="searchControl.value">
+                  <button class="btn btn-outline-secondary btn-sm" type="button"
+                          (click)="searchControl.setValue('')">
+                    <i class="material-icons" style="font-size:16px">close</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="lista-scroll">
+              <div *ngIf="disponibles.length === 0" class="empty-state text-muted">
+                <i class="material-icons">not_listed_location</i>
+                <small>Sin paraderos disponibles</small>
+              </div>
+
+              <div
+                *ngFor="let p of disponibles; trackBy: trackById"
+                class="paradero-row paradero-disponible"
+                (click)="agregar(p)"
+                title="Agregar {{ p.nombre }}"
+              >
+                <i class="material-icons paradero-icon-pin">location_on</i>
+                <div class="paradero-texto">
+                  <span class="paradero-nombre" translate="no">{{ p.nombre }}</span>
+                </div>
+                <i class="material-icons add-icon text-primary">add_circle_outline</i>
+              </div>
+            </div>
+          </div>
+
+          <div class="flecha-separadora text-muted">
+            <i class="material-icons">chevron_right</i>
+          </div>
+
+          <div class="panel card shadow-sm">
+            <div class="card-header panel-header-seleccionados d-flex flex-wrap align-items-center py-2 px-3" style="gap: 0.25rem;">
+              <i class="material-icons mr-2">route</i>
+              <span class="font-weight-bold mr-auto">Ruta configurada</span>
+
+              <span
+                class="badge"
+                [ngClass]="esValido ? 'badge-success' : 'badge-warning'"
+              >
+                {{ seleccionados.length }} / mín. {{ MIN_PARADEROS }}
+              </span>
+
+              <button
+                *ngIf="seleccionados.length > 0"
+                class="btn btn-sm btn-outline-secondary"
+                type="button"
+                (click)="ordenarPorNumero()"
+                title="Ordenar por número asignado"
+                style="white-space: nowrap; font-size: 0.75rem; padding: 0.25rem 0.4rem; flex-shrink: 0;"
+              >
+                <i class="material-icons align-middle" style="font-size:14px">sort</i>
+                Ordenar
+              </button>
+
+              <button
+                *ngIf="seleccionados.length > 0"
+                class="btn btn-sm btn-outline-danger"
+                type="button"
+                (click)="limpiar()"
+                title="Limpiar selección"
+                style="white-space: nowrap; font-size: 0.75rem; padding: 0.25rem 0.4rem; flex-shrink: 0;"
+              >
+                <i class="material-icons align-middle" style="font-size:14px">delete_sweep</i>
+              </button>
+            </div>
+
+            <p *ngIf="seleccionados.length > 0" class="hint-drag text-muted px-3 pt-2 mb-0">
+              <i class="material-icons" style="font-size:15px;vertical-align:middle">info_outline</i>
+              Asigna un número de orden a cada paradero, luego pulsa <strong>Ordenar</strong>.
+            </p>
+
+            <div class="lista-scroll">
+              <div *ngIf="seleccionados.length === 0" class="empty-state text-muted">
+                <i class="material-icons">add_road</i>
+                <small>Selecciona paraderos de la izquierda</small>
+              </div>
+
+              <div
+                *ngFor="let item of seleccionados; let i = index; trackBy: trackById"
+                class="paradero-row paradero-seleccionado"
+                [class.orden-duplicado]="tieneOrdenDuplicado(item._orden)"
+              >
+                <div class="orden-input-wrap">
+                  <input
+                    type="number"
+                    class="form-control form-control-sm orden-input"
+                    [class.is-invalid]="tieneOrdenDuplicado(item._orden)"
+                    [(ngModel)]="item._orden"
+                    (ngModelChange)="onOrdenChange()"
+                    min="1"
+                    [max]="seleccionados.length"
+                    title="Número de parada en la ruta"
+                  />
+                </div>
+
+                <div class="paradero-texto">
+                  <span class="paradero-nombre" translate="no">{{ item.nombre }}</span>
+                  <span *ngIf="esPrimero(item._orden)" class="badge badge-primary terminal-badge ml-1">Inicio</span>
+                  <span *ngIf="esUltimo(item._orden) && seleccionados.length > 1" class="badge badge-success terminal-badge ml-1">Fin</span>
+                </div>
+
+                <button
+                  class="btn btn-sm btn-outline-danger btn-icon-sm ml-auto"
+                  type="button"
+                  (click)="remover(i)"
+                  title="Quitar {{ item.nombre }}"
+                >
+                  <i class="material-icons" style="font-size:16px">remove_circle_outline</i>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="hayDuplicados" class="validacion-msg alert alert-danger m-2 py-2">
+              <i class="material-icons align-middle mr-1" style="font-size:16px">warning</i>
+              Hay números de orden repetidos. Corríjalos antes de guardar.
+            </div>
+
+            <div *ngIf="seleccionados.length > 0 && !esValido"
+                 class="validacion-msg alert alert-warning m-2 py-2">
+              <i class="material-icons align-middle mr-1" style="font-size:16px">info_outline</i>
+              {{ mensajeValidacion }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer d-flex flex-wrap justify-content-between align-items-center" style="gap: 0.5rem;">
+        <span class="text-muted mr-auto" style="white-space: nowrap;">
+          {{ seleccionados.length }} paradero{{ seleccionados.length === 1 ? '' : 's' }} seleccionado{{ seleccionados.length === 1 ? '' : 's' }}
+        </span>
+
+        <button type="button" class="btn btn-secondary" style="white-space: nowrap;" (click)="cerrar()" [disabled]="saving">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-success"
+          style="white-space: nowrap; font-size: 0.875rem;"
+          (click)="guardar()"
+          [disabled]="!esValido || saving || hayDuplicados"
+        >
+          <span *ngIf="saving" class="spinner-border spinner-border-sm mr-1" role="status"></span>
+          <i *ngIf="!saving" class="material-icons align-middle mr-1" style="font-size:18px">save</i>
+          {{ saving ? 'Guardando...' : 'Guardar ruta' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

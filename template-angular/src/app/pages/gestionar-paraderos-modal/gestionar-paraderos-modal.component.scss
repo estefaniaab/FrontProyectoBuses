@@ -1,0 +1,341 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// gestionar-paraderos-modal.component.scss
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Backdrop ─────────────────────────────────────────────────────────────────
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1040;
+  backdrop-filter: blur(2px);
+}
+
+// ── Contenedor modal ─────────────────────────────────────────────────────────
+.modal-custom {
+  z-index: 1050;
+  position: fixed;
+  inset: 0;
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.5rem 0.75rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  // Forzar que el dialog ocupe el ancho xl sin que Bootstrap lo comprima
+  .modal-dialog {
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 3rem);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header,
+.modal-footer {
+  flex-shrink: 0;
+}
+
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+// ── Layout de paneles ─────────────────────────────────────────────────────────
+.paneles-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  min-height: 420px;
+}
+
+// ── Flecha separadora ─────────────────────────────────────────────────────────
+.flecha-separadora {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3rem;
+  font-size: 2rem;
+
+  .material-icons {
+    font-size: 2rem;
+    opacity: 0.4;
+  }
+}
+
+// ── Panel (card) ─────────────────────────────────────────────────────────────
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+
+  .card-header {
+    flex-shrink: 0;
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+
+    .material-icons {
+      font-size: 18px;
+    }
+  }
+}
+
+.panel-header-disponibles {
+  background: linear-gradient(135deg, #e8f4fd, #d1ecf8);
+  border-bottom: 2px solid #bee5eb;
+  color: #0c5460;
+}
+
+.panel-header-seleccionados {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border-bottom: 2px solid #a5d6a7;
+  color: #1b5e20;
+}
+
+// ── Scroll list ───────────────────────────────────────────────────────────────
+.lista-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f8f9fa;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 4px;
+  }
+}
+
+// ── Estado vacío ──────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  opacity: 0.6;
+
+  .material-icons {
+    font-size: 2.5rem;
+    opacity: 0.5;
+  }
+}
+
+// ── Fila de paradero ─────────────────────────────────────────────────────────
+.paradero-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  margin: 0 0.5rem 0.25rem;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paradero-disponible {
+  cursor: pointer;
+  border: 1px solid #e9ecef;
+  background: #fff;
+
+  &:hover {
+    background: #e8f4fd;
+    border-color: #bee5eb;
+    box-shadow: 0 2px 6px rgba(13, 110, 139, 0.12);
+
+    .add-icon {
+      transform: scale(1.2);
+    }
+  }
+
+  .add-icon {
+    margin-left: auto;
+    font-size: 20px;
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+}
+
+.paradero-seleccionado {
+  border: 1px solid #c8e6c9;
+  background: #f1f8e9;
+  cursor: default;
+  align-items: center;  // garantiza alineación vertical dentro del CDK drag
+}
+
+// ── Íconos dentro de fila ─────────────────────────────────────────────────────
+.paradero-icon-pin {
+  font-size: 18px;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.paradero-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 80px; // evita que el flex item se aplaste a 0px
+  overflow: hidden;
+}
+
+.paradero-nombre {
+  font-weight: 600;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word; // solo rompe si la palabra NO cabe, nunca entre letras
+  line-height: 1.3;
+}
+
+.paradero-dir {
+  font-size: 0.75rem;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+// ── Drag & drop ───────────────────────────────────────────────────────────────
+.drop-list {
+  min-height: 60px;
+}
+
+.drop-list-vacio {
+  border: 2px dashed #a5d6a7;
+  margin: 0.5rem;
+  border-radius: 0.4rem;
+}
+
+.drag-handle {
+  cursor: grab;
+  font-size: 20px;
+  flex-shrink: 0;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.drag-placeholder {
+  background: #e3f2fd;
+  border: 2px dashed #90caf9;
+  border-radius: 0.4rem;
+  height: 48px;
+  margin: 0 0.5rem 0.25rem;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// CDK preview (mientras arrastras)
+.cdk-drag-preview {
+  border-radius: 0.4rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  background: #fff;
+  border: 1px solid #c8e6c9;
+  opacity: 0.95;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .paradero-seleccionado:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// ── Input de orden numérico ────────────────────────────────────────────────────
+.orden-input-wrap {
+  flex-shrink: 0; // no se encoge bajo ninguna circunstancia
+  width: 54px;
+}
+
+.orden-input {
+  width: 54px;
+  text-align: center;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+// ── Orden badge ───────────────────────────────────────────────────────────────
+.orden-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2e7d32;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+// ── Badge terminal (Inicio / Fin) ──────────────────────────────────────────────
+.terminal-badge {
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+// ── Hint drag ────────────────────────────────────────────────────────────────
+.hint-drag {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+// ── Botón ícono pequeño ───────────────────────────────────────────────────────
+.btn-icon-sm {
+  padding: 0.15rem 0.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── Validación ────────────────────────────────────────────────────────────────
+.validacion-msg {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .paneles-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .flecha-separadora {
+    padding-top: 0;
+    transform: rotate(90deg);
+  }
+
+  .panel {
+    height: 320px;
+  }
+}

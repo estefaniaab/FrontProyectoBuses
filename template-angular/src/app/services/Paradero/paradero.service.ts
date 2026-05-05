@@ -1,18 +1,18 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// src/app/services/Paradero/paradero.service.ts
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Paradero, ParaderoCercano } from 'src/app/models/Paradero/paradero.model';
+import { Paradero } from 'src/app/models/Paradero/paradero.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ParaderoService {
-  private apiUrl = `${environment.url_ms_business}/api/paraderos`;
+  private readonly apiUrl = `${environment.url_ms_business}/paraderos`;
 
   constructor(private http: HttpClient) {}
-
-  // ─── CRUD completo ────────────────────────────────────────────────────────
 
   getAll(): Observable<Paradero[]> {
     return this.http.get<Paradero[]>(this.apiUrl);
@@ -34,10 +34,8 @@ export class ParaderoService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // ─── Búsqueda cercana (HU-ENTR-2-002) ────────────────────────────────────
-
-  buscarCercanos(lat: number, lng: number): Observable<ParaderoCercano[]> {
-    return this.http.get<ParaderoCercano[]>(`${this.apiUrl}/cercanos`, {
+  buscarCercanos(lat: number, lng: number): Observable<Paradero[]> {
+    return this.http.get<Paradero[]>(`${this.apiUrl}/cercanos`, {
       params: { lat, lng },
     });
   }

@@ -1,10 +1,8 @@
 <div class="pc-shell">
 
   <!-- ══════════════ SIDEBAR ══════════════ -->
-  <!-- Se añade fondo sólido y z-index para tapar elementos de fondo -->
   <aside class="pc-sidebar" style="background-color: #fff; position: relative; z-index: 10;">
 
-    <!-- Se añade fondo oscuro sólido para ocultar el letrero "PANEL" que se asoma -->
     <header class="pc-header" style="background-color: #1a2537; color: white; padding: 20px; position: relative; z-index: 20;">
       <div class="pc-header__logo">
         <span class="pc-header__icon">🚏</span>
@@ -44,7 +42,10 @@
 
       <div class="pc-count">
         <span>{{ paraderos.length }}</span> paraderos encontrados
-        <span class="pc-live"><span class="pc-live__dot"></span>En vivo</span>
+        <span class="pc-live">
+          <span class="pc-live__dot"></span>
+          En vivo
+        </span>
       </div>
 
       <ul class="pc-list">
@@ -54,14 +55,21 @@
           [class.pc-card--active]="paraderoSeleccionado?.id === p.id"
           (click)="seleccionarParadero(p)"
         >
-          <div class="pc-card__num" [style.background]="getColor(p.clasificacion)">
+          <div
+            class="pc-card__num"
+            [style.background]="getColor(p.clasificacion)"
+          >
             {{ i + 1 }}
           </div>
 
           <div class="pc-card__info">
             <p class="pc-card__nombre">{{ p.nombre }}</p>
-            <span class="pc-tag pc-tag--{{ p.clasificacion }}">
-              {{ CLASIFICACION_LABEL[p.clasificacion] }}
+
+            <span
+              class="pc-tag"
+              [ngClass]="'pc-tag--' + p.clasificacion"
+            >
+              {{ p.clasificacion ? CLASIFICACION_LABEL[p.clasificacion] : 'Sin clasificación' }}
             </span>
           </div>
 
@@ -82,25 +90,98 @@
     <div class="pc-detail" *ngIf="paraderoSeleccionado" style="z-index: 30;">
       <button class="pc-detail__close" (click)="cerrarDetalle()">✕</button>
 
-      <p class="pc-detail__tipo pc-tag pc-tag--{{ paraderoSeleccionado.clasificacion }}">
-        {{ CLASIFICACION_LABEL[paraderoSeleccionado.clasificacion] }}
+      <p
+        class="pc-detail__tipo pc-tag"
+        [ngClass]="'pc-tag--' + paraderoSeleccionado.clasificacion"
+      >
+        {{
+        paraderoSeleccionado.clasificacion
+        ? CLASIFICACION_LABEL[paraderoSeleccionado.clasificacion]
+        : 'Sin clasificación'
+        }}
       </p>
-      <h2 class="pc-detail__nombre">{{ paraderoSeleccionado.nombre }}</h2>
+
+      <h2 class="pc-detail__nombre">
+        {{ paraderoSeleccionado.nombre }}
+      </h2>
 
       <div class="pc-detail__stats">
         <div class="pc-stat">
-          <span class="pc-stat__val">{{ formatearDistancia(paraderoSeleccionado.distancia_metros) }}</span>
+          <span class="pc-stat__val">
+            {{ formatearDistancia(paraderoSeleccionado.distancia_metros) }}
+          </span>
           <span class="pc-stat__key">distancia</span>
         </div>
+
         <div class="pc-stat">
-          <span class="pc-stat__val">{{ paraderoSeleccionado.latitud | number:'1.4-4' }}</span>
+          <span class="pc-stat__val">
+            {{ paraderoSeleccionado.latitud | number:'1.4-4' }}
+          </span>
           <span class="pc-stat__key">latitud</span>
         </div>
+
         <div class="pc-stat">
-          <span class="pc-stat__val">{{ paraderoSeleccionado.longitud | number:'1.4-4' }}</span>
+          <span class="pc-stat__val">
+            {{ paraderoSeleccionado.longitud | number:'1.4-4' }}
+          </span>
           <span class="pc-stat__key">longitud</span>
         </div>
       </div>
+
+      <!-- RUTAS QUE PASAN POR EL PARADERO -->
+      <section class="pc-routes" *ngIf="paraderoSeleccionado">
+        <h3 class="pc-routes__title">
+          Rutas que pasan por este paradero
+        </h3>
+
+        <div *ngIf="loadingRutasParadero" class="pc-routes__empty">
+          Cargando rutas...
+        </div>
+
+        <div *ngIf="errorRutasParadero" class="pc-routes__empty">
+          {{ errorRutasParadero }}
+        </div>
+
+        <div
+          *ngIf="
+      !loadingRutasParadero &&
+      !errorRutasParadero &&
+      nodosParaderoSeleccionado.length > 0;
+      else sinRutas
+    "
+          class="pc-routes__list"
+        >
+          <div
+            class="pc-route-card"
+            *ngFor="let nodo of nodosParaderoSeleccionado"
+          >
+            <div *ngIf="nodo.ruta">
+              <div class="pc-route-card__header">
+                <strong>{{ nodo.ruta.nombre }}</strong>
+                <span>Orden {{ nodo.orden }}</span>
+              </div>
+
+              <p class="pc-route-card__desc">
+                {{ nodo.ruta.descripcion }}
+              </p>
+
+              <div class="pc-route-card__meta">
+                <span>Tarifa: ${{ nodo.ruta.tarifa }}</span>
+                <span>Tiempo: {{ nodo.ruta.tiempoEstimadoTotal }} min</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #sinRutas>
+          <p
+            class="pc-routes__empty"
+            *ngIf="!loadingRutasParadero && !errorRutasParadero"
+          >
+            No hay rutas registradas para este paradero.
+          </p>
+        </ng-template>
+      </section>
     </div>
   </main>
 

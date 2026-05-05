@@ -3,10 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Paradero } from 'src/app/models/Paradero/paradero.model';
 import { ParaderoService } from 'src/app/services/Paradero/paradero.service';
+import { ClasificacionParadero } from 'src/app/models/Paradero/clasificacion-paradero.enum';
 import Swal from 'sweetalert2';
 import * as L from 'leaflet';
 
-// Fix íconos Leaflet con webpack
 const iconDefault = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -14,6 +14,7 @@ const iconDefault = L.icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
+
 L.Marker.prototype.options.icon = iconDefault;
 
 @Component({
@@ -23,17 +24,23 @@ L.Marker.prototype.options.icon = iconDefault;
 })
 export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  mode: number; // 1: view, 2: create, 3: update
-  paradero: Paradero;
-  theFormGroup: FormGroup;
-  trySend: boolean;
+  mode: number = 1; // 1: view, 2: create, 3: update
+  paradero: Paradero = new Paradero();
+  theFormGroup!: FormGroup;
+  trySend = false;
 
-  // Mapa
   private map!: L.Map;
   private marcador: L.Marker | null = null;
-  modoMapa = false; // true cuando el usuario puede hacer clic para ubicar
 
-  readonly CLASIFICACIONES = ['principal', 'secundario', 'terminal'];
+  modoMapa = false;
+
+  readonly CLASIFICACIONES = Object.values(ClasificacionParadero);
+
+  readonly CLASIFICACION_LABEL: Record<ClasificacionParadero, string> = {
+    [ClasificacionParadero.PRINCIPAL]: 'Principal',
+    [ClasificacionParadero.SECUNDARIO]: 'Secundario',
+    [ClasificacionParadero.TERMINAL]: 'Terminal',
+  };
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -42,13 +49,20 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
     private fb: FormBuilder,
     private zone: NgZone
   ) {
-    this.trySend = false;
-    this.paradero = { id: 0, nombre: '', latitud: 0, longitud: 0, clasificacion: 'principal' };
+    this.paradero = {
+      id: 0,
+      nombre: '',
+      latitud: 5.0569,
+      longitud: -75.4870,
+      clasificacion: ClasificacionParadero.PRINCIPAL,
+    };
+
     this.configFormGroup();
   }
 
   ngOnInit(): void {
     const currentUrl = this.activatedRoute.snapshot.url.join('/');
+
     if (currentUrl.includes('view')) {
       this.mode = 1;
     } else if (currentUrl.includes('create')) {
@@ -61,8 +75,10 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.theFormGroup.disable();
     }
 
-    if (this.activatedRoute.snapshot.params['id']) {
-      this.paradero.id = +this.activatedRoute.snapshot.params['id'];
+    const id = this.activatedRoute.snapshot.params['id'];
+
+    if (id) {
+      this.paradero.id = Number(id);
       this.getParadero(this.paradero.id);
     }
   }
@@ -72,18 +88,18 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.map?.remove();
+    if (this.map) {
+      this.map.remove();
+    }
   }
 
-  // ─── FORMULARIO ───────────────────────────────────────────────────────────
-
-  configFormGroup() {
+  configFormGroup(): void {
     this.theFormGroup = this.fb.group({
-      id:            [{ value: '', disabled: true }],
-      nombre:        ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      clasificacion: ['', [Validators.required]],
-      latitud:       [null, [Validators.required]],
-      longitud:      [null, [Validators.required]],
+      id: [{ value: '', disabled: true }],
+      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      clasificacion: [ClasificacionParadero.PRINCIPAL, [Validators.required]],
+      latitud: [null, [Validators.required]],
+      longitud: [null, [Validators.required]],
     });
   }
 
@@ -91,11 +107,9 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.theFormGroup.controls;
   }
 
-  // ─── MAPA ─────────────────────────────────────────────────────────────────
   private inicializarMapa(): void {
-    // Centro por defecto si falla la geolocalización
     this.map = L.map('mapa-manage', {
-      center: [6.2442, -75.5812],
+      center: [5.0569, -75.4870],
       zoom: 13,
     });
 
@@ -104,7 +118,6 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
       maxZoom: 19,
     }).addTo(this.map);
 
-    // Solo habilitar ubicación y clics si NO es modo vista
     if (this.mode !== 1) {
       this.centrarEnMiUbicacion();
 
@@ -119,69 +132,88 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private centrarEnMiUbicacion(): void {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          // Centramos la vista
-          this.map.setView([lat, lng], 16);
-
-          // Si es un nuevo paradero (modo 2), marcamos el punto de una vez
-          if (this.mode === 2) {
-            this.zone.run(() => this.onMapClick(lat, lng));
-          }
-        },
-        (error) => {
-          console.warn('Error obteniendo geolocalización', error);
-        },
-        { enableHighAccuracy: true }
-      );
+    if (!navigator.geolocation) {
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        this.map.setView([lat, lng], 16);
+
+        if (this.mode === 2) {
+          this.zone.run(() => this.onMapClick(lat, lng));
+        }
+      },
+      (error) => {
+        console.warn('Error obteniendo geolocalización', error);
+
+        if (this.mode === 2) {
+          this.zone.run(() => this.onMapClick(5.0569, -75.4870));
+        }
+      },
+      { enableHighAccuracy: true }
+    );
   }
 
-  // ESTE MÉTODO FALTABA
   private onMapClick(lat: number, lng: number): void {
-    this.theFormGroup.patchValue({ latitud: lat, longitud: lng });
+    this.theFormGroup.patchValue({
+      latitud: Number(lat.toFixed(6)),
+      longitud: Number(lng.toFixed(6)),
+    });
+
     this.colocarMarcador(lat, lng);
   }
 
-  // ESTE MÉTODO TAMBIÉN FALTABA
-  private colocarMarcador(lat: number, lng: number): void {
+  private colocarMarcador(lat?: number, lng?: number): void {
+    if (lat === undefined || lng === undefined) {
+      return;
+    }
+
+    const latNumber = Number(lat);
+    const lngNumber = Number(lng);
+
     if (this.marcador) {
-      this.marcador.setLatLng([lat, lng]);
+      this.marcador.setLatLng([latNumber, lngNumber]);
     } else {
-      this.marcador = L.marker([lat, lng], { draggable: this.mode !== 1 })
+      this.marcador = L.marker([latNumber, lngNumber], {
+        draggable: this.mode !== 1,
+      })
         .addTo(this.map)
         .bindPopup('📍 Paradero seleccionado')
         .openPopup();
 
       if (this.mode !== 1) {
-        this.marcador.on('dragend', (e: any) => {
-          const pos = e.target.getLatLng();
+        this.marcador.on('dragend', (e: L.DragEndEvent) => {
+          const marker = e.target as L.Marker;
+          const pos = marker.getLatLng();
+
           this.zone.run(() => {
-            this.theFormGroup.patchValue({ latitud: pos.lat, longitud: pos.lng });
+            this.theFormGroup.patchValue({
+              latitud: Number(pos.lat.toFixed(6)),
+              longitud: Number(pos.lng.toFixed(6)),
+            });
           });
         });
       }
     }
-    this.map.setView([lat, lng], 16);
-  }
-  // ─── CRUD ─────────────────────────────────────────────────────────────────
 
-  getParadero(id: number) {
+    this.map.setView([latNumber, lngNumber], 16);
+  }
+
+  getParadero(id: number): void {
     this.paraderoService.getOne(id).subscribe({
       next: (data) => {
         this.paradero = data;
         this.theFormGroup.patchValue({
-          id:            data.id,
-          nombre:        data.nombre,
+          id: data.id,
+          nombre: data.nombre,
           clasificacion: data.clasificacion,
-          latitud:       data.latitud,
-          longitud:      data.longitud,
+          latitud: data.latitud,
+          longitud: data.longitud,
         });
-        // Mostrar en el mapa
         this.colocarMarcador(data.latitud, data.longitud);
       },
       error: () => {
@@ -190,18 +222,28 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  back() {
+  back(): void {
     this.router.navigate(['/paraderos/list']);
   }
 
-  create() {
+  create(): void {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
       Swal.fire('Error!', 'Por favor, complete todos los campos requeridos.', 'error');
       return;
     }
+
     const { nombre, clasificacion, latitud, longitud } = this.theFormGroup.value;
-    this.paraderoService.crear({ nombre, clasificacion, latitud, longitud }).subscribe({
+
+    const nuevoParadero: Paradero = {
+      nombre,
+      clasificacion,
+      latitud: Number(latitud),
+      longitud: Number(longitud),
+    };
+
+    this.paraderoService.crear(nuevoParadero).subscribe({
       next: () => {
         Swal.fire('Creado!', 'Paradero creado correctamente.', 'success');
         this.router.navigate(['/paraderos/list']);
@@ -212,14 +254,30 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  update() {
+  update(): void {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
       Swal.fire('Error!', 'Por favor, complete todos los campos requeridos.', 'error');
       return;
     }
+
+    if (!this.paradero.id) {
+      Swal.fire('Error', 'No se encontró el ID del paradero.', 'error');
+      return;
+    }
+
     const { nombre, clasificacion, latitud, longitud } = this.theFormGroup.value;
-    this.paraderoService.actualizar(this.paradero.id, { nombre, clasificacion, latitud, longitud }).subscribe({
+
+    const paraderoActualizado: Paradero = {
+      id: this.paradero.id,
+      nombre,
+      clasificacion,
+      latitud: Number(latitud),
+      longitud: Number(longitud),
+    };
+
+    this.paraderoService.actualizar(this.paradero.id, paraderoActualizado).subscribe({
       next: () => {
         Swal.fire('Actualizado!', 'Paradero actualizado correctamente.', 'success');
         this.router.navigate(['/paraderos/list']);
@@ -228,5 +286,13 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
         Swal.fire('Error', 'No se pudo actualizar el paradero.', 'error');
       }
     });
+  }
+
+  getClasificacionLabel(c?: ClasificacionParadero): string {
+    if (!c) {
+      return 'Sin clasificación';
+    }
+
+    return this.CLASIFICACION_LABEL[c] ?? c;
   }
 }
