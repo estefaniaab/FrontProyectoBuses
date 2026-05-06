@@ -4,7 +4,7 @@ import { ListComponent } from './list/list.component';
 import { ManageComponent } from './manage/manage.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BusRoutingModule } from './bus-routing.module';
-
+import { QRCodeModule } from 'angularx-qrcode';
 
 @NgModule({
   declarations: [
@@ -14,7 +14,8 @@ import { BusRoutingModule } from './bus-routing.module';
     CommonModule,
     BusRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    QRCodeModule
   ]
 })
 export class BusModule { }

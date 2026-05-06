@@ -149,23 +149,29 @@
               <br>
 
               <div class="row">
-                <div class="col-3">Foto URL</div>
+                <div class="col-3">Foto</div>
                 <div class="col-9">
-                  <input type="text" class="form-control" formControlName="fotoUrl">
+                  <input type="file" class="form-control" accept="image/*" (change)="onFileSelected($event)"
+                    *ngIf="mode == 2 || mode == 3">
+                  <div *ngIf="photoPreview" class="mt-2">
+                    <img [src]="photoPreview" alt="Foto del bus"
+                         width="100" height="100" class="rounded-circle">
+                  </div>
                 </div>
               </div>
-
               <br>
-
-              <div class="row" *ngIf="mode==1 || mode==3">
+              <div class="row" *ngIf="mode == 1 || mode == 3">
                 <div class="col-3">Código QR</div>
                 <div class="col-9">
-                  <input type="text" class="form-control" formControlName="codigoQr" disabled>
+                  <qrcode
+                    *ngIf="theFormGroup.get('codigoQr')?.value" [qrdata]="theFormGroup.get('codigoQr')?.value"
+                    [width]="140" [errorCorrectionLevel]="'M'">
+                  </qrcode>
+                  <span *ngIf="!theFormGroup.get('codigoQr')?.value" class="text-muted">
+                      Sin QR</span>
                 </div>
               </div>
-
-              <br *ngIf="mode==1 || mode==3">
-
+              <br>
               <div class="row">
                 <div class="col-3"></div>
                 <div class="col-9">

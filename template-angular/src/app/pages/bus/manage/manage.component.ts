@@ -16,6 +16,7 @@ export class ManageComponent implements OnInit {
   bus: Bus;
   theFormGroup: FormGroup;
   trySend: boolean;
+  photoPreview: string | null = null;
 
   estadosBus = [
     { value: EstadoBus.OPERATIVO, label: 'Operativo' },
@@ -104,6 +105,9 @@ export class ManageComponent implements OnInit {
           fotoUrl: this.bus.fotoUrl,
           codigoQr: this.bus.codigoQr,
         });
+        if (this.bus.fotoUrl) {
+          this.photoPreview = this.bus.fotoUrl;
+        }
       },
       error: (error) => {
         console.error('Error fetching bus:', error);
@@ -183,5 +187,36 @@ export class ManageComponent implements OnInit {
         });
       }
     });
+  }
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    const maxSize = 2 * 1024 * 1024; // 2 MB
+
+    if (file.size > maxSize) {
+      Swal.fire({
+        title: 'Imagen muy grande',
+        text: 'La imagen no debe superar los 2 MB.',
+        icon: 'warning',
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const base64 = reader.result as string;
+
+      this.photoPreview = base64;
+
+      this.theFormGroup.get('fotoUrl')?.setValue(base64);
+      this.theFormGroup.get('fotoUrl')?.updateValueAndValidity();
+    };
+
+    reader.readAsDataURL(file);
   }
 }
