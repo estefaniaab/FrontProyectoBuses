@@ -126,4 +126,14 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
+  {
+    path: 'recargas',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/recarga/recarga.module').then(m => m.RecargaModule)
+      }
+    ]
+  },
 ];

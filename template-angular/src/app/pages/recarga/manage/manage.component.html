@@ -1,0 +1,209 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0" *ngIf="mode==1">Detalle de recarga</h3>
+          <h3 class="mb-0" *ngIf="mode==2">Recargar tarjeta</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="theFormGroup">
+            <div class="card-body container">
+
+              <div class="row" *ngIf="mode==1">
+                <div class="col-3">ID</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="id" disabled>
+                </div>
+              </div>
+
+              <br *ngIf="mode==1">
+
+              <div class="row">
+                <div class="col-3">Tarjeta recargable</div>
+                <div class="col-9">
+                  <select
+                    class="form-control"
+                    formControlName="metodoPagoCiudadanoId"
+                    (change)="onTarjetaChange()">
+
+                    <option value="">Seleccione una tarjeta recargable</option>
+
+                    <option
+                      *ngFor="let tarjeta of tarjetas"
+                      [value]="tarjeta.id">
+                      {{ tarjeta.numeroIdentificacion }}
+                    </option>
+                  </select>
+                  <div *ngIf="tarjetas.length === 0 && mode==2" class="text-muted mt-2">
+                    No tienes tarjetas recargables activas para recargar.
+                  </div>
+
+                  <div
+                    *ngIf="getTheFormGroup.metodoPagoCiudadanoId.errors && (getTheFormGroup.metodoPagoCiudadanoId.dirty || getTheFormGroup.metodoPagoCiudadanoId.touched || trySend)">
+                    <strong *ngIf="getTheFormGroup.metodoPagoCiudadanoId.errors.required"
+                            class="msnError">
+                      Requerido
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row" *ngIf="tarjetaSeleccionada">
+                <div class="col-3">Saldo actual</div>
+                <div class="col-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [value]="saldoActual | currency:'COP':'symbol':'1.0-0'"
+                    disabled>
+                </div>
+              </div>
+
+              <br *ngIf="tarjetaSeleccionada">
+
+              <div class="row" *ngIf="mode==2">
+                <div class="col-3">Montos predefinidos</div>
+                <div class="col-9">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm mr-2 mb-2"
+                    *ngFor="let monto of montosPredefinidos"
+                    (click)="seleccionarMonto(monto)">
+                    {{ monto | currency:'COP':'symbol':'1.0-0' }}
+                  </button>
+                </div>
+              </div>
+
+              <br *ngIf="mode==2">
+
+              <div class="row">
+                <div class="col-3">Monto personalizado</div>
+                <div class="col-9">
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="monto"
+                    placeholder="Ingrese un monto entre $5.000 y $500.000"
+                    (input)="actualizarTotales()">
+
+                  <div
+                    *ngIf="getTheFormGroup.monto.errors && (getTheFormGroup.monto.dirty || getTheFormGroup.monto.touched || trySend)">
+
+                    <strong *ngIf="getTheFormGroup.monto.errors.required"
+                            class="msnError">
+                      Requerido
+                    </strong>
+
+                    <strong *ngIf="getTheFormGroup.monto.errors.min"
+                            class="msnError">
+                      El monto mínimo es $5.000
+                    </strong>
+
+                    <strong *ngIf="getTheFormGroup.monto.errors.max"
+                            class="msnError">
+                      El monto máximo es $500.000
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <br>
+
+              <div class="row" *ngIf="tarjetaSeleccionada && montoRecarga > 0">
+                <div class="col-3">Saldo después de recarga</div>
+                <div class="col-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [value]="saldoDespues | currency:'COP':'symbol':'1.0-0'"
+                    disabled>
+                </div>
+              </div>
+
+              <br *ngIf="tarjetaSeleccionada && montoRecarga > 0">
+
+              <div class="row" *ngIf="montoRecarga > 0">
+                <div class="col-3">Comisión ePayco</div>
+                <div class="col-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [value]="comision | currency:'COP':'symbol':'1.0-0'"
+                    disabled>
+                </div>
+              </div>
+
+              <br *ngIf="montoRecarga > 0">
+
+              <div class="row" *ngIf="montoRecarga > 0">
+                <div class="col-3">Total a pagar</div>
+                <div class="col-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [value]="totalPagar | currency:'COP':'symbol':'1.0-0'"
+                    disabled>
+                </div>
+              </div>
+
+              <br *ngIf="montoRecarga > 0">
+
+              <div class="row" *ngIf="mode==1">
+                <div class="col-3">Estado</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="estado" disabled>
+                </div>
+              </div>
+
+              <br *ngIf="mode==1">
+
+              <div class="row" *ngIf="mode==1">
+                <div class="col-3">Referencia</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="referenciaInterna" disabled>
+                </div>
+              </div>
+
+              <br *ngIf="mode==1">
+
+              <div class="alert alert-info" *ngIf="mode==2">
+                Al continuar, serás redirigido a ePayco. El sistema no manejará datos sensibles de tarjetas.
+              </div>
+
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-block"
+                    (click)="back()">
+                    Regresar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-success btn-block"
+                    (click)="continuarAlPago()"
+                    *ngIf="mode==2"
+                    [disabled]="tarjetas.length === 0">
+                    Continuar al pago
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
