@@ -5,8 +5,11 @@ import Swal from 'sweetalert2';
 
 import { Recarga } from 'src/app/models/Recargas/recarga.model';
 import { MetodoPagoCiudadano } from 'src/app/models/MetodosPagoCiudadano/metodo-pago-ciudadano.model';
+import { Ciudadano } from 'src/app/models/Ciudadanos/ciudadano.model';
+
 import { RecargaService } from 'src/app/services/Recarga/recarga.service';
 import { MetodoPagoCiudadanoService } from 'src/app/services/MetodosPagoCiudadano/metodo-pago-ciudadano.service';
+import { CiudadanoService } from 'src/app/services/Ciudadano/ciudadano.service';
 
 @Component({
   selector: 'app-manage-recargas',
@@ -20,6 +23,9 @@ export class ManageComponent implements OnInit {
   theFormGroup: FormGroup;
   trySend: boolean;
 
+  ciudadano?: Ciudadano;
+  ciudadanoId?: number;
+
   tarjetas: MetodoPagoCiudadano[] = [];
   tarjetaSeleccionada: MetodoPagoCiudadano | null = null;
 
@@ -30,14 +36,13 @@ export class ManageComponent implements OnInit {
     100000
   ];
 
-  ciudadanoId = 3; // Temporal hasta conectar con el usuario autenticado.
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private theFormBuilder: FormBuilder,
     private recargaService: RecargaService,
-    private metodoPagoCiudadanoService: MetodoPagoCiudadanoService
+    private metodoPagoCiudadanoService: MetodoPagoCiudadanoService,
+    private ciudadanoService: CiudadanoService
   ) {
     this.trySend = false;
 
@@ -67,7 +72,7 @@ export class ManageComponent implements OnInit {
       this.mode = 2;
     }
 
-    this.cargarTarjetas();
+    this.cargarCiudadanoLogueado();
 
     if (this.activatedRoute.snapshot.params.id) {
       const id = Number(this.activatedRoute.snapshot.params.id);
@@ -102,7 +107,83 @@ export class ManageComponent implements OnInit {
     return this.theFormGroup.controls;
   }
 
+  getUsuarioIdLogueado(): string | null {
+    const sessionRaw = localStorage.getItem('session');
+
+    if (sessionRaw) {
+      try {
+        const session = JSON.parse(sessionRaw);
+
+        if (session.id) {
+          return session.id;
+        }
+
+        if (session.token) {
+          const payload = JSON.parse(atob(session.token.split('.')[1]));
+          return payload.id || payload.sub || null;
+        }
+      } catch (error) {
+        console.error('Error leyendo session del localStorage:', error);
+        return null;
+      }
+    }
+
+    return null;
+  }
+
+  cargarCiudadanoLogueado(): void {
+    const usuarioId = this.getUsuarioIdLogueado();
+
+    if (!usuarioId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo obtener el usuario que inició sesión.',
+        icon: 'error'
+      });
+
+      return;
+    }
+
+    this.ciudadanoService.findByUsuarioId(usuarioId).subscribe({
+      next: (ciudadano) => {
+        this.ciudadano = ciudadano;
+        this.ciudadanoId = ciudadano.id;
+
+        if (!this.ciudadanoId) {
+          Swal.fire({
+            title: 'Error',
+            text: 'El ciudadano no tiene un ID válido.',
+            icon: 'error'
+          });
+
+          return;
+        }
+
+        this.cargarTarjetas();
+      },
+      error: (error) => {
+        console.error('Error cargando ciudadano logueado:', error);
+
+        Swal.fire({
+          title: 'Error',
+          text: error.error?.message || 'No se encontró un ciudadano asociado al usuario logueado.',
+          icon: 'error'
+        });
+      }
+    });
+  }
+
   cargarTarjetas(): void {
+    if (!this.ciudadanoId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo identificar el ciudadano logueado.',
+        icon: 'error'
+      });
+
+      return;
+    }
+
     this.metodoPagoCiudadanoService.findRecargablesByCiudadano(this.ciudadanoId).subscribe({
       next: (response) => {
         this.tarjetas = response;
@@ -234,6 +315,7 @@ export class ManageComponent implements OnInit {
         text: 'Seleccione una tarjeta e ingrese un monto válido.',
         icon: 'error'
       });
+
       return;
     }
 
@@ -243,32 +325,32 @@ export class ManageComponent implements OnInit {
     };
 
     this.recargaService.create(data).subscribe({
-       next: (response: any) => {
-         console.log('Respuesta recarga:', response);
+      next: (response: any) => {
+        console.log('Respuesta recarga:', response);
 
-         if (response.checkoutData) {
-           this.abrirCheckoutEpayco(response.checkoutData);
-           return;
-         }
+        if (response.checkoutData) {
+          this.abrirCheckoutEpayco(response.checkoutData);
+          return;
+        }
 
-         Swal.fire({
-           title: 'Recarga creada',
-           text: 'La recarga quedó pendiente.',
-           icon: 'success'
-         });
+        Swal.fire({
+          title: 'Recarga creada',
+          text: 'La recarga quedó pendiente.',
+          icon: 'success'
+        });
 
-         this.router.navigate(['/recargas/list']);
-       },
-       error: (error) => {
-         console.error('Error creando recarga:', error);
+        this.router.navigate(['/recargas/list']);
+      },
+      error: (error) => {
+        console.error('Error creando recarga:', error);
 
-         Swal.fire({
-           title: 'Error',
-           text: error.error?.message || 'No se pudo iniciar la recarga.',
-           icon: 'error'
-         });
-       }
-     });
+        Swal.fire({
+          title: 'Error',
+          text: error.error?.message || 'No se pudo iniciar la recarga.',
+          icon: 'error'
+        });
+      }
+    });
   }
 
   cargarScriptEpayco(): Promise<void> {

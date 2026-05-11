@@ -136,4 +136,15 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
+
+  {
+    path: 'ciudadanos',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/ciudadano/ciudadano.module').then(m => m.CiudadanoModule)
+      }
+    ]
+  },
 ];

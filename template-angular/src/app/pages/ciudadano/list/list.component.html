@@ -1,0 +1,84 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Ciudadanos</h3>
+
+              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Agregar">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Id</td>
+                <td>Usuario</td>
+                <td>Direcciones</td>
+                <td>Métodos de pago</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let ciudadano of ciudadanos">
+                <td>{{ ciudadano.id }}</td>
+
+                <td>{{ ciudadano.nombreUsuario }}</td>
+
+                <td>
+                  <span *ngIf="ciudadano.direcciones?.length">
+                    {{ ciudadano.direcciones?.length }} registrada(s)
+                  </span>
+
+                  <span *ngIf="!ciudadano.direcciones?.length" class="text-muted">
+                    Sin direcciones
+                  </span>
+                </td>
+
+                <td>
+                  <span *ngIf="ciudadano.metodosPagoCiudadano?.length">
+                    {{ ciudadano.metodosPagoCiudadano?.length }} registrado(s)
+                  </span>
+
+                  <span *ngIf="!ciudadano.metodosPagoCiudadano?.length" class="text-muted">
+                    Sin métodos
+                  </span>
+                </td>
+
+                <td>
+                  <button class="btn btn-info btn-sm" (click)="view(ciudadano.id)" title="Ver">
+                    <i class="material-icons">visibility</i>
+                  </button>
+
+                  <button class="btn btn-warning btn-sm" (click)="edit(ciudadano.id)" title="Editar">
+                    <i class="material-icons">edit</i>
+                  </button>
+
+                  <button class="btn btn-danger btn-sm" (click)="delete(ciudadano.id)" title="Eliminar">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="ciudadanos.length === 0">
+                <td colspan="5" class="text-center text-muted">
+                  No hay ciudadanos registrados.
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
