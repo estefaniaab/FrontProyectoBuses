@@ -1,0 +1,94 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent border-0">
+          <h3 class="mb-0">
+            {{ isView ? 'Visualizar Conductor' : (isEdit ? 'Editar Conductor' : 'Nuevo Conductor') }}
+          </h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="pl-lg-4">
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-userId">Ciudadano (Usuario)</label>
+                    <select
+                      id="input-userId"
+                      class="form-control form-control-alternative"
+                      formControlName="userId">
+                      <option [ngValue]="null" disabled>Seleccione un ciudadano...</option>
+                      <option *ngFor="let user of users" [ngValue]="user.id">
+                        {{ user.name }} - (ID: {{ user.id | slice:0:8 }}...)
+                      </option>
+                    </select>
+                    <small class="text-danger" *ngIf="form.get('userId').invalid && form.get('userId').touched">
+                      La selección del usuario es obligatoria.
+                    </small>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-licencia">Número de Licencia (Identificación)</label>
+                    <input
+                      type="text"
+                      id="input-licencia"
+                      class="form-control form-control-alternative"
+                      placeholder="Ej: 1054548000"
+                      formControlName="licencia">
+                    <small class="text-muted">Ingrese el número de documento del conductor.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-expiry">Fecha Vencimiento Licencia</label>
+                    <input
+                      type="date"
+                      id="input-expiry"
+                      class="form-control form-control-alternative"
+                      formControlName="fechaVencimientoLicencia">
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-phone">Número de Teléfono</label>
+                    <input
+                      type="text"
+                      id="input-phone"
+                      class="form-control form-control-alternative"
+                      placeholder="Ej: 3101234567"
+                      formControlName="telefono">
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col text-right">
+                  <button type="button" class="btn btn-secondary mr-2" routerLink="/conductores/list">
+                    {{ isView ? 'Volver' : 'Cancelar' }}
+                  </button>
+
+                  <button
+                    *ngIf="!isView"
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="form.invalid">
+                    {{ isEdit ? 'Actualizar Conductor' : 'Guardar Conductor' }}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

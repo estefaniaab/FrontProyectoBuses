@@ -42,15 +42,15 @@ export class ListComponent implements OnInit {
     this.router.navigate(['/buses/create']);
   }
 
-  view(id: string) {
+  view(id: number) {
     this.router.navigate(['/buses/view/' + id]);
   }
 
-  edit(id: string) {
+  edit(id: number) {
     this.router.navigate(['/buses/update/' + id]);
   }
 
-  delete(id: string) {
+  delete(id: number) {
     Swal.fire({
       title: 'Eliminar',
       text: '¿Está seguro que quiere eliminar el registro?',
@@ -64,20 +64,11 @@ export class ListComponent implements OnInit {
       if (result.isConfirmed) {
         this.busesService.delete(id).subscribe({
           next: () => {
-            Swal.fire(
-              'Eliminado!',
-              'Registro eliminado correctamente.',
-              'success'
-            );
+            Swal.fire('Eliminado!', 'Registro eliminado correctamente.', 'success');
             this.list();
           },
           error: (err) => {
-            console.error('Error deleting bus:', err);
-            Swal.fire(
-              'Error',
-              err.error?.message || 'Ocurrió un error al eliminar.',
-              'error'
-            );
+            Swal.fire('Error', err.error?.message || 'Ocurrió un error al eliminar.', 'error');
           }
         });
       }

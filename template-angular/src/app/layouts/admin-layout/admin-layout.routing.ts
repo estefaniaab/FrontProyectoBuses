@@ -126,4 +126,25 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
+  {
+    path: 'conductores',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/conductores/conductores.module').then(m => m.ConductoresModule)
+      }
+    ]
+  },
+  {
+    path: 'turnos',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/turnos/turnos.module').then(m => m.TurnosModule)
+      }
+    ]
+  },
+
 ];

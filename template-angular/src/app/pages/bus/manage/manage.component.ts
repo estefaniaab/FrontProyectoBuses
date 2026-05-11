@@ -12,9 +12,9 @@ import { EstadoBus } from '../../../models/Buses/estado-bus.enum';
   styleUrls: ['./manage.component.scss']
 })
 export class ManageComponent implements OnInit {
-  mode: number; // 1: view, 2: create, 3: update
-  bus: Bus;
-  theFormGroup: FormGroup;
+  mode!: number; // 1: view, 2: create, 3: update
+  bus!: Bus;
+  theFormGroup!: FormGroup;
   trySend: boolean;
 
   estadosBus = [

@@ -55,7 +55,7 @@ export class BusService {
     );
   }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete(`${environment.url_ms_business}/buses/${id}`);
+  delete(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.url_ms_business}/buses/${id}`);
   }
 }
