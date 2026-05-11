@@ -1,0 +1,86 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Recargas</h3>
+
+              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Agregar">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Id</td>
+                <td>Tarjeta</td>
+                <td>Monto</td>
+                <td>Comisión</td>
+                <td>Total</td>
+                <td>Estado</td>
+                <td>Referencia</td>
+                <td>Fecha</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let recarga of recargas">
+                <td>{{ recarga.id }}</td>
+
+                <td>
+                  {{ recarga.metodoPagoCiudadano?.numeroIdentificacion || 'N/A' }}
+                </td>
+
+                <td>{{ recarga.monto | currency:'COP':'symbol':'1.0-0' }}</td>
+
+                <td>{{ recarga.comision | currency:'COP':'symbol':'1.0-0' }}</td>
+
+                <td>{{ recarga.totalPagar | currency:'COP':'symbol':'1.0-0' }}</td>
+
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge-warning': recarga.estado === 'pendiente',
+                      'badge-success': recarga.estado === 'aprobada',
+                      'badge-danger': recarga.estado === 'rechazada' || recarga.estado === 'fallida',
+                      'badge-secondary': recarga.estado === 'reversada'
+                    }">
+                    {{ recarga.estado }}
+                  </span>
+                </td>
+
+                <td>{{ recarga.referenciaInterna }}</td>
+
+                <td>{{ recarga.createdAt | date:'short' }}</td>
+
+                <td>
+                  <button class="btn btn-info btn-sm" (click)="view(recarga.id)" title="Ver">
+                    <i class="material-icons">visibility</i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="recargas.length === 0">
+                <td colspan="9" class="text-center text-muted">
+                  No hay recargas registradas.
+                </td>
+              </tr>
+
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,511 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+
+  <!-- CARD PRINCIPAL CIUDADANO -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0" *ngIf="mode == 1">Detalle del Ciudadano</h3>
+          <h3 class="mb-0" *ngIf="mode == 2">Crear Ciudadano</h3>
+          <h3 class="mb-0" *ngIf="mode == 3">Actualizar Ciudadano</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="theFormGroup">
+            <div class="card-body container">
+
+              <!-- ID -->
+              <div class="row" *ngIf="mode !== 2">
+                <div class="col-3">ID</div>
+                <div class="col-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="id"
+                    disabled>
+                </div>
+              </div>
+              <br *ngIf="mode !== 2">
+
+              <!-- USUARIO -->
+              <div class="row">
+                <div class="col-3">Usuario</div>
+                <div class="col-9">
+
+                  <select
+                    class="form-control"
+                    formControlName="usuarioId">
+
+                    <option value="">
+                      Seleccione un usuario
+                    </option>
+
+                    <option
+                      *ngFor="let usuario of usuarios"
+                      [value]="usuario._id || usuario.id">
+                      {{ getNombreUsuario(usuario) }}
+                    </option>
+                  </select>
+
+                  <small
+                    class="text-muted"
+                    *ngIf="mode == 3">
+                    El usuario asociado no se puede cambiar.
+                  </small>
+
+                  <div
+                    *ngIf="getTheFormGroup['usuarioId']?.errors &&
+                    (getTheFormGroup['usuarioId']?.dirty ||
+                     getTheFormGroup['usuarioId']?.touched ||
+                     trySend)">
+
+                    <strong
+                      *ngIf="getTheFormGroup['usuarioId']?.errors?.['required']"
+                      class="msnError">
+                      Requerido
+                    </strong>
+                  </div>
+                </div>
+              </div>
+              <br>
+
+              <!-- Botones -->
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-block"
+                    (click)="back()">
+                    Regresar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-success btn-block"
+                    (click)="create()"
+                    *ngIf="mode == 2">
+                    Crear
+                  </button>
+
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECCIONES -->
+  <div class="row mt-4" *ngIf="ciudadano?.id">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Direcciones</h3>
+
+              <button
+                class="btn btn-success btn-sm mt-2"
+                *ngIf="mode !== 1"
+                (click)="abrirModalDireccion()"
+                title="Agregar dirección">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div
+            class="table-responsive"
+            *ngIf="ciudadano.direcciones?.length; else sinDirecciones">
+
+            <table class="table">
+              <tr>
+                <td>País</td>
+                <td>Ciudad</td>
+                <td>Barrio</td>
+                <td>Calle</td>
+                <td>Número</td>
+                <td>Código postal</td>
+                <td>Referencia</td>
+                <td *ngIf="mode !== 1">Acciones</td>
+              </tr>
+
+              <tr *ngFor="let direccion of ciudadano.direcciones">
+                <td>{{ direccion.pais }}</td>
+                <td>{{ direccion.ciudad }}</td>
+                <td>{{ direccion.barrio }}</td>
+                <td>{{ direccion.calle }}</td>
+                <td>{{ direccion.numero }}</td>
+                <td>{{ direccion.codigoPostal || 'N/A' }}</td>
+                <td>{{ direccion.referencia || 'N/A' }}</td>
+
+                <td *ngIf="mode !== 1">
+                  <button
+                    class="btn btn-warning btn-sm"
+                    (click)="abrirModalEditarDireccion(direccion)"
+                    title="Editar dirección">
+                    <i class="material-icons">edit</i>
+                  </button>
+
+                  <button
+                    class="btn btn-danger btn-sm"
+                    (click)="eliminarDireccion(direccion.id)"
+                    title="Eliminar dirección">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <ng-template #sinDirecciones>
+            <p class="text-muted">
+              Este ciudadano no tiene direcciones registradas.
+            </p>
+          </ng-template>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- METODOS DE PAGO CIUDADANO -->
+  <div class="row mt-4" *ngIf="ciudadano?.id">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h3 class="mb-0">Métodos de pago del ciudadano</h3>
+
+              <button
+                class="btn btn-success btn-sm mt-2"
+                *ngIf="mode !== 1"
+                (click)="abrirModalMetodoPago()"
+                title="Agregar método de pago">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div
+            class="table-responsive"
+            *ngIf="ciudadano.metodosPagoCiudadano?.length; else sinMetodosPagoCiudadano">
+
+            <table class="table">
+              <tr>
+                <td>Número / Identificación</td>
+                <td>Método</td>
+                <td>Tipo</td>
+                <td>Saldo</td>
+                <td>Activo</td>
+                <td *ngIf="mode !== 1">Acciones</td>
+              </tr>
+
+              <tr *ngFor="let metodoCiudadano of ciudadano.metodosPagoCiudadano">
+                <td>{{ metodoCiudadano.numeroIdentificacion }}</td>
+                <td>{{ metodoCiudadano.metodoPago?.nombre }}</td>
+                <td>{{ metodoCiudadano.metodoPago?.tipo }}</td>
+                <td>
+                  {{ metodoCiudadano.saldo | currency:'COP':'symbol-narrow':'1.0-0' }}
+                </td>
+                <td>
+                  <span
+                    class="badge badge-success"
+                    *ngIf="metodoCiudadano.activo">
+                    Activo
+                  </span>
+
+                  <span
+                    class="badge badge-danger"
+                    *ngIf="!metodoCiudadano.activo">
+                    Inactivo
+                  </span>
+                </td>
+                <td *ngIf="mode !== 1">
+                  <button
+                    class="btn btn-danger btn-sm"
+                    (click)="eliminarMetodoPagoCiudadano(metodoCiudadano.id)"
+                    title="Eliminar método de pago">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <ng-template #sinMetodosPagoCiudadano>
+            <p class="text-muted">
+              Este ciudadano no tiene métodos de pago asociados.
+            </p>
+          </ng-template>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL DIRECCION -->
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  *ngIf="mostrarModalDireccion">
+
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ direccionEditandoId ? 'Editar Dirección' : 'Agregar Dirección' }}
+        </h5>
+
+        <button
+          type="button"
+          class="close"
+          (click)="cerrarModalDireccion()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="form" [formGroup]="direccionForm">
+          <div class="card-body container">
+
+            <div class="row">
+              <div class="col-3">País</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="pais"
+                  placeholder="Ej: Colombia">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Ciudad</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="ciudad"
+                  placeholder="Ej: Manizales">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Barrio</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="barrio"
+                  placeholder="Ej: Palermo">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Calle</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="calle"
+                  placeholder="Ej: Calle 65">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Número</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="numero"
+                  placeholder="Ej: 23-50">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Código postal</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="codigoPostal"
+                  placeholder="Ej: 170004">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Referencia</div>
+              <div class="col-9">
+                <textarea
+                  class="form-control"
+                  formControlName="referencia"
+                  placeholder="Ej: Cerca al parque">
+                </textarea>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="cerrarModalDireccion()">
+          Regresar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="guardarDireccion()">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL METODO PAGO CIUDADANO -->
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  *ngIf="mostrarModalMetodoPago">
+
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar Método de Pago</h5>
+
+        <button
+          type="button"
+          class="close"
+          (click)="cerrarModalMetodoPago()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="form" [formGroup]="metodoPagoCiudadanoForm">
+          <div class="card-body container">
+
+            <div class="row">
+              <div class="col-3">Método de pago</div>
+              <div class="col-9">
+                <select
+                  class="form-control"
+                  formControlName="metodoPagoId">
+
+                  <option value="">
+                    Seleccione un método
+                  </option>
+
+                  <option
+                    *ngFor="let metodo of metodosPago"
+                    [value]="metodo.id">
+                    {{ metodo.nombre }} - {{ metodo.tipo }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Número / Identificación</div>
+              <div class="col-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="numeroIdentificacion"
+                  placeholder="Ej: BUS-MZ-003">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Saldo inicial</div>
+              <div class="col-9">
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="saldo"
+                  placeholder="0">
+              </div>
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-3">Activo</div>
+              <div class="col-9">
+                <select
+                  class="form-control"
+                  formControlName="activo">
+
+                  <option [ngValue]="true">
+                    Activo
+                  </option>
+
+                  <option [ngValue]="false">
+                    Inactivo
+                  </option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="cerrarModalMetodoPago()">
+          Regresar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="guardarMetodoPagoCiudadano()">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal-backdrop fade show"
+  *ngIf="mostrarModalDireccion || mostrarModalMetodoPago">
+</div>

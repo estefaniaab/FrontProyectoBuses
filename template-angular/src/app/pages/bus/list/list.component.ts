@@ -11,7 +11,6 @@ import Swal from 'sweetalert2';
 })
 export class ListComponent implements OnInit {
   buses: Bus[] = [];
-  filtroPlaca: string = '';
   focus = false;
 
   constructor(
@@ -24,7 +23,7 @@ export class ListComponent implements OnInit {
   }
 
   list() {
-    this.busesService.list(this.filtroPlaca).subscribe({
+    this.busesService.list().subscribe({
       next: (buses) => {
         this.buses = buses;
       },
@@ -32,10 +31,6 @@ export class ListComponent implements OnInit {
         console.error('Error listing buses:', err);
       }
     });
-  }
-
-  filtrarBuses() {
-    this.list();
   }
 
   create() {
