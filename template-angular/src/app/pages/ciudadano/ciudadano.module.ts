@@ -3,19 +3,19 @@ import { CommonModule } from '@angular/common';
 import { ListComponent } from './list/list.component';
 import { ManageComponent } from './manage/manage.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BusRoutingModule } from './bus-routing.module';
-import { QRCodeModule } from 'angularx-qrcode';
+import { CiudadanoRoutingModule } from './ciudadano-routing.module';
+
 
 @NgModule({
   declarations: [
-    ListComponent,
-    ManageComponent],
+      ListComponent,
+      ManageComponent
+    ],
   imports: [
-    CommonModule,
-    BusRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    QRCodeModule
-  ]
+      CommonModule,
+      CiudadanoRoutingModule,
+      FormsModule,
+      ReactiveFormsModule
+   ]
 })
-export class BusModule { }
+export class CiudadanoModule { }

@@ -147,4 +147,25 @@ export const AdminLayoutRoutes: Routes = [
     ]
   },
 
+  {
+    path: 'recargas',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/recarga/recarga.module').then(m => m.RecargaModule)
+      }
+    ]
+  },
+
+  {
+    path: 'ciudadanos',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/ciudadano/ciudadano.module').then(m => m.CiudadanoModule)
+      }
+    ]
+  },
 ];

@@ -14,28 +14,6 @@
                 <i class="material-icons">add</i>
               </button>
             </div>
-
-            <div class="col-md-8 d-flex justify-content-end">
-              <form class="navbar-search navbar-search-light form-inline">
-                <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
-                  <div class="input-group input-group-alternative">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">
-                        <i class="fas fa-search"></i>
-                      </span>
-                    </div>
-
-                    <input
-                      class="form-control"
-                      placeholder="Buscar bus por placa"
-                      type="text"
-                      [(ngModel)]="filtroPlaca"
-                      name="filtroPlaca"
-                      (input)="filtrarBuses()">
-                  </div>
-                </div>
-              </form>
-            </div>
           </div>
         </div>
 
@@ -51,6 +29,7 @@
                 <td>Sentados</td>
                 <td>Parados</td>
                 <td>Estado</td>
+                <td>Foto</td>
                 <td>Código QR</td>
                 <td>Acciones</td>
               </tr>
@@ -64,7 +43,18 @@
                 <td>{{ bus.capacidadSentados }}</td>
                 <td>{{ bus.capacidadParados }}</td>
                 <td>{{ bus.estado }}</td>
-                <td>{{ bus.codigoQr }}</td>
+                <td>
+                  <img *ngIf="bus.fotoUrl" [src]="bus.fotoUrl" alt="Foto bus"
+                    width="40" height="40" class="rounded-circle">
+                  <span *ngIf="!bus.fotoUrl" class="text-muted">Sin foto</span>
+                </td>
+                <td>
+                  <qrcode *ngIf="bus.codigoQr" [qrdata]="bus.codigoQr" [width]="40"
+                    [errorCorrectionLevel]="'M'">
+                  </qrcode>
+
+                  <span *ngIf="!bus.codigoQr" class="text-muted">Sin QR</span>
+                </td>
                 <td>
                   <button class="btn btn-info btn-sm" (click)="view(bus.id)" title="Ver">
                     <i class="material-icons">visibility</i>

@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RecargaRoutingModule } from './recarga-routing.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { ListComponent } from './list/list.component';
 import { ManageComponent } from './manage/manage.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BusRoutingModule } from './bus-routing.module';
-import { QRCodeModule } from 'angularx-qrcode';
 
 @NgModule({
   declarations: [
@@ -12,10 +12,9 @@ import { QRCodeModule } from 'angularx-qrcode';
     ManageComponent],
   imports: [
     CommonModule,
-    BusRoutingModule,
+    RecargaRoutingModule,
     FormsModule,
-    ReactiveFormsModule,
-    QRCodeModule
+    ReactiveFormsModule
   ]
 })
-export class BusModule { }
+export class RecargaModule {}
