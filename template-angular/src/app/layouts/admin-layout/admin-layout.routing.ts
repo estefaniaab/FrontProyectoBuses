@@ -10,111 +10,109 @@ import {ParaderoCercanoComponent} from "src/app/pages/paradero-cercano/paradero-
 
 
 export const AdminLayoutRoutes: Routes = [
-    {
-      path: 'dashboard',
-      component: DashboardComponent,
-      canActivate: [AuthenticatedGuard]
-    },
-    {
-      path: 'user-profile',
-      component: UserProfileComponent,
-      canActivate: [AuthenticatedGuard]
-    },
-    {
-      path: 'tables',
-      component: TablesComponent,
-      canActivate: [AuthenticatedGuard]
-    },
-    {
-      path: 'users',
-      canActivate: [AuthenticatedGuard],
-      children: [
-        {
-          path: '',
-          loadChildren: () => import('src/app/pages/user/users.module').then(m => m.UsersModule)
-        }
-      ]
-    },
-    {
-      path: 'roles',
-      canActivate: [AuthenticatedGuard],
-      children: [
-        {
-          path: '',
-          loadChildren: () => import('src/app/pages/role/role.module').then(m => m.RolesModule)
-        }
-      ]
-    },
-    {
-      path: 'user-role',
-      canActivate: [AuthenticatedGuard],
-      children: [
-        {
-          path: '',
-          loadChildren: () => import('src/app/pages/userRole/usersRoles.module').then(m => m.UsersRolesModule)
-        }
-      ]
-    },
-    {
-        path: 'profiles',
-        canActivate: [AuthenticatedGuard],
-        children: [
-          {
-            path: '',
-            loadChildren: () => import('src/app/pages/profile/profile.module').then(m => m.ProfilesModule)
-          }
-        ]
-      },
-    {
-      path: 'sessions',
-      //canActivate: [AuthenticatedGuard],
-      children: [
-        {
-          path: '',
-          loadChildren: () => import('src/app/pages/session/session.module').then(m => m.SessionsModule)
-        }
-      ]
-    },
-    {
-      path: 'permissions',
-      canActivate: [AuthenticatedGuard],
-      children: [
-        {
-          path: '',
-          loadChildren: () => import('src/app/pages/permissions/permissions.module').then(m => m.PermissionsModule)
-        }
-      ]
-    },
-    {
-      path: 'rutas',
-      canActivate: [AuthenticatedGuard],
-      children: [
-        {
-          path: '',
-          loadChildren: () => import('src/app/pages/ruta/ruta.module').then(m => m.RutaModule)
-        }
-      ]
-    },
   {
-        path: 'buses',
-        canActivate: [AuthenticatedGuard],
-        children: [
-          {
-            path: '',
-            loadChildren: () => import('src/app/pages/bus/bus.module').then(m => m.BusModule)
-          }
-        ]
-      },
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthenticatedGuard]
+  },
+  {
+    path: 'user-profile',
+    component: UserProfileComponent,
+    canActivate: [AuthenticatedGuard]
+  },
+  {
+    path: 'tables',
+    component: TablesComponent,
+    canActivate: [AuthenticatedGuard]
+  },
+  {
+    path: 'users',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/user/users.module').then(m => m.UsersModule)
+      }
+    ]
+  },
+  {
+    path: 'roles',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/role/role.module').then(m => m.RolesModule)
+      }
+    ]
+  },
+  {
+    path: 'user-role',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/userRole/usersRoles.module').then(m => m.UsersRolesModule)
+      }
+    ]
+  },
+  {
+    path: 'profiles',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/profile/profile.module').then(m => m.ProfilesModule)
+      }
+    ]
+  },
+  {
+    path: 'sessions',
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/session/session.module').then(m => m.SessionsModule)
+      }
+    ]
+  },
+  {
+    path: 'permissions',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/permissions/permissions.module').then(m => m.PermissionsModule)
+      }
+    ]
+  },
+  {
+    path: 'rutas',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/ruta/ruta.module').then(m => m.RutaModule)
+      }
+    ]
+  },
+  {
+    path: 'buses',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/bus/bus.module').then(m => m.BusModule)
+      }
+    ]
+  },
 
-
-// ── Paradero cercano (mapa GPS) ──
+  // ── Paradero cercano (mapa GPS) ──
   {
     path: 'paraderos/cercanos',
     component: ParaderoCercanoComponent,
     canActivate: [AuthenticatedGuard]
   },
 
-// ── Gestión CRUD ──
+  // ── Gestión CRUD ──
   {
     path: 'paraderos',
     canActivate: [AuthenticatedGuard],
@@ -146,7 +144,6 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
-
   {
     path: 'recargas',
     canActivate: [AuthenticatedGuard],
@@ -157,7 +154,6 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
-
   {
     path: 'ciudadanos',
     canActivate: [AuthenticatedGuard],
@@ -165,6 +161,19 @@ export const AdminLayoutRoutes: Routes = [
       {
         path: '',
         loadChildren: () => import('src/app/pages/ciudadano/ciudadano.module').then(m => m.CiudadanoModule)
+      }
+    ]
+  },
+
+  // ── Programación de Rutas ──
+  {
+    path: 'programaciones-ruta',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('src/app/pages/programaciones-ruta/programaciones-ruta.module')
+          .then(m => m.ProgramacionesRutaModule)
       }
     ]
   },
