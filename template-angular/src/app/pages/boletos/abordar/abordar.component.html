@@ -1,0 +1,142 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="card shadow">
+
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+      <h3 class="mb-0 text-uppercase">
+        <i class="fas fa-ticket-alt mr-2"></i>Nuevo Abordaje
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="save()">
+
+        <!-- Programación en curso -->
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="form-group">
+              <label class="form-control-label">
+                Programación en curso <span class="text-danger">*</span>
+              </label>
+              <select formControlName="programacionRutaId" class="form-control"
+                      (change)="onProgramacionChange()"
+                      [class.is-invalid]="form.get('programacionRutaId')!.touched && form.get('programacionRutaId')!.invalid">
+                <option [ngValue]="null" disabled>Seleccione una programación activa...</option>
+                <option *ngFor="let p of programaciones" [ngValue]="p.id">
+                  {{ p.ruta?.nombre || 'Ruta #' + p.rutaId }}
+                  — Bus: {{ p.bus?.placa }}
+                  — {{ p.fechaSalida }} {{ p.horaSalida?.slice(0,5) }}
+                </option>
+              </select>
+              <div class="invalid-feedback">Selecciona una programación en curso.</div>
+              <small *ngIf="programaciones.length === 0" class="text-muted">
+                No hay programaciones en curso en este momento.
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info automática de la programación seleccionada -->
+        <div class="row mt-2" *ngIf="programacionSeleccionada">
+          <div class="col-lg-3">
+            <div class="card bg-light mb-3">
+              <div class="card-body py-2 px-3">
+                <small class="text-muted d-block">Ruta</small>
+                <strong>{{ programacionSeleccionada.ruta?.nombre }}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="card bg-light mb-3">
+              <div class="card-body py-2 px-3">
+                <small class="text-muted d-block">Bus</small>
+                <strong>{{ programacionSeleccionada.bus?.placa }}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="card bg-light mb-3">
+              <div class="card-body py-2 px-3">
+                <small class="text-muted d-block">Tarifa</small>
+                <strong class="text-success">${{ programacionSeleccionada.ruta?.tarifa }}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="card bg-light mb-3">
+              <div class="card-body py-2 px-3">
+                <small class="text-muted d-block">Capacidad máx.</small>
+                <strong>{{ programacionSeleccionada.bus?.capacidadMaximaPasajeros }} pasajeros</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-2">
+
+          <!-- Método de pago -->
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label class="form-control-label">
+                Método de pago <span class="text-danger">*</span>
+              </label>
+              <select formControlName="metodoPagoCiudadanoId" class="form-control"
+                      (change)="onMetodoPagoChange()"
+                      [class.is-invalid]="form.get('metodoPagoCiudadanoId')!.touched && form.get('metodoPagoCiudadanoId')!.invalid">
+                <option [ngValue]="null" disabled>Seleccione su método de pago...</option>
+                <option *ngFor="let m of metodosPago" [ngValue]="m.id">
+                  {{ m.metodoPago?.nombre || 'Método #' + m.id }}
+                  — {{ m.numeroIdentificacion }}
+                </option>
+              </select>
+              <div class="invalid-feedback">Selecciona un método de pago.</div>
+              <small *ngIf="metodosPago.length === 0" class="text-muted">
+                No tienes métodos de pago activos.
+              </small>
+            </div>
+
+            <!-- Saldo del método seleccionado -->
+            <div class="alert alert-info py-2 px-3" *ngIf="metodoPagoSeleccionado">
+              <i class="fas fa-wallet mr-1"></i>
+              <strong>Saldo disponible:</strong>
+              {{ metodoPagoSeleccionado.saldo !== undefined ? '$' + metodoPagoSeleccionado.saldo : 'N/A' }}
+              <span class="badge badge-secondary ml-2">{{ metodoPagoSeleccionado.metodoPago?.tipo }}</span>
+            </div>
+          </div>
+
+          <!-- Paradero de abordaje -->
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label class="form-control-label">
+                Paradero de abordaje <span class="text-danger">*</span>
+              </label>
+              <select formControlName="paraderoAbordajeId" class="form-control"
+                      [class.is-invalid]="form.get('paraderoAbordajeId')!.touched && form.get('paraderoAbordajeId')!.invalid">
+                <option [ngValue]="null" disabled>Seleccione el paradero donde aborda...</option>
+                <option *ngFor="let p of paraderos" [ngValue]="p.id">{{ p.nombre }}</option>
+              </select>
+              <div class="invalid-feedback">Selecciona el paradero de abordaje.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="alert alert-warning mt-3">
+          <i class="fas fa-exclamation-triangle mr-1"></i>
+          El sistema validará que el bus no esté lleno y que tu saldo sea suficiente para cubrir la tarifa.
+        </div>
+
+        <div class="text-right mt-4 border-top pt-4">
+          <button type="button" class="btn btn-outline-primary mr-2" routerLink="/boletos/list">
+            <i class="fas fa-arrow-left mr-1"></i> Volver
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-ticket-alt mr-1"></i> Confirmar Abordaje
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

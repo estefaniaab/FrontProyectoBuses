@@ -61,8 +61,14 @@ export class ListComponent implements OnInit {
             Swal.fire('¡Turno Iniciado!', 'El GPS del bus está activo.', 'success');
             this.list();
           },
-          error: (err) => Swal.fire('Error', err.error?.message || 'No se pudo iniciar el turno', 'error')
-        });
+          error: (err) => {
+            const msg = typeof err.error?.message === 'string'
+              ? err.error.message
+              : Array.isArray(err.error?.message)
+                ? err.error.message.join(', ')
+                : 'No se pudo procesar el turno.';
+            Swal.fire('Error', msg, 'error');
+          }        });
       }
     });
   }
@@ -84,8 +90,14 @@ export class ListComponent implements OnInit {
             Swal.fire('Finalizado', 'El turno ha concluido correctamente.', 'success');
             this.list();
           },
-          error: (err) => Swal.fire('Error', err.error?.message || 'No se pudo finalizar el turno', 'error')
-        });
+          error: (err) => {
+            const msg = typeof err.error?.message === 'string'
+              ? err.error.message
+              : Array.isArray(err.error?.message)
+                ? err.error.message.join(', ')
+                : 'No se pudo procesar el turno.';
+            Swal.fire('Error', msg, 'error');
+          }        });
       }
     });
   }

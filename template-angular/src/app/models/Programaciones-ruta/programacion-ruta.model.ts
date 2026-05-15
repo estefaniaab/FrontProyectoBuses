@@ -1,10 +1,5 @@
 import { Bus } from '../Buses/bus.model';
-
-export interface Ruta {
-  id?: number;
-  nombre?: string;
-  descripcion?: string;
-}
+import { Ruta } from '../Rutas/ruta.model';
 
 export interface ProgramacionRuta {
   id?: number;
@@ -15,7 +10,7 @@ export interface ProgramacionRuta {
   recurrencia?: 'ninguna' | 'lunes_viernes' | 'fines_semana' | 'diaria';
   toleranciaSalida?: number;
   estado?: 'programado' | 'en_curso' | 'finalizado' | 'cancelado';
-  ruta?: Ruta;
-  bus?: Bus;
+  ruta?: Ruta;   // ← ahora usa la clase real con tarifa
+  bus?: Bus;     // ← ahora usa la clase real con capacidadMaximaPasajeros
   creadoEn?: Date;
 }

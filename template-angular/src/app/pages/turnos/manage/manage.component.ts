@@ -107,7 +107,12 @@ export class ManageComponent implements OnInit {
         this.router.navigate(['/turnos/list']);
       },
       error: (err) => {
-        Swal.fire('Error', err.error?.message || 'No se pudo procesar el turno.', 'error');
+        const msg = typeof err.error?.message === 'string'
+          ? err.error.message
+          : Array.isArray(err.error?.message)
+            ? err.error.message.join(', ')
+            : 'No se pudo procesar el turno.';
+        Swal.fire('Error', msg, 'error');
       }
     });
   }

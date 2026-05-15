@@ -1,0 +1,72 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header border-0 d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">Mis Boletos</h3>
+          <button class="btn btn-primary btn-sm" routerLink="/boletos/abordar">
+            <i class="fas fa-ticket-alt mr-2"></i>Nuevo Abordaje
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-items-center table-flush">
+            <thead class="thead-light">
+            <tr>
+              <th>ID</th>
+              <th>RUTA</th>
+              <th>BUS</th>
+              <th>FECHA / HORA</th>
+              <th>PARADERO ABORDAJE</th>
+              <th>PARADERO DESCENSO</th>
+              <th>TARIFA</th>
+              <th>SALDO REST.</th>
+              <th>ABORDAJE</th>
+              <th>DESCENSO</th>
+              <th>ESTADO</th>
+              <th class="text-center">ACCIONES</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let b of boletos">
+              <td>{{ b.id }}</td>
+              <td>{{ b.programacionRuta?.ruta?.nombre || 'Ruta #' + b.programacionRutaId }}</td>
+              <td>{{ b.programacionRuta?.bus?.placa || '—' }}</td>
+              <td>{{ b.programacionRuta?.fechaSalida }} {{ b.programacionRuta?.horaSalida?.slice(0,5) }}</td>
+              <td>{{ b.paraderoAbordaje?.nombre || '#' + b.paraderoAbordajeId }}</td>
+              <td>{{ b.paraderoDescenso?.nombre || '—' }}</td>
+              <td>${{ b.montoTarifa }}</td>
+              <td>{{ b.saldoRestante !== null && b.saldoRestante !== undefined ? '$' + b.saldoRestante : '—' }}</td>
+              <td>{{ b.timestampAbordaje | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ b.timestampDescenso ? (b.timestampDescenso | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+              <td>
+                  <span class="badge" [ngClass]="estadoBadge(b.estado)">
+                    {{ b.estado | uppercase }}
+                  </span>
+              </td>
+              <td class="text-center">
+                <button *ngIf="b.estado === 'activo'"
+                        class="btn btn-sm btn-warning"
+                        (click)="irADescender(b)"
+                        title="Registrar Descenso">
+                  <i class="fas fa-sign-out-alt"></i>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="boletos.length === 0">
+              <td colspan="12" class="text-center py-4">
+                <p class="text-muted mb-0">No tienes boletos registrados.</p>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

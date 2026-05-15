@@ -1,0 +1,80 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="card shadow">
+
+    <div class="card-header bg-transparent border-0">
+      <h3 class="mb-0 text-uppercase">
+        <i class="fas fa-sign-out-alt mr-2"></i>Registrar Descenso
+      </h3>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Resumen del boleto activo -->
+      <div class="row mb-4" *ngIf="boleto">
+        <div class="col-lg-3">
+          <div class="card bg-light mb-2">
+            <div class="card-body py-2 px-3">
+              <small class="text-muted d-block">Boleto #</small>
+              <strong>{{ boleto.id }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="card bg-light mb-2">
+            <div class="card-body py-2 px-3">
+              <small class="text-muted d-block">Ruta</small>
+              <strong>{{ boleto.programacionRuta?.ruta?.nombre || '—' }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="card bg-light mb-2">
+            <div class="card-body py-2 px-3">
+              <small class="text-muted d-block">Bus</small>
+              <strong>{{ boleto.programacionRuta?.bus?.placa || '—' }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="card bg-light mb-2">
+            <div class="card-body py-2 px-3">
+              <small class="text-muted d-block">Abordó en</small>
+              <strong>{{ boleto.paraderoAbordaje?.nombre || '#' + boleto.paraderoAbordajeId }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label class="form-control-label">
+                Paradero de descenso <span class="text-danger">*</span>
+              </label>
+              <select formControlName="paraderoDescensoId" class="form-control"
+                      [class.is-invalid]="form.get('paraderoDescensoId')!.touched && form.get('paraderoDescensoId')!.invalid">
+                <option [ngValue]="null" disabled>Seleccione el paradero donde descende...</option>
+                <option *ngFor="let p of paraderos" [ngValue]="p.id">{{ p.nombre }}</option>
+              </select>
+              <div class="invalid-feedback">Selecciona el paradero de descenso.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-right mt-4 border-top pt-4">
+          <button type="button" class="btn btn-outline-primary mr-2" routerLink="/boletos/list">
+            <i class="fas fa-arrow-left mr-1"></i> Volver
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check mr-1"></i> Confirmar Descenso
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

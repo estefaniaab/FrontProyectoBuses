@@ -1,4 +1,4 @@
-import { MetodoPagoCiudadno } from './metodo-pago-ciudadno.model';
+import { MetodoPagoCiudadno } from '../MetodosPago/metodo-pago.model';
 
 describe('MetodoPagoCiudadno', () => {
   it('should create an instance', () => {

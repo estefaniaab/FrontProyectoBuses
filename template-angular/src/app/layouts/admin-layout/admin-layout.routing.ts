@@ -175,6 +175,20 @@ export const AdminLayoutRoutes: Routes = [
         loadChildren: () => import('src/app/pages/programaciones-ruta/programaciones-ruta.module')
           .then(m => m.ProgramacionesRutaModule)
       }
+
     ]
+
+  },
+  // ── Boletos ──
+  {
+    path: 'boletos',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/boletos/boletos.module').then(m => m.BoletosModule),
+      },
+    ],
   },
 ];
