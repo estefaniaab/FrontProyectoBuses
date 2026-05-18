@@ -216,4 +216,16 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
+
+  {
+    path: 'gps',
+    loadChildren: () =>
+      import('src/app/pages/gps/gps.module').then(m => m.GpsModule)
+  },
+
+  {
+    path: 'incidentes',
+    loadChildren: () =>
+      import('src/app/pages/incidentes/incidentes.module').then(m => m.IncidentesModule)
+  },
 ];

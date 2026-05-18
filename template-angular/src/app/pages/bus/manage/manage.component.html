@@ -94,6 +94,14 @@
                   </div>
                 </div>
               </div>
+              <div
+                class="alert alert-warning mt-3"
+                *ngIf="capacidadExcedida()">
+                La suma de pasajeros sentados y parados
+                ({{ getTotalCapacidadUsada() }})
+                no puede superar la capacidad máxima
+                ({{ getCapacidadMaxima() }}).
+              </div>
               <br>
 
               <div class="row">

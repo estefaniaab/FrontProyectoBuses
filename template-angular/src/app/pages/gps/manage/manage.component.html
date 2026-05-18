@@ -1,0 +1,206 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">
+                GPS del bus
+              </h3>
+            </div>
+
+            <div class="col-md-4 text-right">
+              <button
+                class="btn btn-secondary btn-sm"
+                (click)="back()">
+                Regresar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <form [formGroup]="theFormGroup">
+
+            <div class="row">
+              <div class="col-md-6">
+                <label>Código GPS</label>
+
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="codigo"
+                  placeholder="Ej: GPS-BUS001">
+              </div>
+
+              <div class="col-md-6">
+                <label>Bus</label>
+
+                <select
+                  class="form-control"
+                  formControlName="busId">
+                  <option value="">Seleccione un bus</option>
+
+                  <option
+                    *ngFor="let bus of buses"
+                    [value]="bus.id">
+                    {{ bus.placa }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <br>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label>Latitud</label>
+
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="latitud"
+                  placeholder="Ej: 5.0569">
+              </div>
+
+              <div class="col-md-6">
+                <label>Longitud</label>
+
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="longitud"
+                  placeholder="Ej: -75.4870">
+              </div>
+            </div>
+
+            <br>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label>Velocidad</label>
+
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="velocidad"
+                  placeholder="Km/h">
+              </div>
+
+              <div class="col-md-6">
+                <label>Rumbo</label>
+
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="rumbo"
+                  placeholder="Grados">
+              </div>
+            </div>
+
+            <br>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label>Estado</label>
+
+                <select
+                  class="form-control"
+                  formControlName="activo">
+                  <option [ngValue]="true">Activo</option>
+                  <option [ngValue]="false">Inactivo</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label>Última actualización</label>
+
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="gps?.ultimaActualizacion ? (gps?.ultimaActualizacion | date:'dd/MM/yyyy, h:mm a') : 'Sin actualización'"
+                  disabled>
+              </div>
+            </div>
+
+            <br>
+
+            <div class="row">
+              <div class="col-md-12 text-right">
+
+                <button
+                  type="button"
+                  class="btn btn-primary mr-2"
+                  (click)="save()">
+                  Guardar GPS
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-success mr-2"
+                  *ngIf="gps && !theFormGroup.get('activo')?.value"
+                  (click)="activarGps()">
+                  Activar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-warning mr-2"
+                  *ngIf="gps && theFormGroup.get('activo')?.value"
+                  (click)="desactivarGps()">
+                  Desactivar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-info mr-2"
+                  *ngIf="gps"
+                  (click)="simularUnaVez()">
+                  Simular una vez
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-success mr-2"
+                  *ngIf="gps && !simulando"
+                  (click)="iniciarSimulacion()">
+                  Iniciar simulación
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  *ngIf="gps && simulando"
+                  (click)="detenerSimulacion()">
+                  Detener simulación
+                </button>
+
+              </div>
+            </div>
+
+          </form>
+
+          <br>
+
+          <div class="card">
+            <div class="card-header">
+              <h4 class="mb-0">Mapa GPS</h4>
+            </div>
+
+            <div class="card-body p-0">
+              <div id="mapa-gps" class="mapa-gps"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

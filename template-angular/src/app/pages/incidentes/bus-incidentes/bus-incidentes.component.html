@@ -1,0 +1,263 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">
+                Incidentes del bus #{{ busId }}
+              </h3>
+            </div>
+
+            <div class="col-md-4 text-right">
+              <button
+                class="btn btn-secondary btn-sm"
+                (click)="back()">
+                Regresar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <div class="row" *ngIf="stats">
+            <div class="col-md-3">
+              <div class="card shadow-sm p-3">
+                <small>Total</small>
+                <h3>{{ stats.total }}</h3>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card shadow-sm p-3">
+                <small>Pendientes</small>
+                <h3>{{ stats.pendientes }}</h3>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card shadow-sm p-3">
+                <small>Resueltos</small>
+                <h3>{{ stats.resueltos }}</h3>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card shadow-sm p-3">
+                <small>Tasa resolución</small>
+                <h3>{{ stats.tasaResolucion }}%</h3>
+              </div>
+            </div>
+          </div>
+
+          <br>
+
+          <div class="row">
+            <div class="col-md-4">
+              <label>Tipo</label>
+              <select class="form-control" [(ngModel)]="filtroTipo">
+                <option value="">Todos</option>
+                <option value="mecanico">Mecánico</option>
+                <option value="accidente">Accidente</option>
+                <option value="retraso">Retraso</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label>Estado</label>
+              <select class="form-control" [(ngModel)]="filtroEstado">
+                <option value="">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="en_revision">En revisión</option>
+                <option value="resuelto">Resuelto</option>
+              </select>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+              <button
+                class="btn btn-primary mr-2"
+                (click)="cargarIncidentes()">
+                Filtrar
+              </button>
+
+              <button
+                class="btn btn-secondary"
+                (click)="limpiarFiltros()">
+                Limpiar
+              </button>
+            </div>
+          </div>
+
+          <br>
+
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Fecha</td>
+                <td>Tipo</td>
+                <td>Gravedad</td>
+                <td>Estado</td>
+                <td>Conductor</td>
+                <td>Descripción</td>
+                <td>GPS</td>
+                <td>Fotos</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let incidente of incidentes">
+                <td>
+                  {{ incidente.timestamp | date:'dd/MM/yyyy, h:mm a' }}
+                </td>
+
+                <td>{{ incidente.tipo }}</td>
+
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge-success': incidente.gravedad === 'bajo',
+                      'badge-warning': incidente.gravedad === 'medio',
+                      'badge-orange': incidente.gravedad === 'alto',
+                      'badge-danger': incidente.gravedad === 'critico'
+                    }">
+                    {{ incidente.gravedad }}
+                  </span>
+                </td>
+
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge-warning': incidente.estado === 'pendiente',
+                      'badge-info': incidente.estado === 'en_revision',
+                      'badge-success': incidente.estado === 'resuelto'
+                    }">
+                    {{ incidente.estado }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ incidente.conductorId || 'No registrado' }}
+                </td>
+
+                <td>
+                  {{ incidente.descripcion || 'Sin descripción' }}
+                </td>
+
+                <td>
+                  <button
+                    class="btn btn-sm btn-info"
+                    (click)="abrirMapa(incidente)"
+                    [disabled]="!incidente.latitud || !incidente.longitud">
+                    <i class="material-icons">place</i>
+                  </button>
+                </td>
+
+                <td>
+                  <span *ngIf="!incidente.fotos?.length" class="text-muted">
+                    Sin fotos
+                  </span>
+
+                  <div *ngIf="incidente.fotos?.length">
+                    <img
+                      *ngFor="let foto of incidente.fotos"
+                      [src]="foto.urlFoto"
+                      width="45"
+                      height="45"
+                      class="rounded mr-1"
+                      style="object-fit: cover;">
+                  </div>
+                </td>
+
+                <td>
+                  <button
+                    class="btn btn-warning btn-sm"
+                    (click)="abrirSeguimiento(incidente)">
+                    <i class="material-icons">edit</i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="incidentes.length === 0">
+                <td colspan="9" class="text-center text-muted">
+                  No hay incidentes registrados para este bus.
+                </td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal-backdrop fade show"
+  *ngIf="incidenteSeleccionado"
+  (click)="cerrarSeguimiento()">
+</div>
+
+<div
+  class="modal d-block"
+  tabindex="-1"
+  *ngIf="incidenteSeleccionado">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Seguimiento de incidente #{{ incidenteSeleccionado.id }}
+        </h5>
+
+        <button
+          type="button"
+          class="close"
+          (click)="cerrarSeguimiento()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <label>Estado</label>
+        <select class="form-control" [(ngModel)]="estadoNuevo">
+          <option value="pendiente">Pendiente</option>
+          <option value="en_revision">En revisión</option>
+          <option value="resuelto">Resuelto</option>
+        </select>
+
+        <br>
+
+        <label>Comentario</label>
+        <textarea
+          class="form-control"
+          rows="4"
+          [(ngModel)]="comentarioNuevo"
+          placeholder="Agrega un comentario de seguimiento">
+        </textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary"
+          (click)="cerrarSeguimiento()">
+          Cancelar
+        </button>
+
+        <button
+          class="btn btn-primary"
+          (click)="guardarSeguimiento()">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -162,31 +162,73 @@ export class ManageComponent implements OnInit {
 
   create() {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
-      Swal.fire({ title: 'Error!', text: 'Por favor, complete todos los campos requeridos.', icon: 'error' });
+      Swal.fire({
+        title: 'Error!',
+        text: 'Por favor, complete todos los campos requeridos.',
+        icon: 'error'
+      });
       return;
     }
+
+    if (!this.validarCapacidad()) {
+      return;
+    }
+
     this.busesService.create(this.theFormGroup.value).subscribe({
       next: () => {
-        Swal.fire({ title: 'Creado!', text: 'Registro creado correctamente.', icon: 'success' });
+        Swal.fire({
+          title: 'Creado!',
+          text: 'Registro creado correctamente.',
+          icon: 'success'
+        });
+
         this.router.navigate(['/buses/list']);
       },
-      error: (error) => Swal.fire({ title: 'Error!', text: error.error?.message || 'No se pudo crear el bus.', icon: 'error' }),
+      error: (error) => {
+        Swal.fire({
+          title: 'Error!',
+          text: error.error?.message || 'No se pudo crear el bus.',
+          icon: 'error'
+        });
+      },
     });
   }
 
   update() {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
-      Swal.fire({ title: 'Error!', text: 'Por favor, complete todos los campos requeridos.', icon: 'error' });
+      Swal.fire({
+        title: 'Error!',
+        text: 'Por favor, complete todos los campos requeridos.',
+        icon: 'error'
+      });
       return;
     }
+
+    if (!this.validarCapacidad()) {
+      return;
+    }
+
     this.busesService.update(this.theFormGroup.value).subscribe({
       next: () => {
-        Swal.fire({ title: 'Actualizado!', text: 'Registro actualizado correctamente.', icon: 'success' });
+        Swal.fire({
+          title: 'Actualizado!',
+          text: 'Registro actualizado correctamente.',
+          icon: 'success'
+        });
+
         this.router.navigate(['/buses/list']);
       },
-      error: (error) => Swal.fire({ title: 'Error!', text: error.error?.message || 'No se pudo actualizar el bus.', icon: 'error' }),
+      error: (error) => {
+        Swal.fire({
+          title: 'Error!',
+          text: error.error?.message || 'No se pudo actualizar el bus.',
+          icon: 'error'
+        });
+      },
     });
   }
 
@@ -205,5 +247,55 @@ export class ManageComponent implements OnInit {
       this.theFormGroup.get('fotoUrl')?.updateValueAndValidity();
     };
     reader.readAsDataURL(file);
+  }
+
+  validarCapacidad(): boolean {
+    const capacidadMaximaPasajeros = Number(
+      this.theFormGroup.get('capacidadMaximaPasajeros')?.value || 0
+    );
+
+    const capacidadSentados = Number(
+      this.theFormGroup.get('capacidadSentados')?.value || 0
+    );
+
+    const capacidadParados = Number(
+      this.theFormGroup.get('capacidadParados')?.value || 0
+    );
+
+    const total = capacidadSentados + capacidadParados;
+
+    if (total > capacidadMaximaPasajeros) {
+      Swal.fire(
+        'Capacidad inválida',
+        `La suma de sentados y parados (${total}) no puede superar la capacidad máxima (${capacidadMaximaPasajeros}).`,
+        'warning'
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  getTotalCapacidadUsada(): number {
+    const sentados = Number(
+      this.theFormGroup.get('capacidadSentados')?.value || 0
+    );
+
+    const parados = Number(
+      this.theFormGroup.get('capacidadParados')?.value || 0
+    );
+
+    return sentados + parados;
+  }
+
+  getCapacidadMaxima(): number {
+    return Number(
+      this.theFormGroup.get('capacidadMaximaPasajeros')?.value || 0
+    );
+  }
+
+  capacidadExcedida(): boolean {
+    return this.getTotalCapacidadUsada() > this.getCapacidadMaxima();
   }
 }
