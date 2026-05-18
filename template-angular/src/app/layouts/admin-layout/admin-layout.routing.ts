@@ -191,4 +191,15 @@ export const AdminLayoutRoutes: Routes = [
       },
     ],
   },
+  {
+    path: 'reportes',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/reportes/reportes.module').then(m => m.ReportesModule),
+      },
+    ],
+  },
 ];

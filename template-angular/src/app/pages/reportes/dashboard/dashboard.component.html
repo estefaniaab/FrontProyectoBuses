@@ -1,0 +1,88 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+
+  <!-- Filtros -->
+  <div class="card shadow mb-4">
+    <div class="card-header border-0 d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">
+        <i class="fas fa-chart-bar mr-2"></i>
+        Reporte de Ingresos por Método de Pago
+      </h3>
+      <button class="btn btn-success btn-sm" (click)="exportar()" [disabled]="!reporte">
+        <i class="fas fa-download mr-1"></i> Exportar CSV
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          <label class="form-control-label font-weight-bold">Período a analizar</label>
+          <select class="form-control" [(ngModel)]="meses" (change)="cargar()">
+            <option [value]="3">Últimos 3 meses</option>
+            <option [value]="6">Últimos 6 meses</option>
+            <option [value]="12">Últimos 12 meses</option>
+          </select>
+        </div>
+        <div class="col-md-8 text-right" *ngIf="reporte">
+          <span class="text-muted">Total general:</span>
+          <span class="h3 ml-2 text-success">${{ reporte.totalGeneral | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div *ngIf="cargando" class="text-center py-5">
+        <div class="spinner-border text-danger" role="status"></div>
+        <p class="mt-2 text-muted">Cargando datos...</p>
+      </div>
+      <div *ngIf="!cargando && reporte && reporte.meses.length === 0" class="text-center py-5">
+        <p class="text-muted">No hay datos para el período seleccionado.</p>
+      </div>
+      <canvas id="chartIngresos" *ngIf="!cargando && reporte && reporte.meses.length > 0"
+              style="max-height: 400px;">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Tabla de totales -->
+  <div class="card shadow" *ngIf="reporte && reporte.meses.length > 0">
+    <div class="card-header border-0">
+      <h4 class="mb-0">Total por Método de Pago</h4>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-items-center table-flush">
+        <thead class="thead-light">
+        <tr>
+          <th>MÉTODO DE PAGO</th>
+          <th class="text-right">TOTAL INGRESOS</th>
+          <th class="text-right">% DEL TOTAL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of objetoAArray(reporte.totalesPorMetodo)">
+          <td>
+            <span class="badge badge-primary">{{ item.key | uppercase }}</span>
+          </td>
+          <td class="text-right font-weight-bold">
+            ${{ item.value | number:'1.2-2' }}
+          </td>
+          <td class="text-right">
+            {{ reporte.totalGeneral > 0 ? ((item.value / reporte.totalGeneral) * 100 | number:'1.1-1') : 0 }}%
+          </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr class="bg-light">
+          <td><strong>TOTAL GENERAL</strong></td>
+          <td class="text-right"><strong>${{ reporte.totalGeneral | number:'1.2-2' }}</strong></td>
+          <td class="text-right"><strong>100%</strong></td>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>

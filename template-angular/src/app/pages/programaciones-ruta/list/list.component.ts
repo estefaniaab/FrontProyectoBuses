@@ -77,4 +77,5 @@ export class ListComponent implements OnInit {
     };
     return r ? (map[r] ?? r) : '—';
   }
+
 }

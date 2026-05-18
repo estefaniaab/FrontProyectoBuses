@@ -1,5 +1,4 @@
-<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
-</div>
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
 
 <div class="container-fluid mt--7">
   <div class="row">
@@ -45,27 +44,28 @@
                 <td>{{ bus.estado }}</td>
                 <td>
                   <img *ngIf="bus.fotoUrl" [src]="bus.fotoUrl" alt="Foto bus"
-                    width="40" height="40" class="rounded-circle">
+                       width="40" height="40" class="rounded-circle">
                   <span *ngIf="!bus.fotoUrl" class="text-muted">Sin foto</span>
                 </td>
                 <td>
                   <qrcode *ngIf="bus.codigoQr" [qrdata]="bus.codigoQr" [width]="40"
-                    [errorCorrectionLevel]="'M'">
+                          [errorCorrectionLevel]="'M'">
                   </qrcode>
-
                   <span *ngIf="!bus.codigoQr" class="text-muted">Sin QR</span>
                 </td>
                 <td>
                   <button class="btn btn-info btn-sm" (click)="view(bus.id)" title="Ver">
                     <i class="material-icons">visibility</i>
                   </button>
-
                   <button class="btn btn-warning btn-sm" (click)="edit(bus.id)" title="Editar">
                     <i class="material-icons">edit</i>
                   </button>
-
                   <button class="btn btn-danger btn-sm" (click)="delete(bus.id)" title="Eliminar">
                     <i class="material-icons">delete</i>
+                  </button>
+                  <!-- ← NUEVO: Reportar Incidente -->
+                  <button class="btn btn-secondary btn-sm" (click)="abrirModalIncidente(bus)" title="Reportar Incidente">
+                    <i class="material-icons">warning</i>
                   </button>
                 </td>
               </tr>
@@ -74,6 +74,139 @@
         </div>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Reporte de Incidente ──────────────────────────────── -->
+<div class="modal-backdrop fade show" *ngIf="mostrarModalIncidente"
+     (click)="cerrarModalIncidente()"
+     style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1040;">
+</div>
+
+<div class="modal d-block" *ngIf="mostrarModalIncidente"
+     style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:1050;overflow-y:auto;display:flex!important;align-items:flex-start;justify-content:center;padding:1.75rem 0.5rem;">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title font-weight-bold">
+          <i class="material-icons mr-2" style="vertical-align:middle">warning</i>
+          Reportar Incidente — Bus {{ busSeleccionado?.placa }}
+        </h5>
+        <button type="button" class="close" (click)="cerrarModalIncidente()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="row">
+          <!-- Tipo -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-control-label font-weight-bold">
+                Tipo de Incidente <span class="text-danger">*</span>
+              </label>
+              <select class="form-control" [(ngModel)]="incidenteForm.tipo">
+                <option value="">Seleccione...</option>
+                <option *ngFor="let t of tiposIncidente" [value]="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Gravedad -->
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-control-label font-weight-bold">
+                Nivel de Gravedad <span class="text-danger">*</span>
+              </label>
+              <select class="form-control" [(ngModel)]="incidenteForm.gravedad">
+                <option value="">Seleccione...</option>
+                <option *ngFor="let g of gravedades" [value]="g.value">{{ g.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label class="form-control-label font-weight-bold">Descripción</label>
+          <textarea class="form-control" rows="3"
+                    placeholder="Describe el incidente..."
+                    [(ngModel)]="incidenteForm.descripcion">
+          </textarea>
+        </div>
+
+        <!-- Conductor (solo si es admin) -->
+        <!-- Conductor: select si es admin, info si es conductor -->
+        <div class="form-group">
+          <label class="form-control-label font-weight-bold">
+            Conductor que reporta
+            <span class="text-muted" *ngIf="!conductorIdLogueado">(opcional)</span>
+          </label>
+
+          <!-- Si es conductor logueado -->
+          <div *ngIf="conductorIdLogueado" class="alert alert-info py-2 px-3">
+            <i class="material-icons mr-1" style="vertical-align:middle">person</i>
+            Conductor identificado automáticamente (ID #{{ conductorIdLogueado }})
+          </div>
+
+          <!-- Si es admin: select de conductores -->
+          <select *ngIf="!conductorIdLogueado"
+                  class="form-control"
+                  [(ngModel)]="incidenteForm.conductorId">
+            <option [ngValue]="null">— Sin conductor asignado —</option>
+            <option *ngFor="let c of conductores" [ngValue]="c.id">
+              {{ c.user?.name || 'Conductor #' + c.id }}
+              — Lic: {{ c.licencia }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Fotos -->
+        <div class="form-group">
+          <label class="form-control-label font-weight-bold">
+            Fotografías <span class="text-muted">(máx. 5)</span>
+          </label>
+          <input type="file" class="form-control" accept="image/*" multiple
+                 (change)="onFotosSeleccionadas($event)"
+                 [disabled]="fotosSeleccionadas.length >= 5">
+
+          <div class="row mt-2">
+            <div class="col-4 mb-2" *ngFor="let foto of fotosSeleccionadas; let i = index">
+              <div class="position-relative">
+                <img [src]="foto.urlFoto" class="img-fluid rounded"
+                     style="height:80px;width:100%;object-fit:cover;">
+                <button class="btn btn-sm btn-danger position-absolute"
+                        style="top:2px;right:2px;padding:2px 6px;"
+                        (click)="eliminarFoto(i)">
+                  <i class="material-icons" style="font-size:14px">close</i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <small class="text-muted">{{ fotosSeleccionadas.length }}/5 fotos seleccionadas</small>
+        </div>
+
+        <!-- Alerta gravedad alta/crítica -->
+        <div class="alert alert-danger"
+             *ngIf="incidenteForm.gravedad === 'alto' || incidenteForm.gravedad === 'critico'">
+          <i class="material-icons mr-1" style="vertical-align:middle">error</i>
+          <strong>Gravedad {{ incidenteForm.gravedad | uppercase }}:</strong>
+          Se notificará automáticamente al supervisor.
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModalIncidente()">Cancelar</button>
+        <button class="btn btn-warning" (click)="submitIncidente()">
+          <i class="material-icons mr-1" style="vertical-align:middle">send</i>
+          Reportar Incidente
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
