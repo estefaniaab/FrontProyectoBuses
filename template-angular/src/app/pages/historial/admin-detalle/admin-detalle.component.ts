@@ -1,68 +1,80 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import Swal from 'sweetalert2';
 
 import { Historial } from 'src/app/models/Historial/historial.model';
 import { HistorialService } from 'src/app/services/Historial/historial.service';
+import { UserService } from 'src/app/services/User/user.service';
 
 @Component({
-  selector: 'app-list-historial',
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.scss']
+  selector: 'app-admin-detalle-historial',
+  templateUrl: './admin-detalle.component.html',
+  styleUrls: ['./admin-detalle.component.scss']
 })
-export class ListComponent implements OnInit {
+export class AdminDetalleComponent implements OnInit {
+
+  ciudadanoId!: number;
+  nombreUsuario = 'Cargando...';
 
   historial: Historial[] = [];
   historialAgrupado: any[] = [];
-  boletoIdFiltro?: number;
+
+  returnUrl = '/historial/admin';
 
   constructor(
     private historialService: HistorialService,
+    private userService: UserService,
+    private activatedRoute: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.list();
+    this.returnUrl = history.state?.returnUrl || '/historial/admin';
+    this.ciudadanoId = Number(this.activatedRoute.snapshot.params['ciudadanoId']);
+
+    this.cargarHistorial();
   }
 
-  list(): void {
-    this.historialService.list().subscribe({
+  cargarHistorial(): void {
+    this.historialService.findByCiudadano(this.ciudadanoId).subscribe({
       next: (data) => {
         this.historial = data;
         this.agruparPorBoleto();
+        this.cargarNombreUsuario();
       },
       error: (error) => {
-        console.error('Error listando historial:', error);
+        console.error('Error cargando historial del ciudadano:', error);
 
         Swal.fire(
           'Error',
-          error.error?.message || 'No se pudo cargar el historial.',
+          error.error?.message || 'No se pudo cargar el historial del ciudadano.',
           'error'
         );
       }
     });
   }
 
-  buscarPorBoleto(): void {
-    if (!this.boletoIdFiltro) {
-      this.list();
+  cargarNombreUsuario(): void {
+    const usuarioId = (this.historial[0] as any)?.boleto?.ciudadano?.usuarioId;
+
+    if (!usuarioId) {
+      this.nombreUsuario = `Ciudadano #${this.ciudadanoId}`;
       return;
     }
 
-    this.historialService.findByBoleto(this.boletoIdFiltro).subscribe({
-      next: (data) => {
-        this.historial = data;
-        this.agruparPorBoleto();
+    this.userService.view(usuarioId).subscribe({
+      next: (usuario: any) => {
+        this.nombreUsuario =
+          usuario?.name ||
+          usuario?.username ||
+          usuario?.email ||
+          usuarioId;
       },
-      error: (error) => {
-        console.error('Error buscando historial por boleto:', error);
-
-        Swal.fire(
-          'Error',
-          error.error?.message || 'No se pudo buscar el historial del boleto.',
-          'error'
-        );
+      error: () => {
+        this.nombreUsuario = usuarioId;
       }
     });
   }
@@ -70,7 +82,7 @@ export class ListComponent implements OnInit {
   agruparPorBoleto(): void {
     const mapa = new Map<number, any>();
 
-    for (const item of this.historial) {
+    for (const item of this.historial as any[]) {
       const boletoId = item.boletoId;
 
       if (!boletoId) {
@@ -88,8 +100,6 @@ export class ListComponent implements OnInit {
           descenso: null,
           fechaAbordaje: null,
           fechaDescenso: null,
-          historialAbordajeId: null,
-          historialDescensoId: null,
         });
       }
 
@@ -102,33 +112,28 @@ export class ListComponent implements OnInit {
       if (item.tipo === 'abordaje') {
         registro.abordaje = nombreParadero;
         registro.fechaAbordaje = item.fechaValidacion;
-        registro.historialAbordajeId = item.id;
       }
 
       if (item.tipo === 'descenso') {
         registro.descenso = nombreParadero;
         registro.fechaDescenso = item.fechaValidacion;
-        registro.historialDescensoId = item.id;
       }
     }
 
     this.historialAgrupado = Array.from(mapa.values());
   }
 
-  limpiar(): void {
-    this.boletoIdFiltro = undefined;
-    this.list();
-  }
-
-  view(id: number | undefined): void {
-    if (!id) return;
-
-    this.router.navigate(['/historial/view', id]);
-  }
-
   verRecorrido(boletoId: number | undefined): void {
     if (!boletoId) return;
 
-    this.router.navigate(['/historial/recorrido', boletoId]);
+    this.router.navigate(['/historial/recorrido', boletoId], {
+      state: {
+        returnUrl: `/historial/admin/ciudadano/${this.ciudadanoId}`
+      }
+    });
+  }
+
+  back(): void {
+    this.router.navigateByUrl(this.returnUrl);
   }
 }

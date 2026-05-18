@@ -157,29 +157,39 @@ export class RecorridoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private extraerInfoGeneral(): void {
-    const primero: any = this.historial[0];
+    const abordaje: any = this.abordaje;
+    const descenso: any = this.descenso;
+    const primero: any = abordaje || descenso || this.historial[0];
 
     this.rutaNombre =
-      this.abordaje?.nodo?.ruta?.nombre ||
-      this.descenso?.nodo?.ruta?.nombre ||
+      abordaje?.nodo?.ruta?.nombre ||
+      descenso?.nodo?.ruta?.nombre ||
       primero?.boleto?.programacionRuta?.ruta?.nombre ||
       'Sin ruta';
 
-    const bus =
-      primero?.boleto?.programacionRuta?.bus ||
-      this.abordaje?.boleto?.programacionRuta?.bus ||
-      this.descenso?.boleto?.programacionRuta?.bus;
+    const programacion =
+      abordaje?.boleto?.programacionRuta ||
+      descenso?.boleto?.programacionRuta ||
+      primero?.boleto?.programacionRuta;
+
+    const bus = programacion?.bus;
 
     this.busPlaca = bus?.placa || 'No disponible';
 
-    const fechaAbordaje =
-      this.abordaje?.fechaValidacion ||
-      primero?.fechaValidacion;
+    const busId =
+      bus?.id ||
+      programacion?.busId;
 
-    if (bus?.id && fechaAbordaje) {
-      this.cargarConductorDelAbordaje(bus.id, fechaAbordaje);
-    } else {
-      this.conductorNombre = 'No disponible';
+    const fechaAbordaje =
+      abordaje?.fechaValidacion;
+
+    console.log('Boleto actual:', this.boletoId);
+    console.log('Abordaje usado para turno:', abordaje);
+    console.log('Bus usado para turno:', busId);
+    console.log('Fecha abordaje usada para turno:', fechaAbordaje);
+
+    if (busId && fechaAbordaje) {
+      this.cargarConductorDelAbordaje(Number(busId), fechaAbordaje);
     }
   }
 
@@ -189,21 +199,28 @@ export class RecorridoComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('Turno del abordaje recibido:', turno);
 
         if (!turno) {
-          this.conductorNombre = 'No disponible';
           return;
         }
+
+        this.busPlaca =
+          turno.bus?.placa ||
+          this.busPlaca ||
+          'No disponible';
 
         this.conductorNombre =
           turno.conductor?.usuario?.name ||
           turno.conductor?.usuario?.nombre ||
+          turno.conductor?.usuario?.username ||
+          turno.conductor?.usuario?.email ||
           turno.conductor?.nombre ||
+          turno.conductor?.name ||
           turno.conductor?.licencia ||
           turno.conductor?.userId ||
+          this.conductorNombre ||
           `Conductor #${turno.conductorId}`;
       },
       error: (err) => {
         console.error('Error obteniendo conductor del abordaje:', err);
-        this.conductorNombre = 'No disponible';
       },
     });
   }
@@ -472,8 +489,8 @@ export class RecorridoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   back(): void {
-    this.router.navigate(['/historial/list']);
+    const returnUrl = history.state?.returnUrl || '/historial/list';
+    this.router.navigateByUrl(returnUrl);
   }
-
 
 }

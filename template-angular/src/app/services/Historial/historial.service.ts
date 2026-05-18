@@ -47,4 +47,10 @@ export class HistorialService {
        `${environment.url_ms_business}/turnos/bus/${busId}/en-fecha?fecha=${encodeURIComponent(fecha)}`
      );
    }
+
+  findByCiudadano(ciudadanoId: number) {
+    return this.http.get<Historial[]>(
+      `${environment.url_ms_business}/historial/ciudadano/${ciudadanoId}`
+    );
+  }
 }
