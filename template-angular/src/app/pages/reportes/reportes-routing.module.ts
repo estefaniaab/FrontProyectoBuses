@@ -11,11 +11,6 @@ const routes: Routes = [
     path: 'rangos-etarios',
     component: RangosEtariosComponent
   },
-  {
-    path: '',
-    redirectTo: 'rangos-etarios',
-    pathMatch: 'full'
-  }
 ];
 
 @NgModule({
