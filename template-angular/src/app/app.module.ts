@@ -65,7 +65,6 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
     ForgotPasswordComponent,
     ResetPasswordComponent,
     Verify2faComponent,
-
   ],
   providers: [
     {

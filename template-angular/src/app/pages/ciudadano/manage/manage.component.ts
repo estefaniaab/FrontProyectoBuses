@@ -27,6 +27,7 @@ export class ManageComponent implements OnInit {
   ciudadano: Ciudadano = {
     id: 0,
     usuarioId: '',
+    fechaNacimiento: '',
     direcciones: [],
     metodosPagoCiudadano: []
   };
@@ -94,7 +95,8 @@ export class ManageComponent implements OnInit {
   configFormGroup(): void {
     this.theFormGroup = this.fb.group({
       id: [{ value: '', disabled: true }],
-      usuarioId: ['', [Validators.required]]
+      usuarioId: ['', [Validators.required]],
+      fechaNacimiento: [null],
     });
   }
 
@@ -172,7 +174,8 @@ export class ManageComponent implements OnInit {
 
         this.theFormGroup.patchValue({
           id: data.id,
-          usuarioId: data.usuarioId
+          usuarioId: data.usuarioId,
+          fechaNacimiento: data.fechaNacimiento
         });
 
         if (this.mode === 1) {
@@ -225,10 +228,11 @@ export class ManageComponent implements OnInit {
       return;
     }
 
-    const usuarioId = this.theFormGroup.get('usuarioId')?.value;
+    const raw = this.theFormGroup.getRawValue();
 
     const nuevoCiudadano: Ciudadano = {
-      usuarioId
+      usuarioId: raw.usuarioId,
+      fechaNacimiento: raw.fechaNacimiento || null,
     };
 
     this.ciudadanoService.create(nuevoCiudadano).subscribe({
@@ -244,7 +248,8 @@ export class ManageComponent implements OnInit {
 
         this.theFormGroup.patchValue({
           id: data.id,
-          usuarioId: data.usuarioId
+          usuarioId: data.usuarioId,
+          fechaNacimiento: data.fechaNacimiento,
         });
 
         this.theFormGroup.get('usuarioId')?.disable();
@@ -272,18 +277,13 @@ export class ManageComponent implements OnInit {
         'No se encontró el ID del ciudadano.',
         'error'
       );
-
       return;
     }
 
-    /*
-      En editar NO mandamos usuarioId porque no se puede cambiar.
-      Solo se mantiene el ciudadano actual.
-      Si luego agregas más campos editables al ciudadano, agrégalos aquí.
-    */
-    const ciudadanoActualizado: Ciudadano = {
-      id: this.ciudadano.id,
-      usuarioId: this.ciudadano.usuarioId
+    const raw = this.theFormGroup.getRawValue();
+
+    const ciudadanoActualizado: any = {
+      fechaNacimiento: raw.fechaNacimiento || null,
     };
 
     this.ciudadanoService.update(this.ciudadano.id, ciudadanoActualizado).subscribe({
@@ -298,12 +298,6 @@ export class ManageComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error actualizando ciudadano:', error);
-
-        Swal.fire(
-          'Error',
-          error.error?.message || 'No se pudo actualizar el ciudadano.',
-          'error'
-        );
       }
     });
   }

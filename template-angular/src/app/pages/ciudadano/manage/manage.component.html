@@ -73,6 +73,18 @@
               </div>
               <br>
 
+              <!-- FECHA DE NACIMIENTO -->
+              <div class="row">
+                <div class="col-3">Fecha de nacimiento</div>
+                <div class="col-9">
+                  <input
+                    type="date"
+                    class="form-control"
+                    formControlName="fechaNacimiento">
+                </div>
+              </div>
+              <br>
+
               <!-- Botones -->
               <div class="row">
                 <div class="col-3"></div>
@@ -90,6 +102,14 @@
                     (click)="create()"
                     *ngIf="mode == 2">
                     Crear
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-warning btn-block"
+                    (click)="update()"
+                    *ngIf="mode == 3">
+                    Actualizar
                   </button>
 
                 </div>

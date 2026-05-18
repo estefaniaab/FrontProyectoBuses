@@ -1,0 +1,98 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Historial de viajes</h3>
+            </div>
+
+            <div class="col-md-8">
+              <div class="form-inline float-right">
+                <input
+                  type="number"
+                  class="form-control form-control-sm mr-2"
+                  [(ngModel)]="boletoIdFiltro"
+                  placeholder="Buscar por boleto">
+
+                <button
+                  class="btn btn-primary btn-sm"
+                  (click)="buscarPorBoleto()">
+                  Buscar
+                </button>
+
+                <button
+                  class="btn btn-secondary btn-sm ml-2"
+                  (click)="boletoIdFiltro = undefined; list()">
+                  Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Boleto</td>
+                <td>Ruta</td>
+                <td>Abordaje</td>
+                <td>Descenso</td>
+                <td>Hora abordaje</td>
+                <td>Hora descenso</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let item of historialAgrupado">
+                <td>{{ item.boletoId }}</td>
+
+                <td>{{ item.ruta }}</td>
+
+                <td>
+    <span class="badge badge-success">
+      {{ item.abordaje || 'No registrado' }}
+    </span>
+                </td>
+
+                <td>
+    <span class="badge badge-info">
+      {{ item.descenso || 'No registrado' }}
+    </span>
+                </td>
+
+                <td>
+                  {{ item.fechaAbordaje ? (item.fechaAbordaje | date:'dd/MM/yyyy, h:mm a') : 'No registrado' }}
+                </td>
+
+                <td>
+                  {{ item.fechaDescenso ? (item.fechaDescenso | date:'dd/MM/yyyy, h:mm a') : 'No registrado' }}
+                </td>
+
+                <td>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    (click)="verRecorrido(item.boletoId)"
+                    title="Ver recorrido">
+                    <i class="material-icons">map</i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="historial.length === 0">
+                <td colspan="7" class="text-center text-muted">
+                  No hay registros de historial.
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

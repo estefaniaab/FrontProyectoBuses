@@ -1,0 +1,18 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+import { ReportesRoutingModule } from './reportes-routing.module';
+import { RangosEtariosComponent } from './rangos-etarios/rangos-etarios.component';
+
+@NgModule({
+  declarations: [
+    RangosEtariosComponent
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReportesRoutingModule
+  ]
+})
+export class ReportesModule { }
