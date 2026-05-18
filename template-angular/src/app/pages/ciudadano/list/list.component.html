@@ -24,6 +24,7 @@
               <tr>
                 <td>Id</td>
                 <td>Usuario</td>
+                <td>Fecha nacimiento</td>
                 <td>Direcciones</td>
                 <td>Métodos de pago</td>
                 <td>Acciones</td>
@@ -33,6 +34,9 @@
                 <td>{{ ciudadano.id }}</td>
 
                 <td>{{ ciudadano.nombreUsuario }}</td>
+                <td>
+                  {{ ciudadano.fechaNacimiento ? (ciudadano.fechaNacimiento | date:'dd/MM/yyyy') : 'Sin información' }}
+                </td>
 
                 <td>
                   <span *ngIf="ciudadano.direcciones?.length">

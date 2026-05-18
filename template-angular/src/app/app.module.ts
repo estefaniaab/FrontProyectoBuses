@@ -32,7 +32,6 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatChipsModule} from "@angular/material/chips";
 import {DragDropModule} from "@angular/cdk/drag-drop";
-import { DashboardComponent } from './pages/reportes/dashboard/dashboard.component';
 
 @NgModule({
   imports: [
@@ -66,8 +65,6 @@ import { DashboardComponent } from './pages/reportes/dashboard/dashboard.compone
     ForgotPasswordComponent,
     ResetPasswordComponent,
     Verify2faComponent,
-
-
   ],
   providers: [
     {

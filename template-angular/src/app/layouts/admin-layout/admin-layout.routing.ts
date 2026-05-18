@@ -191,6 +191,19 @@ export const AdminLayoutRoutes: Routes = [
       },
     ],
   },
+
+  {
+    path: 'historial',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/historial/historial.module').then(m => m.HistorialModule),
+      },
+    ],
+  },
+
   {
     path: 'reportes',
     canActivate: [AuthenticatedGuard],
@@ -198,8 +211,9 @@ export const AdminLayoutRoutes: Routes = [
       {
         path: '',
         loadChildren: () =>
-          import('src/app/pages/reportes/reportes.module').then(m => m.ReportesModule),
-      },
-    ],
+          import('src/app/pages/reportes/reportes.module')
+            .then(m => m.ReportesModule)
+      }
+    ]
   },
 ];

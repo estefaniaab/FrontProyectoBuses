@@ -301,8 +301,21 @@ export class ManageComponent implements OnInit {
     return this.saldoActual + this.montoRecarga;
   }
 
-  back(): void {
-    this.router.navigate(['/recargas/list']);
+  irHistorialPago(): void {
+    if (!this.ciudadanoId) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo identificar el ciudadano logueado.',
+        icon: 'error'
+      });
+      return;
+    }
+
+    this.router.navigate(['/recargas/admin/ciudadano', this.ciudadanoId], {
+      state: {
+        returnUrl: '/recargas/create'
+      }
+    });
   }
 
   continuarAlPago(): void {
@@ -339,7 +352,7 @@ export class ManageComponent implements OnInit {
           icon: 'success'
         });
 
-        this.router.navigate(['/recargas/list']);
+        this.router.navigate(['/recargas/admin/ciudadano', this.ciudadanoId]);
       },
       error: (error) => {
         console.error('Error creando recarga:', error);

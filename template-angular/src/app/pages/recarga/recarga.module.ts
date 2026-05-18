@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RecargaRoutingModule } from './recarga-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ListComponent } from './list/list.component';
 import { ManageComponent } from './manage/manage.component';
+import { AdminListComponent } from './admin-list/admin-list.component';
+import { AdminDetalleComponent } from './admin-detalle/admin-detalle.component';
 
 @NgModule({
   declarations: [
-    ListComponent,
-    ManageComponent],
+    ManageComponent,
+    AdminListComponent,
+    AdminDetalleComponent],
   imports: [
     CommonModule,
     RecargaRoutingModule,
