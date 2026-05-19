@@ -72,4 +72,22 @@ export class ReportesService {
 
     URL.revokeObjectURL(url);
   }
+
+  getTendenciaIncidentes(filtros: {
+    meses?: number;
+    empresaId?: number;
+  }): Observable<any> {
+    let params = new HttpParams();
+
+    params = params.set('meses', String(filtros.meses || 3));
+
+    if (filtros.empresaId) {
+      params = params.set('empresaId', String(filtros.empresaId));
+    }
+
+    return this.http.get<any>(
+      `${this.url}/reportes/tendencia-incidentes`,
+      { params }
+    );
+  }
 }

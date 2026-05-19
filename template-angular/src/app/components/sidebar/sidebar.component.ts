@@ -12,148 +12,33 @@ declare interface RouteInfo {
 }
 
 export const ROUTES: RouteInfo[] = [
-  {
-    path: '/dashboard',
-    title: 'Dashboard',
-    icon: 'ni-tv-2 text-primary',
-    class: ''
-  },
-
+  { path: '/dashboard', title: 'Dashboard', icon: 'ni-tv-2 text-primary', class: ''},
   // Seguridad
-  {
-    path: '/users/list',
-    title: 'Usuarios',
-    icon: 'ni-single-02 text-yellow',
-    class: ''
-  },
-  {
-    path: '/roles/list',
-    title: 'Roles',
-    icon: 'ni-badge text-blue',
-    class: ''
-  },
-  {
-    path: '/permissions/list',
-    title: 'Permisos',
-    icon: 'ni-lock-circle-open text-red',
-    class: ''
-  },
-  {
-    path: '/user-role/list',
-    title: 'Usuario-Rol',
-    icon: 'ni-bullet-list-67 text-orange',
-    class: ''
-  },
-  {
-    path: '/profiles/list',
-    title: 'Perfiles',
-    icon: 'ni-circle-08 text-pink',
-    class: ''
-  },
-
+  { path: '/users/list', title: 'Usuarios', icon: 'ni-single-02 text-yellow', class: ''},
+  { path: '/roles/list', title: 'Roles', icon: 'ni-badge text-blue', class: ''},
+  { path: '/permissions/list', title: 'Permisos', icon: 'ni-lock-circle-open text-red', class: ''},
+  { path: '/user-role/list', title: 'Usuario-Rol', icon: 'ni-bullet-list-67 text-orange', class: ''},
+  { path: '/profiles/list', title: 'Perfiles', icon: 'ni-circle-08 text-pink', class: ''},
   // Operación
-  {
-    path: '/rutas/list',
-    title: 'Rutas',
-    icon: 'ni-map-big text-info',
-    class: ''
-  },
-  {
-    path: '/paraderos/list',
-    title: 'Paraderos',
-    icon: 'ni-square-pin text-red',
-    class: ''
-  },
-  {
-    path: '/paraderos/cercanos',
-    title: 'Paraderos cercanos',
-    icon: 'ni-compass-04 text-success',
-    class: ''
-  },
-  {
-    path: '/buses/list',
-    title: 'Buses',
-    icon: 'ni-delivery-fast text-primary',
-    class: ''
-  },
-  {
-    path: '/conductores/list',
-    title: 'Conductores',
-    icon: 'ni-badge text-warning',
-    class: ''
-  },
-  {
-    path: '/turnos/list',
-    title: 'Turnos',
-    icon: 'ni-time-alarm text-info',
-    class: ''
-  },
-  {
-    path: '/programaciones-ruta/list',
-    title: 'Programaciones',
-    icon: 'ni-calendar-grid-58 text-orange',
-    class: ''
-  },
-
+  { path: '/rutas/list', title: 'Rutas', icon: 'ni-map-big text-info', class: ''},
+  { path: '/paraderos/list', title: 'Paraderos', icon: 'ni-square-pin text-red', class: ''},
+  { path: '/paraderos/cercanos', title: 'Paraderos cercanos', icon: 'ni-compass-04 text-success', class: ''},
+  { path: '/buses/list', title: 'Buses', icon: 'ni-delivery-fast text-primary', class: '' },
+  { path: '/conductores/list', title: 'Conductores', icon: 'ni-badge text-warning', class: '' },
+  { path: '/turnos/list', title: 'Turnos', icon: 'ni-time-alarm text-info', class: '' },
+  { path: '/programaciones-ruta/list', title: 'Programaciones', icon: 'ni-calendar-grid-58 text-orange', class: '' },
   // Ciudadano / viajes
-  {
-    path: '/ciudadanos/list',
-    title: 'Ciudadanos',
-    icon: 'ni-single-02 text-success',
-    class: ''
-  },
-  {
-    path: '/boletos/list',
-    title: 'Boletos',
-    icon: 'ni-tag text-purple',
-    class: ''
-  },
-  {
-    path: '/recargas/create',
-    title: 'Recargar tarjeta',
-    icon: 'ni-credit-card text-blue',
-    class: ''
-  },
-  {
-    path: '/recargas/admin',
-    title: 'Recargas Admin',
-    icon: 'ni-money-coins text-green',
-    class: ''
-  },
-
+  { path: '/ciudadanos/list', title: 'Ciudadanos', icon: 'ni-single-02 text-success', class: ''},
+  { path: '/boletos/list', title: 'Boletos', icon: 'ni-tag text-purple', class: '' },
+  { path: '/recargas/create', title: 'Recargar tarjeta', icon: 'ni-credit-card text-blue', class: '' },
+  { path: '/recargas/admin', title: 'Recargas Admin', icon: 'ni-money-coins text-green', class: ''},
   // Este se reemplaza dinámicamente por /historial/admin/ciudadano/:ciudadanoId
-  {
-    path: '',
-    title: 'Historial',
-    icon: 'ni-collection text-info',
-    class: '',
-    key: 'MI_HISTORIAL'
-  },
-
-  {
-    path: '/historial/admin',
-    title: 'Historial Admin',
-    icon: 'ni-collection text-default',
-    class: ''
-  },
-
+  { path: '', title: 'Historial', icon: 'ni-collection text-info', class: '', key: 'MI_HISTORIAL' },
+  { path: '/historial/admin', title: 'Historial Admin', icon: 'ni-collection text-default', class: ''},
   // Reportes
-  {
-    path: '/reportes/rangos-etarios',
-    title: 'Rangos etarios',
-    icon: 'ni-chart-pie-35 text-info',
-    class: ''
-  },
-
+  { path: '/reportes/rangos-etarios', title: 'Rangos etarios', icon: 'ni-chart-pie-35 text-info', class: ''},
   { path: '/reportes/dashboard',     title: 'Reportes',         icon: 'ni-chart-bar-32 text-red',      class: '' },
-
-  // Extras
-  {
-    path: '/icons',
-    title: 'Icons',
-    icon: 'ni-planet text-blue',
-    class: ''
-  },
+  { path: '/reportes/tendencia-incidentes', title: 'Tendencia incidentes', icon: 'ni-chart-bar-32 text-danger', class: '' },
 ];
 
 @Component({
