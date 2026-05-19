@@ -32,20 +32,43 @@ export class DescensoComponent implements OnInit {
     this.id = rawId ? +rawId : undefined;
 
     if (this.id) this.cargarBoleto();
-    this.cargarParaderos();
+    // ← ya NO se llama cargarParaderos() aquí
   }
 
   cargarBoleto(): void {
     this.service.findOne(this.id!).subscribe({
-      next:  (data) => (this.boleto = data),
-      error: (err)  => console.error('Error al cargar boleto', err),
+      next: (data) => {
+        this.boleto = data;
+        this.cargarParaderos(); // ← cargar DESPUÉS de tener el boleto
+      },
+      error: (err) => console.error('Error al cargar boleto', err),
     });
   }
 
   cargarParaderos(): void {
-    this.service.getParaderos().subscribe({
-      next:  (data) => (this.paraderos = data),
-      error: (err)  => console.error('Error al obtener paraderos', err),
+    const rutaId = (this.boleto?.programacionRuta as any)?.ruta?.id
+      ?? this.boleto?.programacionRuta?.rutaId;
+
+    if (!rutaId) {
+      // fallback: cargar todos
+      this.service.getParaderos().subscribe({
+        next:  (data) => (this.paraderos = data),
+        error: (err)  => console.error('Error', err),
+      });
+      return;
+    }
+
+    this.service.getParaderosPorRuta(rutaId).subscribe({
+      next: (nodos) => {
+        this.paraderos = nodos
+          .filter((n: any) => n.paradero)
+          .map((n: any) => ({
+            id:            n.paradero.id,
+            nombre:        `${n.orden}. ${n.paradero.nombre}`,
+            clasificacion: n.paradero.clasificacion,
+          }));
+      },
+      error: (err) => console.error('Error al cargar paraderos', err),
     });
   }
 

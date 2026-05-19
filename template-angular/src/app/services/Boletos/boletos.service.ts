@@ -71,4 +71,10 @@ export class BoletosService {
       { observe: 'body' }
     );
   }
+  getParaderosPorRuta(rutaId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.url_ms_business}/nodos/ruta/${rutaId}`,
+      { observe: 'body' }
+    );
+  }
 }

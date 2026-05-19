@@ -1,12 +1,8 @@
 import { Component, OnInit }             from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router }                         from '@angular/router';
-import {
-  BoletosService,
-} from 'src/app/services/Boletos/boletos.service';
-import {
-  MetodoPagoCiudadanoBasic, ParaderoBasic,
-} from 'src/app/models/Boletos/boleto.model';
+import { BoletosService }                from 'src/app/services/Boletos/boletos.service';
+import { MetodoPagoCiudadanoBasic, ParaderoBasic } from 'src/app/models/Boletos/boleto.model';
 import { ProgramacionRuta }              from 'src/app/models/Programaciones-ruta/programacion-ruta.model';
 import Swal                              from 'sweetalert2';
 
@@ -22,6 +18,7 @@ export class AbordajeComponent implements OnInit {
   programaciones: ProgramacionRuta[]         = [];
   paraderos:      ParaderoBasic[]            = [];
   metodosPago:    MetodoPagoCiudadanoBasic[] = [];
+  paraderosCargando = false;
 
   programacionSeleccionada?: ProgramacionRuta;
   metodoPagoSeleccionado?:   MetodoPagoCiudadanoBasic;
@@ -41,14 +38,12 @@ export class AbordajeComponent implements OnInit {
 
     this.resolverCiudadano();
     this.cargarProgramaciones();
-    this.cargarParaderos();
+    // ← ya NO se llama cargarParaderos() aquí
   }
 
   private resolverCiudadano(): void {
-    // ── Mismo patrón que recargas ──────────────────────────────────────
     let usuarioId: string | null = null;
 
-    // Intenta con 'user' (clave que usa el login principal)
     const userRaw = localStorage.getItem('user');
     if (userRaw) {
       try {
@@ -57,7 +52,6 @@ export class AbordajeComponent implements OnInit {
       } catch { }
     }
 
-    // Fallback: intenta con 'session'
     if (!usuarioId) {
       const sessionRaw = localStorage.getItem('session');
       if (sessionRaw) {
@@ -81,7 +75,7 @@ export class AbordajeComponent implements OnInit {
     this.service.getCiudadanoByUsuarioId(usuarioId).subscribe({
       next: (c) => {
         this.ciudadanoId = c.id;
-        this.cargarMetodosPago(); // ← carga métodos DESPUÉS de tener el id
+        this.cargarMetodosPago();
       },
       error: (err) => console.error('Error al obtener ciudadano', err),
     });
@@ -94,26 +88,41 @@ export class AbordajeComponent implements OnInit {
     });
   }
 
-  cargarParaderos(): void {
-    this.service.getParaderos().subscribe({
-      next:  (data) => (this.paraderos = data),
-      error: (err)  => console.error('Error al obtener paraderos', err),
-    });
-  }
-
   cargarMetodosPago(): void {
     if (!this.ciudadanoId) return;
     this.service.getMetodosPagoByCiudadano(this.ciudadanoId).subscribe({
-      next: (data) => {
-        this.metodosPago = data;
-        console.log('Métodos de pago cargados:', data); // ← para verificar
-      },
-      error: (err) => console.error('Error al obtener métodos de pago', err),
+      next:  (data) => (this.metodosPago = data),
+      error: (err)  => console.error('Error al obtener métodos de pago', err),
     });
   }
+
   onProgramacionChange(): void {
     const id = this.form.get('programacionRutaId')?.value;
     this.programacionSeleccionada = this.programaciones.find(p => p.id === id);
+
+    // Limpiar paradero y cargar solo los de esta ruta
+    this.form.get('paraderoAbordajeId')?.setValue(null);
+    this.paraderos = [];
+
+    if (this.programacionSeleccionada?.rutaId) {
+      this.paraderosCargando = true;
+      this.service.getParaderosPorRuta(this.programacionSeleccionada.rutaId).subscribe({
+        next: (nodos) => {
+          this.paraderos = nodos
+            .filter((n: any) => n.paradero)
+            .map((n: any) => ({
+              id:            n.paradero.id,
+              nombre:        `${n.orden}. ${n.paradero.nombre}`,
+              clasificacion: n.paradero.clasificacion,
+            }));
+          this.paraderosCargando = false;
+        },
+        error: (err) => {
+          console.error('Error al cargar paraderos de la ruta', err);
+          this.paraderosCargando = false;
+        },
+      });
+    }
   }
 
   onMetodoPagoChange(): void {
@@ -134,10 +143,10 @@ export class AbordajeComponent implements OnInit {
 
     const raw = this.form.getRawValue();
     const dto = {
-      ciudadanoId:          this.ciudadanoId,
-      programacionRutaId:   Number(raw.programacionRutaId),
+      ciudadanoId:           this.ciudadanoId,
+      programacionRutaId:    Number(raw.programacionRutaId),
       metodoPagoCiudadanoId: Number(raw.metodoPagoCiudadanoId),
-      paraderoAbordajeId:   Number(raw.paraderoAbordajeId),
+      paraderoAbordajeId:    Number(raw.paraderoAbordajeId),
     };
 
     this.service.abordar(dto).subscribe({
