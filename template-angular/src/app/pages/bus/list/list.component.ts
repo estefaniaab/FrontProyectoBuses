@@ -152,26 +152,62 @@ export class ListComponent implements OnInit {
   }
 
   submitIncidente(): void {
+    if (!this.busSeleccionado?.id) {
+      Swal.fire(
+        'Error',
+        'No se pudo identificar el bus del incidente.',
+        'error'
+      );
+      return;
+    }
+
     if (!this.incidenteForm.tipo || !this.incidenteForm.gravedad) {
-      Swal.fire('Atención', 'Selecciona el tipo y la gravedad del incidente.', 'warning');
+      Swal.fire(
+        'Atención',
+        'Selecciona el tipo y la gravedad del incidente.',
+        'warning'
+      );
       return;
     }
 
     const dto = {
-      tipo:        this.incidenteForm.tipo,
-      gravedad:    this.incidenteForm.gravedad,
+      tipo: this.incidenteForm.tipo,
+      gravedad: this.incidenteForm.gravedad,
       descripcion: this.incidenteForm.descripcion,
-      busId:       this.busSeleccionado!.id!,
+      busId: this.busSeleccionado.id,
       conductorId: this.incidenteForm.conductorId || undefined,
-      fotos:       this.fotosSeleccionadas,
+      fotos: this.fotosSeleccionadas,
     };
 
     this.incidentesService.reportar(dto).subscribe({
       next: () => {
         this.cerrarModalIncidente();
-        Swal.fire('¡Incidente Reportado!', 'El incidente fue registrado correctamente.', 'success');
+
+        Swal.fire(
+          '¡Incidente reportado!',
+          'El incidente fue registrado correctamente con GPS y turno activo.',
+          'success'
+        );
       },
-      error: (err) => Swal.fire('Error', err.error?.message || 'No se pudo reportar el incidente.', 'error'),
+      error: (err) => {
+        Swal.fire(
+          'Error',
+          err.error?.message || 'No se pudo reportar el incidente.',
+          'error'
+        );
+      },
     });
+  }
+
+  gestionarGps(busId: number | undefined): void {
+    if (!busId) return;
+
+    this.router.navigate(['/gps/bus', busId]);
+  }
+
+  verIncidentes(busId: number | undefined): void {
+    if (!busId) return;
+
+    this.router.navigate(['/incidentes/bus', busId]);
   }
 }

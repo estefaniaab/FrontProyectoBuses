@@ -1,0 +1,201 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <!-- HEADER -->
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">
+                Recorrido del boleto #{{ boletoId }}
+              </h3>
+            </div>
+
+            <div class="col-md-4 text-right">
+              <button
+                class="btn btn-secondary btn-sm"
+                (click)="back()">
+                Regresar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="card-body">
+
+          <!-- CARGANDO -->
+          <div
+            class="text-center text-muted py-4"
+            *ngIf="cargando">
+            Cargando recorrido...
+          </div>
+
+          <!-- RESUMEN -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">
+                    Ruta
+                  </h5>
+
+                  <span class="h5 font-weight-bold mb-0">
+                    {{ rutaNombre }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">
+                    Bus
+                  </h5>
+
+                  <span class="h5 font-weight-bold mb-0">
+                    {{ busPlaca }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">
+                    Conductor
+                  </h5>
+
+                  <span class="h5 font-weight-bold mb-0">
+                    {{ conductorNombre }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">
+                    Tiempo total
+                  </h5>
+
+                  <span class="h5 font-weight-bold mb-0">
+                    {{ tiempoTotal }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ABORDAJE Y DESCENSO -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="alert alert-success">
+                <strong>Abordaje:</strong>
+                {{ paraderoAbordaje }}
+                <br>
+
+                <strong>Hora:</strong>
+                {{ horaAbordaje | date:'dd/MM/yyyy, h:mm a' }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="alert alert-info">
+                <strong>Descenso:</strong>
+                {{ paraderoDescenso }}
+                <br>
+
+                <strong>Hora:</strong>
+                {{ horaDescenso | date:'dd/MM/yyyy, h:mm a' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- MAPA -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4 class="mb-0">
+                Mapa del recorrido
+              </h4>
+            </div>
+
+            <div class="card-body p-0 position-relative">
+
+              <div
+                class="map-loading"
+                *ngIf="cargando">
+                Cargando mapa del recorrido...
+              </div>
+
+              <div
+                id="mapa-recorrido"
+                class="mapa-recorrido">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TABLA PARADEROS -->
+          <h4>
+            Paraderos de la ruta
+          </h4>
+
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Orden</td>
+                <td>Paradero</td>
+                <td>Latitud</td>
+                <td>Longitud</td>
+              </tr>
+
+              <tr *ngFor="let nodo of nodosRuta">
+                <td>
+                  {{ nodo.orden }}
+                </td>
+
+                <td>
+                  {{ nodo.paradero?.nombre }}
+                </td>
+
+                <td>
+                  {{ nodo.paradero?.latitud }}
+                </td>
+
+                <td>
+                  {{ nodo.paradero?.longitud }}
+                </td>
+              </tr>
+
+              <tr *ngIf="nodosRuta.length === 0 && !cargando">
+                <td
+                  colspan="4"
+                  class="text-center text-muted">
+                  No hay paraderos para esta ruta.
+                </td>
+              </tr>
+
+              <tr *ngIf="cargando">
+                <td
+                  colspan="4"
+                  class="text-center text-muted">
+                  Cargando paraderos...
+                </td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,28 +1,16 @@
 import { Routes } from '@angular/router';
 
 import { DashboardComponent } from '../../pages/dashboard/dashboard.component';
-import { IconsComponent } from '../../pages/icons/icons.component';
 import { MapsComponent } from '../../pages/maps/maps.component';
-import { UserProfileComponent } from '../../pages/user-profile/user-profile.component';
 import { TablesComponent } from '../../pages/tables/tables.component';
 import { AuthenticatedGuard } from 'src/app/guards/authenticated.guard';
-import {ParaderoCercanoComponent} from "src/app/pages/paradero-cercano/paradero-cercano.component";
+import { ParaderoCercanoComponent} from "src/app/pages/paradero-cercano/paradero-cercano.component";
 
 
 export const AdminLayoutRoutes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthenticatedGuard]
-  },
-  {
-    path: 'user-profile',
-    component: UserProfileComponent,
-    canActivate: [AuthenticatedGuard]
-  },
-  {
-    path: 'tables',
-    component: TablesComponent,
     canActivate: [AuthenticatedGuard]
   },
   {
@@ -191,6 +179,19 @@ export const AdminLayoutRoutes: Routes = [
       },
     ],
   },
+
+  {
+    path: 'historial',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/historial/historial.module').then(m => m.HistorialModule),
+      },
+    ],
+  },
+
   {
     path: 'reportes',
     canActivate: [AuthenticatedGuard],
@@ -198,8 +199,21 @@ export const AdminLayoutRoutes: Routes = [
       {
         path: '',
         loadChildren: () =>
-          import('src/app/pages/reportes/reportes.module').then(m => m.ReportesModule),
-      },
-    ],
+          import('src/app/pages/reportes/reportes.module')
+            .then(m => m.ReportesModule)
+      }
+    ]
+  },
+
+  {
+    path: 'gps',
+    loadChildren: () =>
+      import('src/app/pages/gps/gps.module').then(m => m.GpsModule)
+  },
+
+  {
+    path: 'incidentes',
+    loadChildren: () =>
+      import('src/app/pages/incidentes/incidentes.module').then(m => m.IncidentesModule)
   },
 ];

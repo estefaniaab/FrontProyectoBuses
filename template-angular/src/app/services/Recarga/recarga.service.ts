@@ -27,4 +27,10 @@ export class RecargaService {
   update(id: number, data: Recarga): Observable<Recarga> {
     return this.http.patch<Recarga>(`${environment.url_ms_business}/recargas/${id}`, data);
   }
+
+  findByCiudadano(ciudadanoId: number): Observable<Recarga[]> {
+    return this.http.get<Recarga[]>(
+      `${environment.url_ms_business}/recargas/ciudadano/${ciudadanoId}`
+    );
+  }
 }

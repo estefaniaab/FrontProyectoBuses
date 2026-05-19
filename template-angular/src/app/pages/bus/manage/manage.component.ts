@@ -7,6 +7,8 @@ import { BusService } from '../../../services/Bus/bus.service';
 import { EstadoBus } from '../../../models/Buses/estado-bus.enum';
 import { Incidente, StatsIncidente } from 'src/app/models/Incidentes/incidente.model';
 import { IncidentesService } from 'src/app/services/Incidentes/incidentes.service';
+import { Empresa } from '../../../models/Empresas/empresa.model';
+import { EmpresaService } from '../../../services/Empresas/empresa.service';
 
 @Component({
   selector: 'app-manage-buses',
@@ -26,6 +28,8 @@ export class ManageComponent implements OnInit {
   filtroTipo   = '';
   filtroEstado = '';
 
+  empresas: Empresa[] = [];
+
   estadosBus = [
     { value: EstadoBus.OPERATIVO,         label: 'Operativo' },
     { value: EstadoBus.MANTENIMIENTO,     label: 'Mantenimiento' },
@@ -38,6 +42,7 @@ export class ManageComponent implements OnInit {
     private router: Router,
     private theFormBuilder: FormBuilder,
     private incidentesService: IncidentesService, // ← AGREGAR
+    private empresaService: EmpresaService,
   ) {
     this.trySend = false;
 
@@ -52,6 +57,7 @@ export class ManageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cargarEmpresas();
     const currentUrl = this.activatedRoute.snapshot.url.join('/');
 
     if (currentUrl.includes('view'))        this.mode = 1;
@@ -78,6 +84,7 @@ export class ManageComponent implements OnInit {
       estado:                   [EstadoBus.OPERATIVO, [Validators.required]],
       fotoUrl:                  ['',  []],
       codigoQr:                 ['',  []],
+      empresaId: [null],
     });
   }
 
@@ -98,6 +105,7 @@ export class ManageComponent implements OnInit {
           estado:                   this.bus.estado,
           fotoUrl:                  this.bus.fotoUrl,
           codigoQr:                 this.bus.codigoQr,
+          empresaId: this.bus.empresaId || this.bus.empresa?.id || null,
         });
         if (this.bus.fotoUrl) this.photoPreview = this.bus.fotoUrl;
 
@@ -105,6 +113,17 @@ export class ManageComponent implements OnInit {
         this.cargarIncidentes();
       },
       error: (error) => console.error('Error fetching bus:', error),
+    });
+  }
+
+  cargarEmpresas(): void {
+    this.empresaService.list().subscribe({
+      next: (data) => {
+        this.empresas = data.filter(empresa => empresa.activo !== false);
+      },
+      error: (error) => {
+        console.error('Error cargando empresas:', error);
+      }
     });
   }
 
@@ -162,31 +181,73 @@ export class ManageComponent implements OnInit {
 
   create() {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
-      Swal.fire({ title: 'Error!', text: 'Por favor, complete todos los campos requeridos.', icon: 'error' });
+      Swal.fire({
+        title: 'Error!',
+        text: 'Por favor, complete todos los campos requeridos.',
+        icon: 'error'
+      });
       return;
     }
+
+    if (!this.validarCapacidad()) {
+      return;
+    }
+
     this.busesService.create(this.theFormGroup.value).subscribe({
       next: () => {
-        Swal.fire({ title: 'Creado!', text: 'Registro creado correctamente.', icon: 'success' });
+        Swal.fire({
+          title: 'Creado!',
+          text: 'Registro creado correctamente.',
+          icon: 'success'
+        });
+
         this.router.navigate(['/buses/list']);
       },
-      error: (error) => Swal.fire({ title: 'Error!', text: error.error?.message || 'No se pudo crear el bus.', icon: 'error' }),
+      error: (error) => {
+        Swal.fire({
+          title: 'Error!',
+          text: error.error?.message || 'No se pudo crear el bus.',
+          icon: 'error'
+        });
+      },
     });
   }
 
   update() {
     this.trySend = true;
+
     if (this.theFormGroup.invalid) {
-      Swal.fire({ title: 'Error!', text: 'Por favor, complete todos los campos requeridos.', icon: 'error' });
+      Swal.fire({
+        title: 'Error!',
+        text: 'Por favor, complete todos los campos requeridos.',
+        icon: 'error'
+      });
       return;
     }
+
+    if (!this.validarCapacidad()) {
+      return;
+    }
+
     this.busesService.update(this.theFormGroup.value).subscribe({
       next: () => {
-        Swal.fire({ title: 'Actualizado!', text: 'Registro actualizado correctamente.', icon: 'success' });
+        Swal.fire({
+          title: 'Actualizado!',
+          text: 'Registro actualizado correctamente.',
+          icon: 'success'
+        });
+
         this.router.navigate(['/buses/list']);
       },
-      error: (error) => Swal.fire({ title: 'Error!', text: error.error?.message || 'No se pudo actualizar el bus.', icon: 'error' }),
+      error: (error) => {
+        Swal.fire({
+          title: 'Error!',
+          text: error.error?.message || 'No se pudo actualizar el bus.',
+          icon: 'error'
+        });
+      },
     });
   }
 
@@ -205,5 +266,55 @@ export class ManageComponent implements OnInit {
       this.theFormGroup.get('fotoUrl')?.updateValueAndValidity();
     };
     reader.readAsDataURL(file);
+  }
+
+  validarCapacidad(): boolean {
+    const capacidadMaximaPasajeros = Number(
+      this.theFormGroup.get('capacidadMaximaPasajeros')?.value || 0
+    );
+
+    const capacidadSentados = Number(
+      this.theFormGroup.get('capacidadSentados')?.value || 0
+    );
+
+    const capacidadParados = Number(
+      this.theFormGroup.get('capacidadParados')?.value || 0
+    );
+
+    const total = capacidadSentados + capacidadParados;
+
+    if (total > capacidadMaximaPasajeros) {
+      Swal.fire(
+        'Capacidad inválida',
+        `La suma de sentados y parados (${total}) no puede superar la capacidad máxima (${capacidadMaximaPasajeros}).`,
+        'warning'
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  getTotalCapacidadUsada(): number {
+    const sentados = Number(
+      this.theFormGroup.get('capacidadSentados')?.value || 0
+    );
+
+    const parados = Number(
+      this.theFormGroup.get('capacidadParados')?.value || 0
+    );
+
+    return sentados + parados;
+  }
+
+  getCapacidadMaxima(): number {
+    return Number(
+      this.theFormGroup.get('capacidadMaximaPasajeros')?.value || 0
+    );
+  }
+
+  capacidadExcedida(): boolean {
+    return this.getTotalCapacidadUsada() > this.getCapacidadMaxima();
   }
 }

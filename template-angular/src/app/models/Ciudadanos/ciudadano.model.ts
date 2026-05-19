@@ -4,6 +4,7 @@ import { MetodoPagoCiudadano } from "../MetodosPagoCiudadano/metodo-pago-ciudada
 export class Ciudadano {
   id?: number;
   usuarioId?: string;
-   direcciones?: Direccion[];
+  fechaNacimiento?: string;
+  direcciones?: Direccion[];
   metodosPagoCiudadano?: MetodoPagoCiudadano[];
 }

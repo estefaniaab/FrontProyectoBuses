@@ -1,4 +1,5 @@
 import { EstadoBus } from './estado-bus.enum';
+import { Empresa } from '../Empresas/empresa.model';
 
 export class Bus {
   id?: number;
@@ -12,4 +13,6 @@ export class Bus {
   fotoUrl?: string;
   codigoQr?: string;
   gpsActivo?: boolean;
+  empresaId?: number;
+  empresa?: Empresa;
 }

@@ -21,6 +21,7 @@
             <table class="table">
               <tr>
                 <td>Id</td>
+                <td>Empresa</td>
                 <td>Placa</td>
                 <td>Modelo</td>
                 <td>Año</td>
@@ -35,6 +36,7 @@
 
               <tr *ngFor="let bus of buses">
                 <td>{{ bus.id }}</td>
+                <td>{{ bus.empresa?.nombre || 'Sin empresa' }}</td>
                 <td>{{ bus.placa }}</td>
                 <td>{{ bus.modelo }}</td>
                 <td>{{ bus.anio }}</td>
@@ -63,9 +65,16 @@
                   <button class="btn btn-danger btn-sm" (click)="delete(bus.id)" title="Eliminar">
                     <i class="material-icons">delete</i>
                   </button>
+                  <button class="btn btn-primary btn-sm" (click)="gestionarGps(bus.id)" title="GPS">
+                    <i class="material-icons">gps_fixed</i>
+                  </button>
                   <!-- ← NUEVO: Reportar Incidente -->
                   <button class="btn btn-secondary btn-sm" (click)="abrirModalIncidente(bus)" title="Reportar Incidente">
                     <i class="material-icons">warning</i>
+                  </button>
+
+                  <button class="btn btn-dark btn-sm" (click)="verIncidentes(bus.id)" title="Ver Incidentes">
+                    <i class="material-icons">assignment</i>
                   </button>
                 </td>
               </tr>
@@ -206,7 +215,6 @@
           Reportar Incidente
         </button>
       </div>
-
     </div>
   </div>
 </div>

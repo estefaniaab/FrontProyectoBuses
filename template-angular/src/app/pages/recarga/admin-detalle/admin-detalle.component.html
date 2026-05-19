@@ -8,11 +8,17 @@
 
         <div class="card-header bg-transparent">
           <div class="row align-items-center">
-            <div class="col-md-4">
-              <h3 class="mb-0">Recargas</h3>
+            <div class="col-md-8">
+              <h3 class="mb-0">
+                Historial de recargas - {{ nombreCiudadano }}
+              </h3>
+            </div>
 
-              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Agregar">
-                <i class="material-icons">add</i>
+            <div class="col-md-4 text-right">
+              <button
+                class="btn btn-secondary btn-sm"
+                (click)="back()">
+                Regresar
               </button>
             </div>
           </div>
@@ -40,11 +46,17 @@
                   {{ recarga.metodoPagoCiudadano?.numeroIdentificacion || 'N/A' }}
                 </td>
 
-                <td>{{ recarga.monto | currency:'COP':'symbol':'1.0-0' }}</td>
+                <td>
+                  {{ recarga.monto | currency:'COP':'symbol':'1.0-0' }}
+                </td>
 
-                <td>{{ recarga.comision | currency:'COP':'symbol':'1.0-0' }}</td>
+                <td>
+                  {{ recarga.comision | currency:'COP':'symbol':'1.0-0' }}
+                </td>
 
-                <td>{{ recarga.totalPagar | currency:'COP':'symbol':'1.0-0' }}</td>
+                <td>
+                  {{ recarga.totalPagar | currency:'COP':'symbol':'1.0-0' }}
+                </td>
 
                 <td>
                   <span
@@ -64,7 +76,10 @@
                 <td>{{ recarga.createdAt | date:'short' }}</td>
 
                 <td>
-                  <button class="btn btn-info btn-sm" (click)="view(recarga.id)" title="Ver">
+                  <button
+                    class="btn btn-info btn-sm"
+                    (click)="view(recarga.id)"
+                    title="Ver">
                     <i class="material-icons">visibility</i>
                   </button>
                 </td>
@@ -72,7 +87,7 @@
 
               <tr *ngIf="recargas.length === 0">
                 <td colspan="9" class="text-center text-muted">
-                  No hay recargas registradas.
+                  No hay recargas registradas para este ciudadano.
                 </td>
               </tr>
 

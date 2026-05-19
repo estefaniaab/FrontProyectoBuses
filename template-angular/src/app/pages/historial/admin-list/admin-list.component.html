@@ -1,0 +1,66 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">
+                Historial de viajes por usuario
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Usuario</td>
+                <td>Número de viajes</td>
+                <td>Último viaje</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let item of resumenCiudadanos">
+                <td>
+                  {{ item.nombreUsuario }}
+                </td>
+
+                <td>
+                  <span class="badge badge-info">
+                    {{ item.numeroViajes }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ item.ultimoViaje ? (item.ultimoViaje | date:'dd/MM/yyyy, h:mm a') : 'Sin fecha' }}
+                </td>
+
+                <td>
+                  <button
+                    class="btn btn-info btn-sm"
+                    (click)="verHistorial(item.ciudadanoId)"
+                    title="Ver historial">
+                    <i class="material-icons">visibility</i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="resumenCiudadanos.length === 0">
+                <td colspan="4" class="text-center text-muted">
+                  No hay historial registrado.
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

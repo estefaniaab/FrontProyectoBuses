@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import Chart from 'chart.js';
+declare var require: any;
+const Chart: any = require('chart.js');
 
 // core components
 import {
