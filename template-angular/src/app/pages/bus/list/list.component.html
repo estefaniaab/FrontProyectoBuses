@@ -21,6 +21,7 @@
             <table class="table">
               <tr>
                 <td>Id</td>
+                <td>Empresa</td>
                 <td>Placa</td>
                 <td>Modelo</td>
                 <td>Año</td>
@@ -35,6 +36,7 @@
 
               <tr *ngFor="let bus of buses">
                 <td>{{ bus.id }}</td>
+                <td>{{ bus.empresa?.nombre || 'Sin empresa' }}</td>
                 <td>{{ bus.placa }}</td>
                 <td>{{ bus.modelo }}</td>
                 <td>{{ bus.anio }}</td>

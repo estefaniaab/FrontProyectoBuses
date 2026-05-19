@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConductoresService } from "src/app/services/Conductores/conductores.service";
+import Swal from 'sweetalert2';
+import { ConductoresService } from 'src/app/services/Conductores/conductores.service';
+import { EmpresaService } from 'src/app/services/Empresas/empresa.service';
 import { User } from 'src/app/models/Users/user.model';
+import { Empresa } from 'src/app/models/Empresas/empresa.model';
 
 @Component({
   selector: 'app-manage',
@@ -15,17 +18,17 @@ export class ManageComponent implements OnInit {
   isEdit = false;
   isView = false;
   users: User[] = [];
+  empresas: Empresa[] = [];
 
   constructor(
     private fb: FormBuilder,
     private service: ConductoresService,
+    private empresaService: EmpresaService,
     private router: Router,
     private route: ActivatedRoute
   ) {
     this.form = this.fb.group({
-      // El userId ahora recibe el string alfanumérico largo sin problemas
       userId: [null, [Validators.required]],
-      // Licencia ajustada para que funcione como número de identificación (cédula)
       licencia: ['', [
         Validators.required,
         Validators.minLength(5),
@@ -33,7 +36,8 @@ export class ManageComponent implements OnInit {
       ]],
       fechaVencimientoLicencia: [null],
       telefono: ['', [Validators.maxLength(20)]],
-      activo: [true]
+      activo: [true],
+      empresaId: [null, [Validators.required]]
     });
   }
 
@@ -42,6 +46,7 @@ export class ManageComponent implements OnInit {
     this.id = this.route.snapshot.params['id'];
 
     this.getUsers();
+    this.cargarEmpresas();
 
     if (this.id) {
       if (url.includes('view')) {
@@ -50,44 +55,83 @@ export class ManageComponent implements OnInit {
       } else if (url.includes('update')) {
         this.isEdit = true;
       }
+
       this.loadDriver();
     }
   }
 
-  getUsers() {
+  getUsers(): void {
     this.service.getUsers().subscribe({
       next: (data) => {
         this.users = data;
       },
       error: (err) => {
-        console.error("Error al cargar usuarios de seguridad", err);
+        console.error('Error al cargar usuarios de seguridad', err);
       }
     });
   }
 
-  loadDriver() {
+  cargarEmpresas(): void {
+    this.empresaService.list().subscribe({
+      next: (data) => {
+        this.empresas = data.filter(empresa => empresa.activo !== false);
+      },
+      error: (err) => {
+        console.error('Error al cargar empresas', err);
+      }
+    });
+  }
+
+  loadDriver(): void {
     this.service.view(this.id!).subscribe({
       next: (data) => {
         if (data.fechaVencimientoLicencia) {
           data.fechaVencimientoLicencia = new Date(data.fechaVencimientoLicencia)
-            .toISOString().substring(0, 10);
+            .toISOString()
+            .substring(0, 10);
         }
-        this.form.patchValue(data);
+
+        this.form.patchValue({
+          userId: data.userId,
+          licencia: data.licencia,
+          fechaVencimientoLicencia: data.fechaVencimientoLicencia,
+          telefono: data.telefono,
+          activo: data.activo,
+          empresaId: data.empresaId || data.empresa?.id || null
+        });
+
+        if (this.isView) {
+          this.form.disable();
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando conductor:', err);
+
+        Swal.fire(
+          'Error',
+          err.error?.message || 'No se pudo cargar el conductor.',
+          'error'
+        );
+
+        this.router.navigate(['/conductores/list']);
       }
     });
   }
 
-  /**
-   * Envía la información al backend respetando los strings alfanuméricos
-   */
-  save() {
-    if (this.form.invalid) return;
+  save(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
 
-    // Obtenemos los valores tal cual están en el formulario
+      Swal.fire(
+        'Formulario inválido',
+        'Complete los campos requeridos.',
+        'warning'
+      );
+
+      return;
+    }
+
     const data = this.form.getRawValue();
-
-    // IMPORTANTE: No usamos parseInt() ni Number()
-    // Dejamos que el userId y la licencia viajen como cadenas de texto
 
     const request = this.isEdit
       ? this.service.update({ ...data, id: this.id })
@@ -95,12 +139,24 @@ export class ManageComponent implements OnInit {
 
     request.subscribe({
       next: () => {
+        Swal.fire(
+          this.isEdit ? 'Actualizado' : 'Creado',
+          this.isEdit
+            ? 'Conductor actualizado correctamente.'
+            : 'Conductor creado correctamente.',
+          'success'
+        );
+
         this.router.navigate(['/conductores/list']);
       },
       error: (err) => {
-        // Capturamos el mensaje de error del backend (ej: "Ya existe un perfil...")
         const message = err.error?.message || 'Error al guardar el conductor';
-        alert(Array.isArray(message) ? message.join(', ') : message);
+
+        Swal.fire(
+          'Error',
+          Array.isArray(message) ? message.join(', ') : message,
+          'error'
+        );
       }
     });
   }

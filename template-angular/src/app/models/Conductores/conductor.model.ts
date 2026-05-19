@@ -1,3 +1,5 @@
+import { Empresa } from '../Empresas/empresa.model';
+
 export class Conductor {
   id?: number;
   userId?: string;
@@ -5,4 +7,6 @@ export class Conductor {
   fechaVencimientoLicencia?: string | Date;
   telefono?: string;
   activo?: boolean;
+  empresaId?: number;
+  empresa?: Empresa;
 }

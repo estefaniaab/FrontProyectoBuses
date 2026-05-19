@@ -7,6 +7,8 @@ import { BusService } from '../../../services/Bus/bus.service';
 import { EstadoBus } from '../../../models/Buses/estado-bus.enum';
 import { Incidente, StatsIncidente } from 'src/app/models/Incidentes/incidente.model';
 import { IncidentesService } from 'src/app/services/Incidentes/incidentes.service';
+import { Empresa } from '../../../models/Empresas/empresa.model';
+import { EmpresaService } from '../../../services/Empresas/empresa.service';
 
 @Component({
   selector: 'app-manage-buses',
@@ -26,6 +28,8 @@ export class ManageComponent implements OnInit {
   filtroTipo   = '';
   filtroEstado = '';
 
+  empresas: Empresa[] = [];
+
   estadosBus = [
     { value: EstadoBus.OPERATIVO,         label: 'Operativo' },
     { value: EstadoBus.MANTENIMIENTO,     label: 'Mantenimiento' },
@@ -38,6 +42,7 @@ export class ManageComponent implements OnInit {
     private router: Router,
     private theFormBuilder: FormBuilder,
     private incidentesService: IncidentesService, // ← AGREGAR
+    private empresaService: EmpresaService,
   ) {
     this.trySend = false;
 
@@ -52,6 +57,7 @@ export class ManageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cargarEmpresas();
     const currentUrl = this.activatedRoute.snapshot.url.join('/');
 
     if (currentUrl.includes('view'))        this.mode = 1;
@@ -78,6 +84,7 @@ export class ManageComponent implements OnInit {
       estado:                   [EstadoBus.OPERATIVO, [Validators.required]],
       fotoUrl:                  ['',  []],
       codigoQr:                 ['',  []],
+      empresaId: [null],
     });
   }
 
@@ -98,6 +105,7 @@ export class ManageComponent implements OnInit {
           estado:                   this.bus.estado,
           fotoUrl:                  this.bus.fotoUrl,
           codigoQr:                 this.bus.codigoQr,
+          empresaId: this.bus.empresaId || this.bus.empresa?.id || null,
         });
         if (this.bus.fotoUrl) this.photoPreview = this.bus.fotoUrl;
 
@@ -105,6 +113,17 @@ export class ManageComponent implements OnInit {
         this.cargarIncidentes();
       },
       error: (error) => console.error('Error fetching bus:', error),
+    });
+  }
+
+  cargarEmpresas(): void {
+    this.empresaService.list().subscribe({
+      next: (data) => {
+        this.empresas = data.filter(empresa => empresa.activo !== false);
+      },
+      error: (error) => {
+        console.error('Error cargando empresas:', error);
+      }
     });
   }
 

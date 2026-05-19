@@ -25,6 +25,26 @@
               <br>
 
               <div class="row">
+                <div class="col-3">Empresa</div>
+                <div class="col-9">
+                  <select
+                    class="form-control"
+                    formControlName="empresaId">
+                    <option [ngValue]="null">
+                      Seleccione una empresa
+                    </option>
+
+                    <option
+                      *ngFor="let empresa of empresas"
+                      [ngValue]="empresa.id">
+                      {{ empresa.nombre }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <br>
+
+              <div class="row">
                 <div class="col-3">Placa</div>
                 <div class="col-9">
                   <input type="text" class="form-control" formControlName="placa">
