@@ -18,12 +18,14 @@ import {
 
 import Swal from 'sweetalert2';
 import * as L from 'leaflet';
+import { Subscription } from 'rxjs';
 
 import { Gps } from 'src/app/models/Gps/gps.model';
 import { Bus } from 'src/app/models/Buses/bus.model';
 
 import { GpsService } from 'src/app/services/Gps/gps.service';
 import { BusService } from 'src/app/services/Bus/bus.service';
+import { MonitoreoSocketService, UbicacionBusActiva } from 'src/app/services/Monitoreo/monitoreo-socket.service';
 
 const iconDefault = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -55,13 +57,15 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private map!: L.Map;
   private marcadorBus?: L.Marker;
+  private monitoreoSub?: Subscription;
 
   constructor(
     private formBuilder: FormBuilder,
     private gpsService: GpsService,
     private busService: BusService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private monitoreoSocket: MonitoreoSocketService,
   ) {
     this.configFormGroup();
   }
@@ -82,6 +86,7 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.cargarBuses();
     this.cargarGpsPorBus(this.busId);
+    this.suscribirseAMonitoreo();
   }
 
   ngAfterViewInit(): void {
@@ -92,6 +97,7 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.detenerSimulacion();
+    this.monitoreoSub?.unsubscribe();
 
     if (this.map) {
       this.map.remove();
@@ -163,6 +169,33 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
           'info'
         );
       }
+    });
+  }
+
+  private suscribirseAMonitoreo(): void {
+    this.monitoreoSub = this.monitoreoSocket.onUbicaciones().subscribe((ubicaciones: UbicacionBusActiva[]) => {
+      const actual = ubicaciones.find(u => u.busId === this.busId);
+
+      if (!actual || actual.latitud === null || actual.longitud === null) {
+        return;
+      }
+
+      this.theFormGroup.patchValue({
+        latitud: actual.latitud,
+        longitud: actual.longitud,
+        velocidad: actual.velocidad,
+        rumbo: actual.rumbo,
+      }, { emitEvent: false });
+
+      if (this.gps) {
+        this.gps.latitud = actual.latitud;
+        this.gps.longitud = actual.longitud;
+        this.gps.velocidad = actual.velocidad ?? this.gps.velocidad;
+        this.gps.rumbo = actual.rumbo ?? this.gps.rumbo;
+        this.gps.ultimaActualizacion = actual.ultimaActualizacion as any;
+      }
+
+      this.pintarGpsEnMapa(false);
     });
   }
 
@@ -448,7 +481,7 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 300);
   }
 
-  pintarGpsEnMapa(): void {
+  pintarGpsEnMapa(centrar: boolean = true): void {
     if (!this.map) {
       return;
     }
@@ -501,7 +534,11 @@ export class ManageComponent implements OnInit, AfterViewInit, OnDestroy {
       </div>
     `);
 
-    this.map.setView(punto, 15);
+    if (centrar) {
+      this.map.setView(punto, 15);
+    } else {
+      this.map.panTo(punto);
+    }
   }
 
   back(): void {

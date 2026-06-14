@@ -1,0 +1,170 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <!-- HEADER -->
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">Seguimiento de buses en tiempo real</h3>
+            </div>
+            <div class="col-md-4 text-right">
+              <button class="btn btn-primary btn-sm" (click)="cargarUbicacionesPorRuta()">
+                Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="card-body">
+
+          <!-- FILTRO -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-control-label">Seleccionar ruta</label>
+              <select
+                class="form-control"
+                [(ngModel)]="rutaSeleccionada"
+                (change)="onRutaChange()">
+                <option [ngValue]="null">Seleccione una ruta</option>
+                <option *ngFor="let ruta of rutas" [ngValue]="ruta.id">
+                  {{ ruta.nombre }}
+                </option>
+              </select>
+
+              <!-- PARADERO MÁS CERCANO AL USUARIO -->
+              <div
+                *ngIf="paraderoMasCercanoAMi"
+                style="
+                  margin-top:8px; padding:8px 12px;
+                  background:#f0f4ff; border-radius:8px;
+                  border-left:3px solid #5e72e4; font-size:13px;">
+                📌 Tu paradero más cercano en esta ruta:<br>
+                <strong>{{ paraderoMasCercanoAMi.nombre }}</strong>
+              </div>
+
+              <div
+                *ngIf="rutaSeleccionada && !paraderoMasCercanoAMi"
+                style="margin-top:8px; font-size:12px; color:#6c757d;">
+                📡 Obteniendo tu ubicación...
+              </div>
+            </div>
+          </div>
+
+          <!-- CARGANDO -->
+          <div class="text-center text-muted py-4" *ngIf="cargando">
+            Cargando ubicaciones...
+          </div>
+
+          <!-- RESUMEN -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Buses activos</h5>
+                  <span class="h2 font-weight-bold mb-0">{{ ubicaciones.length }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Actualización</h5>
+                  <span class="h5 font-weight-bold mb-0">Cada 10 segundos</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Estado</h5>
+                  <span class="text-success font-weight-bold">En línea</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAPA -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4 class="mb-0">Mapa de buses</h4>
+            </div>
+            <div class="card-body p-0 position-relative">
+              <div class="map-loading" *ngIf="cargando">Cargando mapa...</div>
+              <div id="mapa-buses" class="mapa-buses"></div>
+
+              <!-- LEYENDA -->
+              <div class="px-3 pb-2 pt-1" style="font-size:12px; color:#6c757d;">
+                <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+                  <span style="width:12px;height:12px;background:#2dce89;border-radius:50%;display:inline-block;"></span> Inicio
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+                  <span style="width:12px;height:12px;background:#5e72e4;border-radius:50%;display:inline-block;"></span> Paradero
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+                  <span style="width:12px;height:12px;background:#f5365c;border-radius:50%;display:inline-block;"></span> Final / Retrasado
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+                  <span style="width:12px;height:12px;background:#3b82f6;border-radius:50%;display:inline-block;"></span> Tu ubicación
+                </span>
+                <span style="display:inline-flex; align-items:center; gap:4px;">
+                  🚌 Bus en ruta
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA -->
+          <h4>Buses en ruta</h4>
+
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+              <tr>
+                <th>Bus</th>
+                <th>Ruta</th>
+                <th>Velocidad</th>
+                <th>Paradero cercano al bus</th>
+                <th>ETA a tu paradero</th>
+                <th>Estado</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let bus of ubicaciones">
+                <td>{{ bus.placa }}</td>
+                <td>{{ bus.ruta?.nombre || 'Sin ruta' }}</td>
+                <td>{{ bus.velocidad || 0 }} km/h</td>
+                <td>{{ bus.paraderoMasCercano?.nombre || 'No disponible' }}</td>
+                <td>
+                  <strong *ngIf="bus.eta !== null && bus.eta !== undefined"
+                          style="color:#5e72e4;">
+                    ⏱ ~{{ bus.eta }} min
+                  </strong>
+                  <span *ngIf="bus.eta === null || bus.eta === undefined"
+                        style="color:#adb5bd;">
+                      —
+                    </span>
+                </td>
+                <td>
+                  <span class="badge badge-danger" *ngIf="bus.retrasado">Retrasado</span>
+                  <span class="badge badge-success" *ngIf="!bus.retrasado">Normal</span>
+                </td>
+              </tr>
+              <tr *ngIf="ubicaciones.length === 0 && !cargando">
+                <td colspan="6" class="text-center text-muted">
+                  No hay buses activos para esta ruta.
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

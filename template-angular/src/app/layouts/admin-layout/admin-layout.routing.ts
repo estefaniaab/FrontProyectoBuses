@@ -216,4 +216,10 @@ export const AdminLayoutRoutes: Routes = [
     loadChildren: () =>
       import('src/app/pages/incidentes/incidentes.module').then(m => m.IncidentesModule)
   },
+
+  {
+    path: 'monitoreo',
+    loadChildren: () =>
+      import('src/app/pages/monitoreo/monitoreo.module').then(m => m.MonitoreoModule)
+  },
 ];
