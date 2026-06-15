@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, HostListener } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { User } from '../../models/Users/user.model';
 import { Subscription } from 'rxjs';
 import { ProfileService } from '../../services/Profile/profile.service';
 import { Profile } from '../../models/Profiles/profile.model';
+import { ChatNotificationService, NotificacionMensaje } from '../../services/Chat-Notification/chat-notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,12 +25,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
   displayName: string = 'Usuario';
   profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
 
+  // Variables para notificaciones
+  contadorNotificaciones = 0;
+  listaNotificaciones: NotificacionMensaje[] = [];
+  showNotificaciones = false;
+  private notificacionSubscription!: Subscription;
+
   constructor(
     location: Location,
     private element: ElementRef,
     private router: Router,
     public securityService: SecurityService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private chatNotificationService: ChatNotificationService
   ) {
     this.location = location;
   }
@@ -58,7 +66,45 @@ export class NavbarComponent implements OnInit, OnDestroy {
           this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
         }
       });
+
+      // Conectar al servicio de notificaciones
+      this.chatNotificationService.conectar(user.id);
+      this.cargarNotificaciones();
     });
+  }
+
+  cargarNotificaciones(): void {
+    this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
+    this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
+
+    if (this.notificacionSubscription) {
+      this.notificacionSubscription.unsubscribe();
+    }
+
+    this.notificacionSubscription = this.chatNotificationService.onNotificaciones().subscribe(() => {
+      this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
+      this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
+    });
+  }
+
+  toggleNotificaciones(event: Event): void {
+    event.stopPropagation();
+    this.showNotificaciones = !this.showNotificaciones;
+  }
+
+  @HostListener('document:click')
+  cerrarNotificaciones(): void {
+    this.showNotificaciones = false;
+  }
+
+  marcarTodasLeidas(): void {
+    this.chatNotificationService.marcarTodosLeidos();
+  }
+
+  abrirNotificacion(notificacion: NotificacionMensaje): void {
+    this.chatNotificationService.marcarComoLeido(notificacion.emisorId);
+    this.router.navigate(['/mensajes/chat', notificacion.emisorId]);
+    this.showNotificaciones = false;
   }
 
   goToMyProfile(): void {
@@ -66,6 +112,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
+    this.chatNotificationService.desconectar();
     this.securityService.logout();
   }
 
@@ -88,6 +135,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
+    }
+    if (this.notificacionSubscription) {
+      this.notificacionSubscription.unsubscribe();
     }
   }
 }

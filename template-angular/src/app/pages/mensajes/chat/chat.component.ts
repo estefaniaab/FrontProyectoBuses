@@ -136,11 +136,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const latitud = this.adjuntarUbicacion ? this.miLatitud ?? undefined : undefined;
     const longitud = this.adjuntarUbicacion ? this.miLongitud ?? undefined : undefined;
 
+    const contenidoMensaje = this.nuevoMensaje; // Guardar contenido antes de limpiar
+
     // Mensaje temporal optimista
     const msgTemporal = Object.assign(new Mensaje(), {
       id: null as any,
       emisorId: this.usuarioActual.id,
-      contenido: this.nuevoMensaje,
+      contenido: contenidoMensaje,
       latitud: latitud ?? null,
       longitud: longitud ?? null,
       fechaEnvio: new Date(),
@@ -155,12 +157,21 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.mensajes.push(msgTemporal);
 
+    // Enviar mensaje
     this.mensajesService.enviarMensaje(
       this.usuarioActual.id,
       this.destinatarioId,
-      this.nuevoMensaje,
+      contenidoMensaje,
       latitud,
       longitud,
+    );
+
+    // Enviar notificación (usar el contenido guardado)
+    this.mensajesService.enviarNotificacionMensaje(
+      this.destinatarioId,
+      this.usuarioActual.id,
+      this.usuarioActual.name || 'Usuario',
+      contenidoMensaje
     );
 
     this.nuevoMensaje = '';

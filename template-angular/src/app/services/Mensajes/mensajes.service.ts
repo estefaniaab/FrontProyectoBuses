@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { Mensaje } from 'src/app/models/Mensaje/mensaje.model';
+import { ChatNotificationService } from '../Chat-Notification/chat-notification.service'; // 👈 Importar
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,10 @@ export class MensajesService {
   private url = environment.url_ms_notifications;
   private socket!: Socket;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private chatNotificationService: ChatNotificationService
+  ) {}
 
   // ── WebSocket ─────────────────────────────────────────────────────────────
 
@@ -54,10 +58,10 @@ export class MensajesService {
   ): void {
     console.log('CONNECTED?', this.socket.connected);
 
-      this.socket.emit('enviar_mensaje', {
-        emisorUsuarioId,
-        dto: { destinatarioUsuarioId, contenido, latitud, longitud },
-      });
+    this.socket.emit('enviar_mensaje', {
+      emisorUsuarioId,
+      dto: { destinatarioUsuarioId, contenido, latitud, longitud },
+    });
   }
 
   onMensajeEnviado(): Observable<Mensaje> {
@@ -90,10 +94,6 @@ export class MensajesService {
 
   // ── HTTP ──────────────────────────────────────────────────────────────────
 
-  /**
-   * El backend NO tiene endpoint de conversación bidireccional.
-   * Se simula combinando enviados + recibidos y filtrando por el otro usuario.
-   */
   getConversacion(userId: string, otroUserId: string): Observable<Mensaje[]> {
     return new Observable(observer => {
       let enviados: Mensaje[] = [];
@@ -159,5 +159,10 @@ export class MensajesService {
       `${environment.url_ms_security}/profiles/by-user/${userId}`,
       { headers: { Authorization: `Bearer ${session.token}` } }
     );
+  }
+
+  // Enviar notificación al destinatario
+  enviarNotificacionMensaje(destinatarioId: string, emisorId: string, emisorNombre: string, mensaje: string): void {
+    this.chatNotificationService.enviarNotificacionMensaje(destinatarioId, emisorId, emisorNombre, mensaje);
   }
 }
