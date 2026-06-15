@@ -102,12 +102,19 @@
               onmouseout="this.style.background='white'">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:10px;">
-                  <div style="
-                    width:36px; height:36px; background:#5e72e4;
-                    border-radius:50%; display:flex; align-items:center;
-                    justify-content:center; color:white; font-weight:bold;">
-                    {{ getNombreUsuario(msg.emisorId)?.charAt(0)?.toUpperCase() }}
+                  <div *ngIf="getFotoUsuario(msg.emisorId); else inicialRecibido"
+                       style="width:36px; height:36px; border-radius:50%; overflow:hidden;">
+                    <img [src]="getFotoUsuario(msg.emisorId)" alt="Foto"
+                         style="width:100%; height:100%; object-fit:cover;">
                   </div>
+                  <ng-template #inicialRecibido>
+                    <div style="
+                      width:36px; height:36px; background:#5e72e4;
+                      border-radius:50%; display:flex; align-items:center;
+                      justify-content:center; color:white; font-weight:bold;">
+                      {{ getNombreUsuario(msg.emisorId)?.charAt(0)?.toUpperCase() }}
+                    </div>
+                  </ng-template>
                   <div>
                     <div style="font-weight:{{ msg.leido ? 'normal' : 'bold' }}; font-size:14px;">
                       {{ getNombreUsuario(msg.emisorId) }}
@@ -152,12 +159,19 @@
               onmouseout="this.style.background='white'">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:10px;">
-                  <div style="
-                    width:36px; height:36px; background:#2dce89;
-                    border-radius:50%; display:flex; align-items:center;
-                    justify-content:center; color:white; font-weight:bold;">
-                    {{ msg.destinatarioId?.charAt(0)?.toUpperCase() }}
+                  <div *ngIf="getFotoUsuario(msg.destinatarioId); else inicialEnviado"
+                       style="width:36px; height:36px; border-radius:50%; overflow:hidden;">
+                    <img [src]="getFotoUsuario(msg.destinatarioId)" alt="Foto"
+                         style="width:100%; height:100%; object-fit:cover;">
                   </div>
+                  <ng-template #inicialEnviado>
+                    <div style="
+                        width:36px; height:36px; background:#2dce89;
+                        border-radius:50%; display:flex; align-items:center;
+                        justify-content:center; color:white; font-weight:bold;">
+                      {{ getNombreUsuario(msg.destinatarioId)?.charAt(0)?.toUpperCase() }}
+                    </div>
+                  </ng-template>
                   <div>
                     <div style="font-size:14px; font-weight:600;">
                       {{ getNombreUsuario(msg.destinatarioId) }}

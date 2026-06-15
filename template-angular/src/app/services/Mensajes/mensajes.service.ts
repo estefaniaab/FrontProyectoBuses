@@ -105,4 +105,12 @@ export class MensajesService {
       { headers: { Authorization: `Bearer ${session.token}` } }
     );
   }
+
+  getFotoPerfil(userId: string): Observable<{ photo: string }> {
+    const session = JSON.parse(localStorage.getItem('session') || '{}');
+    return this.http.get<{ photo: string }>(
+      `${environment.url_ms_security}/profiles/by-user/${userId}`,
+      { headers: { Authorization: `Bearer ${session.token}` } }
+    );
+  }
 }

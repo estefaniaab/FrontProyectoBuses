@@ -107,17 +107,42 @@ export class BandejaComponent implements OnInit, OnDestroy {
   }
 
   usuariosCache: Map<string, any> = new Map();
+  private usuariosSolicitados: Set<string> = new Set();
 
   cargarNombreUsuario(id: string): void {
-    if (this.usuariosCache.has(id)) return;
+    if (this.usuariosCache.has(id) || this.usuariosSolicitados.has(id)) return;
+    this.usuariosSolicitados.add(id);
+
     this.mensajesService.getUserById(id).subscribe({
-      next: (user) => this.usuariosCache.set(id, user),
-      error: () => this.usuariosCache.set(id, { name: id })
+      next: (user) => {
+        const existente = this.usuariosCache.get(id) || {};
+        this.usuariosCache.set(id, { ...existente, name: user?.name || id });
+      },
+      error: () => {
+        const existente = this.usuariosCache.get(id) || {};
+        this.usuariosCache.set(id, { ...existente, name: id });
+      }
+    });
+
+    this.mensajesService.getFotoPerfil(id).subscribe({
+      next: (res) => {
+        const existente = this.usuariosCache.get(id) || {};
+        this.usuariosCache.set(id, { ...existente, photo: res?.photo || null });
+      },
+      error: () => {
+        const existente = this.usuariosCache.get(id) || {};
+        this.usuariosCache.set(id, { ...existente, photo: null });
+      }
     });
   }
 
   getNombreUsuario(id: string): string {
     this.cargarNombreUsuario(id);
     return this.usuariosCache.get(id)?.name || id;
+  }
+
+  getFotoUsuario(id: string): string | null {
+    this.cargarNombreUsuario(id);
+    return this.usuariosCache.get(id)?.photo || null;
   }
 }

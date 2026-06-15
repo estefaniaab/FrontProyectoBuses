@@ -23,6 +23,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   miLatitud: number | null = null;
   miLongitud: number | null = null;
   enviando = false;
+  destinatarioFoto: string | null = null;
 
   private subs: Subscription[] = [];
 
@@ -106,6 +107,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mensajesService.getUserById(this.destinatarioId).subscribe({
       next: (user) => this.destinatarioNombre = user?.name || this.destinatarioId,
       error: () => this.destinatarioNombre = this.destinatarioId,
+    });
+
+    this.mensajesService.getFotoPerfil(this.destinatarioId).subscribe({
+      next: (res) => this.destinatarioFoto = res?.photo || null,
+      error: () => this.destinatarioFoto = null,
     });
   }
 
