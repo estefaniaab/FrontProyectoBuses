@@ -226,6 +226,18 @@ export const AdminLayoutRoutes: Routes = [
   {
     path: 'dashboard-buses',
     loadChildren: () => import('src/app/pages/dashboard-buses/dashboard-buses.module').then(m => m.DashboardBusesModule)
-  }
+  },
+
+  {
+    path: 'mensajes',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/mensajes/mensajes.module').then(m => m.MensajesModule)
+      }
+    ]
+  },
 
 ];

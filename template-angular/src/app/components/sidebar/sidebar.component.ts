@@ -30,12 +30,13 @@ export const ROUTES: RouteInfo[] = [
   { path: '/programaciones-ruta/list', title: 'Programaciones', icon: 'ni-calendar-grid-58 text-orange', class: '' },
   // Monitoreo
   { path: '/monitoreo/seguimiento', title: 'Monitoreo buses', icon: 'ni-pin-3 text-danger', class: ''},
+  // Mensajería  ← NUEVO
+  { path: '/mensajes', title: 'Mensajes', icon: 'ni-email-83 text-primary', class: ''},
   // Ciudadano / viajes
   { path: '/ciudadanos/list', title: 'Ciudadanos', icon: 'ni-single-02 text-success', class: ''},
   { path: '/boletos/list', title: 'Boletos', icon: 'ni-tag text-purple', class: '' },
   { path: '/recargas/create', title: 'Recargar tarjeta', icon: 'ni-credit-card text-blue', class: '' },
   { path: '/recargas/admin', title: 'Recargas Admin', icon: 'ni-money-coins text-green', class: ''},
-  // Este se reemplaza dinámicamente por /historial/admin/ciudadano/:ciudadanoId
   { path: '', title: 'Historial', icon: 'ni-collection text-info', class: '', key: 'MI_HISTORIAL'},
   { path: '/historial/admin', title: 'Historial Admin', icon: 'ni-collection text-default', class: ''},
   // Reportes
