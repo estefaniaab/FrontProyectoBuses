@@ -1,0 +1,128 @@
+.notification-container {
+  position: relative;
+  cursor: pointer;
+  margin-right: 15px;
+}
+
+.notification-icon {
+  font-size: 20px;
+  color: white;
+}
+
+.notification-counter {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #f5365c;
+  color: white;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 42px;
+  right: -110px; /* mueve el panel a la izquierda */
+
+  width: 320px;
+  background: #fff;
+
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.notification-header span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #525f7f;
+}
+
+.mark-read-btn {
+  background: transparent;
+  border: none;
+  color: #5e72e4;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.notification-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f1f1f1;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: #f8f9fa;
+}
+
+.notification-item.unread {
+  background: #f0f7ff;
+}
+
+.notification-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #32325d;
+}
+
+.notification-text {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.notification-date {
+  margin-top: 4px;
+  font-size: 10px;
+  color: #adb5bd;
+}
+
+.notification-badge {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f5365c;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.notification-empty {
+  padding: 30px;
+  text-align: center;
+  color: #adb5bd;
+}

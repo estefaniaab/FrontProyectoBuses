@@ -1,16 +1,33 @@
 <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
   <div class="container-fluid">
-    <!-- Brand -->
-    <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" routerLinkActive="active" [routerLink]="['/dashboard']">{{getTitle()}}</a>
 
-    <!-- Form -->
+    <!-- Brand -->
+    <a
+      class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block"
+      routerLinkActive="active"
+      [routerLink]="['/dashboard']">
+      {{ getTitle() }}
+    </a>
+
+    <!-- Search -->
     <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
-      <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
+      <div
+        class="form-group mb-0"
+        [ngClass]="{ 'focused': focus === true }">
+
         <div class="input-group input-group-alternative">
           <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
           </div>
-          <input class="form-control" placeholder="Search" type="text" (focus)="focus = true" (blur)="focus = false">
+
+          <input
+            class="form-control"
+            placeholder="Search"
+            type="text"
+            (focus)="focus = true"
+            (blur)="focus = false">
         </div>
       </div>
     </form>
@@ -18,74 +35,158 @@
     <!-- User y Notificaciones -->
     <ul class="navbar-nav align-items-center d-none d-md-flex">
 
-      <!-- CAMPANITA DE NOTIFICACIONES -->
-      <li class="nav-item" style="position: relative; cursor: pointer;" (click)="toggleNotificaciones($event)">
-        <i class="fas fa-bell" style="font-size: 20px; color: white;"></i>
-        <span *ngIf="contadorNotificaciones > 0"
-              style="position: absolute; top: -5px; right: -10px; background: #f5365c; color: white;
-                     border-radius: 50%; padding: 2px 6px; font-size: 10px; min-width: 18px; text-align: center;">
+      <!-- NOTIFICACIONES -->
+      <li
+        class="nav-item notification-container"
+        (click)="toggleNotificaciones($event)">
+
+        <i class="fas fa-bell notification-icon"></i>
+
+        <span
+          *ngIf="contadorNotificaciones > 0"
+          class="notification-counter">
+
           {{ contadorNotificaciones > 99 ? '99+' : contadorNotificaciones }}
+
         </span>
 
-        <!-- Dropdown de notificaciones -->
-        <div *ngIf="showNotificaciones"
-             (click)="$event.stopPropagation()"
-             style="position: absolute; top: 100%; right: 0; width: 320px; background: white;
-                    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; margin-top: 8px;">
-          <div style="padding: 10px 15px; border-bottom: 1px solid #e9ecef; font-weight: bold; display: flex; justify-content: space-between;">
+        <!-- Dropdown -->
+        <div
+          *ngIf="showNotificaciones"
+          class="notification-dropdown"
+          (click)="$event.stopPropagation()">
+
+          <div class="notification-header">
+
             <span>Notificaciones</span>
-            <button *ngIf="contadorNotificaciones > 0"
-                    (click)="marcarTodasLeidas()"
-                    style="background: none; border: none; color: #5e72e4; font-size: 12px; cursor: pointer;">
+
+            <button
+              *ngIf="contadorNotificaciones > 0"
+              class="mark-read-btn"
+              (click)="marcarTodasLeidas()">
+
               Marcar todas
+
             </button>
+
           </div>
-          <div style="max-height: 350px; overflow-y: auto;">
-            <div *ngIf="listaNotificaciones.length === 0" style="padding: 40px; text-align: center; color: #adb5bd;">
-              <i class="fas fa-bell-slash" style="font-size: 30px; margin-bottom: 10px; display: block;"></i>
+
+          <div class="notification-list">
+
+            <div
+              *ngIf="listaNotificaciones.length === 0"
+              class="notification-empty">
+
+              <i class="fas fa-bell-slash"></i>
               <span>No hay notificaciones</span>
+
             </div>
-            <div *ngFor="let notif of listaNotificaciones"
-                 (click)="abrirNotificacion(notif)"
-                 style="padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;"
-                 [style.background]="!notif.leido ? '#f0f7ff' : 'white'"
-                 (mouseenter)="$event.target.style.background='#f8f9fa'"
-                 (mouseleave)="$event.target.style.background = !notif.leido ? '#f0f7ff' : 'white'">
-              <div style="font-weight: 600; font-size: 13px; color: #32325d;">{{ notif.titulo }}</div>
-              <div style="font-size: 12px; color: #6c757d;">{{ notif.mensaje }}</div>
-              <div style="font-size: 10px; color: #adb5bd; margin-top: 4px;">{{ notif.fecha | date:'dd/MM HH:mm' }}</div>
+
+            <div
+              *ngFor="let notif of listaNotificaciones"
+              class="notification-item"
+              [class.unread]="notif.cantidadNoLeidos > 0"
+              (click)="abrirNotificacion(notif)">
+
+              <div class="notification-content">
+
+                <div>
+
+                  <div class="notification-name">
+                    {{ notif.emisorNombre }}
+                  </div>
+
+                  <div class="notification-text">
+                    {{ notif.cantidadNoLeidos }}
+                    mensaje{{ notif.cantidadNoLeidos !== 1 ? 's' : '' }}
+                    nuevo{{ notif.cantidadNoLeidos !== 1 ? 's' : '' }}
+                  </div>
+
+                </div>
+
+                <span
+                  *ngIf="notif.cantidadNoLeidos > 0"
+                  class="notification-badge">
+
+                  {{ notif.cantidadNoLeidos }}
+
+                </span>
+
+              </div>
+
+              <div class="notification-date">
+                {{ notif.fecha | date:'dd/MM HH:mm' }}
+              </div>
+
             </div>
+
           </div>
+
         </div>
+
       </li>
 
-      <!-- User Dropdown -->
-      <li class="nav-item" ngbDropdown placement="bottom-right">
-        <a class="nav-link pr-0" role="button" ngbDropdownToggle>
+      <!-- USER -->
+      <li
+        class="nav-item"
+        ngbDropdown
+        placement="bottom-right">
+
+        <a
+          class="nav-link pr-0"
+          role="button"
+          ngbDropdownToggle>
+
           <div class="media align-items-center">
+
             <span class="avatar avatar-sm rounded-circle">
               <img [src]="profileImage" alt="Foto de perfil">
             </span>
+
             <div class="media-body ml-2 d-none d-lg-block">
-              <span class="mb-0 text-sm font-weight-bold">{{ displayName }}</span>
+              <span class="mb-0 text-sm font-weight-bold">
+                {{ displayName }}
+              </span>
             </div>
+
           </div>
+
         </a>
-        <div class="dropdown-menu-arrow dropdown-menu-right" ngbDropdownMenu>
+
+        <div
+          class="dropdown-menu-arrow dropdown-menu-right"
+          ngbDropdownMenu>
+
           <div class="dropdown-header noti-title">
             <h6 class="text-overflow m-0">Welcome!</h6>
           </div>
-          <a class="dropdown-item" (click)="goToMyProfile()">
+
+          <a
+            class="dropdown-item"
+            (click)="goToMyProfile()">
+
             <i class="ni ni-single-02"></i>
             <span>My profile</span>
+
           </a>
+
           <div class="dropdown-divider"></div>
-          <button type="button" class="dropdown-item" (click)="logout()">
+
+          <button
+            type="button"
+            class="dropdown-item"
+            (click)="logout()">
+
             <i class="ni ni-user-run"></i>
             <span>Logout</span>
+
           </button>
+
         </div>
+
       </li>
+
     </ul>
+
   </div>
 </nav>
