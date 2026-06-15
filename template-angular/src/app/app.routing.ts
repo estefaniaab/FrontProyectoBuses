@@ -13,6 +13,7 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { Verify2faComponent } from './pages/verify2fa/verify2fa.component';
 import { RegisterComponent } from './pages/register/register.component'; // ← NUEVO
+import { AlertaBusComponent } from './pages/alerta/alerta-bus/alerta-bus.component';
 
 const routes: Routes = [
   {
@@ -72,6 +73,10 @@ const routes: Routes = [
       path: 'verify-2fa',
       component: Verify2faComponent
     },
+  {
+    path: 'alerta-bus',
+    component: AlertaBusComponent,
+  },
   {
     path: '',
     component: AdminLayoutComponent,

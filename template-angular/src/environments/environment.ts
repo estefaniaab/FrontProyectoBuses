@@ -6,7 +6,17 @@ export const environment = {
   production: false,
   url_ms_security: 'http://localhost:8080/api',
   url_ms_business: 'http://localhost:3000/api',
-  recaptcha_site_key_v3: '6LdhnKgsAAAAAHq9EtCkq_0mtlSchufvq8HhF933'
+  url_ms_notifications: 'http://localhost:3001/api',
+  recaptcha_site_key_v3: '6LdhnKgsAAAAAHq9EtCkq_0mtlSchufvq8HhF933',
+    firebase: {
+      apiKey: 'AIzaSyBmMReOIoOQA7MZKuPWy8v_nRyHMwiY1i8',
+      authDomain: 'buses-inteligentes-29678.firebaseapp.com',
+      projectId: 'buses-inteligentes-29678',
+      storageBucket: 'buses-inteligentes-29678.firebasestorage.app',
+      messagingSenderId: '140894319419',
+      appId: '1:140894319419:web:0ddab9f7c611352011bd1e',
+      vapidKey: 'BEXfqKEeOdNWUE85Fxnh8r050knrDmqeTksGgStTF_yn3ewVwE_WH_zvJNLVmYSftTRzBhnkSFtFfBNGjBYnBAw'
+    }
 };
 
 /*

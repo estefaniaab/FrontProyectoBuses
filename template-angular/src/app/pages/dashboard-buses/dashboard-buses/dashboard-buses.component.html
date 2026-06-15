@@ -1,0 +1,188 @@
+<!-- dashboard-buses.component.html -->
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <div class="row">
+        <div class="col-xl-3 col-lg-6">
+          <div class="card card-stats mb-4 mb-xl-0">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Buses Activos</h5>
+                  <span class="h2 font-weight-bold mb-0">{{ totalBusesActivos }}</span>
+                </div>
+                <div class="col-auto">
+                  <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+                    <i class="fas fa-bus"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6">
+          <div class="card card-stats mb-4 mb-xl-0">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Pasajeros en Tránsito</h5>
+                  <span class="h2 font-weight-bold mb-0">{{ totalPasajerosEnTransito | number }}</span>
+                </div>
+                <div class="col-auto">
+                  <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                    <i class="fas fa-users"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6">
+          <div class="card card-stats mb-4 mb-xl-0" (click)="verTodosIncidentes()" style="cursor: pointer;">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Incidentes Activos</h5>
+                  <span class="h2 font-weight-bold mb-0" [style.color]="incidentesActivos.length > 0 ? '#f5365c' : '#2dce89'">
+                    {{ incidentesActivos.length }}
+                  </span>
+                </div>
+                <div class="col-auto">
+                  <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6" *ngIf="busesOcupacionMaxima.length > 0">
+          <div class="card card-stats mb-4 mb-xl-0">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Ocupación Máxima</h5>
+                  <span class="h2 font-weight-bold mb-0" style="color: #fb6340;">{{ busesOcupacionMaxima.length }}</span>
+                </div>
+                <div class="col-auto">
+                  <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                    <i class="fas fa-chart-line"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid mt--7">
+  <!-- Mapa -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">📍 Ubicación de buses en tiempo real</h3>
+            </div>
+            <div class="col-md-4 text-right">
+              <button class="btn btn-primary btn-sm" (click)="actualizarDatos()" [disabled]="actualizando">
+                🔄 {{ actualizando ? 'Actualizando...' : 'Actualizar' }}
+              </button>
+            </div>
+          </div>
+          <div class="last-update text-muted mt-2" *ngIf="ultimaActualizacion">
+            Última actualización: {{ ultimaActualizacion | date:'HH:mm:ss' }}
+          </div>
+        </div>
+        <div class="card-body p-0 position-relative">
+          <div id="mapa-dashboard" class="mapa-buses" style="height: 500px; width: 100%;"></div>
+
+          <!-- Leyenda -->
+          <div class="px-3 pb-2 pt-1" style="font-size:12px; color:#6c757d;">
+            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+              <span style="width:12px;height:12px;background:#2dce89;border-radius:50%;display:inline-block;"></span> Normal
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+              <span style="width:12px;height:12px;background:#fb6340;border-radius:50%;display:inline-block;"></span> Alta Ocupación
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:12px;">
+              <span style="width:12px;height:12px;background:#f5365c;border-radius:50%;display:inline-block;"></span> Incidente
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:4px;">
+              🚌 Bus en ruta
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incidentes activos - SIN columna Acción -->
+  <div class="row mt-4">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">📋 Incidentes Activos No Resueltos</h3>
+            </div>
+            <div class="col-auto" *ngIf="incidentesActivos.length > 0">
+              <button class="btn btn-primary btn-sm" (click)="verTodosIncidentes()">
+                Ver todos ({{ incidentesActivos.length }})
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive" *ngIf="incidentesActivos.length > 0">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+              <tr>
+                <th>Bus</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Gravedad</th>
+                <th>Fecha</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let incidente of incidentesActivos.slice(0, 5)">
+                <td>🚌 {{ incidente.placa }}</td>
+                <td>{{ incidente.tipoIncidente }}</td>
+                <td>{{ incidente.descripcion | slice:0:80 }}{{ incidente.descripcion.length > 80 ? '...' : '' }}</td>
+                <td>
+                    <span class="badge"
+                          [class.badge-danger]="incidente.gravedad === 'Alta'"
+                          [class.badge-warning]="incidente.gravedad === 'Media'"
+                          [class.badge-info]="incidente.gravedad === 'Baja'">
+                      {{ incidente.gravedad }}
+                    </span>
+                </td>
+                <td>{{ incidente.reportadoEn | date:'short' }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="text-center text-muted py-4" *ngIf="incidentesActivos.length === 0">
+            <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+            <p class="mb-0">✅ No hay incidentes activos en este momento</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando dashboard...</p>
+  </div>
+</div>

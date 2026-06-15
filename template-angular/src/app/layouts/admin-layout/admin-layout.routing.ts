@@ -222,4 +222,10 @@ export const AdminLayoutRoutes: Routes = [
     loadChildren: () =>
       import('src/app/pages/monitoreo/monitoreo.module').then(m => m.MonitoreoModule)
   },
+
+  {
+    path: 'dashboard-buses',
+    loadChildren: () => import('src/app/pages/dashboard-buses/dashboard-buses.module').then(m => m.DashboardBusesModule)
+  }
+
 ];
