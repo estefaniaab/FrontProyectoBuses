@@ -26,7 +26,6 @@
             </ng-template>
             <div>
               <h4 class="mb-0">{{ destinatarioNombre || destinatarioId }}</h4>
-              <small class="text-muted">{{ mensajes.length }} mensajes</small>
             </div>
           </div>
         </div>
@@ -46,36 +45,47 @@
 
             <div style="max-width:70%;">
               <!-- Burbuja -->
-              <div style="
-                padding:10px 14px; border-radius:18px;
-                {{ esMio(msg)
-                  ? 'background:#5e72e4; color:white; border-bottom-right-radius:4px;'
-                  : 'background:white; color:#32325d; border-bottom-left-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,0.1);'
-                }}">
+              <div [ngStyle]="{
+                'padding': '10px 14px',
+                'border-radius': '18px',
+                'background': esMio(msg) ? '#5e72e4' : 'white',
+                'color': esMio(msg) ? 'white' : '#32325d',
+                'border-bottom-right-radius': esMio(msg) ? '4px' : '18px',
+                'border-bottom-left-radius': esMio(msg) ? '18px' : '4px',
+                'box-shadow': esMio(msg) ? 'none' : '0 1px 4px rgba(0,0,0,0.1)'
+              }">
                 <div style="font-size:14px;">{{ msg.contenido }}</div>
 
                 <!-- Ubicación adjunta -->
                 <div *ngIf="msg.latitud && msg.longitud" style="margin-top:6px;">
                   <button
                     (click)="abrirMapa(msg.latitud!, msg.longitud!)"
-                    style="
-                      background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4);
-                      border-radius:8px; padding:4px 8px; font-size:11px; cursor:pointer;
-                      color: {{ esMio(msg) ? 'white' : '#5e72e4' }}">
+                    [ngStyle]="{
+                      'background': 'rgba(255,255,255,0.2)',
+                      'border': '1px solid rgba(255,255,255,0.4)',
+                      'border-radius': '8px',
+                      'padding': '4px 8px',
+                      'font-size': '11px',
+                      'cursor': 'pointer',
+                      'color': esMio(msg) ? 'white' : '#5e72e4'
+                    }">
                     📍 Ver ubicación en mapa
                   </button>
                 </div>
               </div>
 
               <!-- Hora y estado -->
-              <div style="
-                font-size:10px; margin-top:2px; color:#adb5bd;
-                text-align:{{ esMio(msg) ? 'right' : 'left' }}">
+              <div [ngStyle]="{
+                'font-size': '10px',
+                'margin-top': '2px',
+                'color': '#adb5bd',
+                'text-align': esMio(msg) ? 'right' : 'left'
+              }">
                 {{ msg.fechaEnvio | date:'HH:mm' }}
                 <span *ngIf="esMio(msg)">
-                  {{ msg.leido ? '✓✓' : '✓' }}
-                  <span *ngIf="msg.leido && msg.fechaLeido" style="font-size:9px;">
-                    leído {{ msg.fechaLeido | date:'HH:mm' }}
+                  {{ fueLeido(msg) ? '✓✓' : '✓' }}
+                  <span *ngIf="fueLeido(msg) && fechaLeido(msg)" style="font-size:9px;">
+                    leído {{ fechaLeido(msg) | date:'HH:mm' }}
                   </span>
                 </span>
               </div>

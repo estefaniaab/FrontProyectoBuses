@@ -44,16 +44,18 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.obtenerUbicacion();
     this.cargarNombreDestinatario();
 
-    // Escuchar mensajes en tiempo real
+    // Mensajes en tiempo real
     this.subs.push(
       this.mensajesService.onMensajeRecibido().subscribe((msg) => {
-        if (
-          (msg.emisorId === this.destinatarioId && msg.destinatarioId === this.usuarioActual.id) ||
-          (msg.emisorId === this.usuarioActual.id && msg.destinatarioId === this.destinatarioId)
-        ) {
+        const esDeEstaConv =
+          (msg.emisorId === this.destinatarioId &&
+            msg.destinatariosPersona?.some(d => d.usuarioId === this.usuarioActual.id)) ||
+          (msg.emisorId === this.usuarioActual.id &&
+            msg.destinatariosPersona?.some(d => d.usuarioId === this.destinatarioId));
+
+        if (esDeEstaConv) {
           this.mensajes.push(msg);
-          // Marcar como leído si soy el destinatario
-          if (msg.destinatarioId === this.usuarioActual.id) {
+          if (msg.destinatariosPersona?.some(d => d.usuarioId === this.usuarioActual.id)) {
             this.mensajesService.marcarLeido(msg.id, this.usuarioActual.id);
           }
         }
@@ -62,7 +64,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.subs.push(
       this.mensajesService.onMensajeEnviado().subscribe((msg) => {
-        // Actualizar el mensaje en la lista con el id asignado por el backend
+        // Reemplazar el mensaje temporal (sin id) por el confirmado del backend
         const idx = this.mensajes.findIndex(m => m.contenido === msg.contenido && !m.id);
         if (idx >= 0) {
           this.mensajes[idx] = msg;
@@ -74,8 +76,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.mensajesService.onMensajeLeido().subscribe((data) => {
         const msg = this.mensajes.find(m => m.id === data.mensajeId);
         if (msg) {
-          msg.leido = true;
-          msg.fechaLeido = data.fechaLeido;
+          const dp = msg.destinatariosPersona?.find(d => d.usuarioId === this.destinatarioId);
+          if (dp) {
+            dp.leido = true;
+            dp.fechaLeido = data.fechaLeido;
+          }
         }
       })
     );
@@ -94,9 +99,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .getConversacion(this.usuarioActual.id, this.destinatarioId)
       .subscribe(msgs => {
         this.mensajes = msgs;
-        // Marcar como leídos los mensajes recibidos
         msgs.forEach(msg => {
-          if (msg.destinatarioId === this.usuarioActual.id && !msg.leido) {
+          const dp = msg.destinatariosPersona?.find(d => d.usuarioId === this.usuarioActual.id);
+          if (dp && !dp.leido) {
             this.mensajesService.marcarLeido(msg.id, this.usuarioActual.id);
           }
         });
@@ -108,7 +113,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       next: (user) => this.destinatarioNombre = user?.name || this.destinatarioId,
       error: () => this.destinatarioNombre = this.destinatarioId,
     });
-
     this.mensajesService.getFotoPerfil(this.destinatarioId).subscribe({
       next: (res) => this.destinatarioFoto = res?.photo || null,
       error: () => this.destinatarioFoto = null,
@@ -132,18 +136,23 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const latitud = this.adjuntarUbicacion ? this.miLatitud ?? undefined : undefined;
     const longitud = this.adjuntarUbicacion ? this.miLongitud ?? undefined : undefined;
 
-    // Agregar optimistamente a la lista
-    const msgTemporal: any = {
-      id: null,
+    // Mensaje temporal optimista
+    const msgTemporal = Object.assign(new Mensaje(), {
+      id: null as any,
       emisorId: this.usuarioActual.id,
-      destinatarioId: this.destinatarioId,
       contenido: this.nuevoMensaje,
-      leido: false,
-      fechaLeido: null,
       latitud: latitud ?? null,
       longitud: longitud ?? null,
       fechaEnvio: new Date(),
-    };
+      destinatariosPersona: [{
+        id: null as any,
+        mensajeId: null as any,
+        usuarioId: this.destinatarioId,
+        leido: false,
+        fechaLeido: null,
+      }],
+    });
+
     this.mensajes.push(msgTemporal);
 
     this.mensajesService.enviarMensaje(
@@ -170,6 +179,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   esMio(msg: Mensaje): boolean {
     return msg.emisorId === this.usuarioActual?.id;
+  }
+
+  fueLeido(msg: Mensaje): boolean {
+    const dp = msg.destinatariosPersona?.find(
+      d => d.usuarioId === this.destinatarioId
+    );
+    return dp?.leido ?? false;
+  }
+
+  fechaLeido(msg: Mensaje): Date | null {
+    const dp = msg.destinatariosPersona?.find(
+      d => d.usuarioId === this.destinatarioId
+    );
+    return dp?.fechaLeido ?? null;
   }
 
   abrirMapa(lat: number, lng: number): void {

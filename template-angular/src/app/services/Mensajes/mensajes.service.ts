@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { Mensaje } from 'src/app/models/Mensaje/mensaje.model';
@@ -18,12 +18,22 @@ export class MensajesService {
   // ── WebSocket ─────────────────────────────────────────────────────────────
 
   conectar(userId: string): void {
-    if (this.socket?.connected) {
+
+    if (this.socket) {
       this.socket.disconnect();
     }
-    this.socket = io(`${this.url}/mensajes`, {
-      query: { userId },
+
+    this.socket = io('http://localhost:3001/api/mensajes', {
+      query: { usuarioId: userId },
       transports: ['websocket'],
+    });
+
+    this.socket.on('connect', () => {
+      console.log('SOCKET CONECTADO');
+    });
+
+    this.socket.onAny((event, ...args) => {
+      console.log('EVENTO:', event, args);
     });
   }
 
@@ -31,11 +41,23 @@ export class MensajesService {
     if (this.socket) this.socket.disconnect();
   }
 
-  enviarMensaje(emisorId: string, destinatarioId: string, contenido: string, latitud?: number, longitud?: number): void {
-    this.socket.emit('enviar_mensaje', {
-      emisorId,
-      dto: { destinatarioId, contenido, latitud, longitud }
-    });
+  /**
+   * Emite el evento "enviar_mensaje" con la forma que espera el Gateway:
+   * { emisorUsuarioId, dto: { destinatarioUsuarioId, contenido, latitud?, longitud? } }
+   */
+  enviarMensaje(
+    emisorUsuarioId: string,
+    destinatarioUsuarioId: string,
+    contenido: string,
+    latitud?: number,
+    longitud?: number,
+  ): void {
+    console.log('CONNECTED?', this.socket.connected);
+
+      this.socket.emit('enviar_mensaje', {
+        emisorUsuarioId,
+        dto: { destinatarioUsuarioId, contenido, latitud, longitud },
+      });
   }
 
   onMensajeEnviado(): Observable<Mensaje> {
@@ -63,15 +85,40 @@ export class MensajesService {
   }
 
   marcarLeido(mensajeId: number, userId: string): void {
-    this.socket.emit('marcar_leido', { mensajeId, userId });
+    this.socket.emit('marcar_leido', { mensajeId, usuarioId: userId });
   }
 
   // ── HTTP ──────────────────────────────────────────────────────────────────
 
-  getConversacion(userId1: string, userId2: string): Observable<Mensaje[]> {
-    return this.http.get<Mensaje[]>(
-      `${this.url}/mensajes/conversacion/${userId1}/${userId2}`
-    );
+  /**
+   * El backend NO tiene endpoint de conversación bidireccional.
+   * Se simula combinando enviados + recibidos y filtrando por el otro usuario.
+   */
+  getConversacion(userId: string, otroUserId: string): Observable<Mensaje[]> {
+    return new Observable(observer => {
+      let enviados: Mensaje[] = [];
+      let recibidos: Mensaje[] = [];
+      let pendientes = 2;
+
+      const combinar = () => {
+        if (--pendientes > 0) return;
+
+        const enviadosAlOtro = enviados.filter(m =>
+          m.destinatariosPersona?.some(d => d.usuarioId === otroUserId)
+        );
+
+        const recibidosDelOtro = recibidos.filter(m => m.emisorId === otroUserId);
+
+        const todos = [...enviadosAlOtro, ...recibidosDelOtro]
+          .sort((a, b) => new Date(a.fechaEnvio).getTime() - new Date(b.fechaEnvio).getTime());
+
+        observer.next(todos);
+        observer.complete();
+      };
+
+      this.getEnviados(userId).subscribe({ next: d => { enviados = d; combinar(); }, error: () => { enviados = []; combinar(); } });
+      this.getRecibidos(userId).subscribe({ next: d => { recibidos = d; combinar(); }, error: () => { recibidos = []; combinar(); } });
+    });
   }
 
   getEnviados(emisorId: string): Observable<Mensaje[]> {
