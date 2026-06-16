@@ -1,0 +1,157 @@
+<div class="header bg-gradient-success pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0" *ngIf="mode == 2">Crear grupo</h3>
+          <h3 class="mb-0" *ngIf="mode == 3">Actualizar grupo</h3>
+        </div>
+
+        <div class="card-body">
+          <form [formGroup]="theFormGroup">
+            <div class="card-body container">
+
+              <!-- Foto del grupo -->
+              <div class="row mb-4">
+                <div class="col-3">Foto del grupo</div>
+                <div class="col-9">
+                  <div class="d-flex align-items-center">
+                    <div class="mr-3">
+                      <img
+                        *ngIf="fotoPreview"
+                        [src]="fotoPreview"
+                        alt="Foto del grupo"
+                        width="80" height="80"
+                        class="rounded-circle"
+                        style="object-fit:cover;">
+                      <div
+                        *ngIf="!fotoPreview"
+                        class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center"
+                        style="width:80px;height:80px;">
+                        <i class="material-icons text-white" style="font-size:36px">group</i>
+                      </div>
+                    </div>
+                    <div>
+                      <input type="file" class="form-control" accept="image/*" (change)="onFotoSeleccionada($event)">
+                      <small class="text-muted">Máximo 2MB</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <br>
+
+              <!-- Nombre -->
+              <div class="row">
+                <div class="col-3">Nombre</div>
+                <div class="col-9">
+                  <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre del grupo">
+                  <div *ngIf="f['nombre'].errors && (f['nombre'].dirty || f['nombre'].touched || trySend)">
+                    <strong *ngIf="f['nombre'].errors['required']" class="msnError">Requerido</strong>
+                    <strong *ngIf="f['nombre'].errors['minlength'] || f['nombre'].errors['maxlength']" class="msnError">
+                      Debe tener entre 3 y 100 caracteres
+                    </strong>
+                  </div>
+                </div>
+              </div>
+              <br>
+
+              <!-- Descripción -->
+              <div class="row">
+                <div class="col-3">Descripción</div>
+                <div class="col-9">
+                  <textarea class="form-control" formControlName="descripcion" rows="3"
+                    placeholder="Descripción del grupo (opcional)"></textarea>
+                </div>
+              </div>
+              <br>
+
+              <!-- Visibilidad -->
+              <div class="row">
+                <div class="col-3">Visibilidad</div>
+                <div class="col-9">
+                  <select class="form-control" formControlName="esPublico">
+                    <option [ngValue]="true">Público — cualquier usuario puede unirse</option>
+                    <option [ngValue]="false">Privado — solo por invitación</option>
+                  </select>
+                </div>
+              </div>
+              <br>
+
+              <!-- Agregar miembros (solo al crear) -->
+              <div class="row" *ngIf="mode == 2">
+                <div class="col-3">
+                  Miembros iniciales
+                  <small class="d-block text-muted">(mínimo 2)</small>
+                </div>
+                <div class="col-9">
+
+                  <!-- Buscador de usuarios -->
+                  <div class="input-group mb-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Buscar usuarios por nombre o email..."
+                      [(ngModel)]="busquedaUsuario"
+                      [ngModelOptions]="{standalone: true}"
+                    />
+                  </div>
+
+                  <!-- Lista de resultados -->
+                  <div *ngIf="busquedaUsuario && usuariosFiltrados.length > 0"
+                       class="list-group mb-2"
+                       style="max-height:200px; overflow-y:auto;">
+                    <button
+                      *ngFor="let u of usuariosFiltrados"
+                      type="button"
+                      class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      (click)="agregarMiembro(u)">
+                      <span>
+                        <i class="material-icons mr-1" style="font-size:16px;vertical-align:middle">person</i>
+                        {{ u.name }} <small class="text-muted">{{ u.email }}</small>
+                      </span>
+                      <i class="material-icons text-success">add_circle</i>
+                    </button>
+                  </div>
+
+                  <!-- Miembros seleccionados -->
+                  <div *ngIf="usuariosSeleccionados.length > 0" class="mt-2">
+                    <small class="text-muted d-block mb-1">Miembros agregados ({{ usuariosSeleccionados.length }}):</small>
+                    <div class="d-flex flex-wrap">
+                      <span
+                        *ngFor="let u of usuariosSeleccionados"
+                        class="badge badge-success mr-1 mb-1 d-flex align-items-center"
+                        style="font-size:13px; padding:6px 10px;">
+                        {{ u.name }}
+                        <i class="material-icons ml-1"
+                           style="font-size:14px;cursor:pointer"
+                           (click)="quitarMiembro(u)">close</i>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div *ngIf="trySend && usuariosSeleccionados.length < 2" class="text-danger mt-1">
+                    <small>Debes agregar al menos 2 miembros.</small>
+                  </div>
+                </div>
+              </div>
+              <br>
+
+              <!-- Botones -->
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-9">
+                  <button type="button" class="btn btn-primary btn-block" (click)="back()">Regresar</button>
+                  <button type="button" class="btn btn-success btn-block" (click)="create()" *ngIf="mode == 2">Crear</button>
+                  <button type="button" class="btn btn-warning btn-block" (click)="update()" *ngIf="mode == 3">Actualizar</button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

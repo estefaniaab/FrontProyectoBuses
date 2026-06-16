@@ -1,0 +1,153 @@
+<div class="header bg-gradient-info pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">
+                Administrar miembros
+                <span *ngIf="grupo" class="text-muted font-weight-light">— {{ grupo.nombre }}</span>
+              </h3>
+            </div>
+            <div class="col text-right">
+              <span *ngIf="grupo" class="badge badge-success mr-2">
+                <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
+                {{ grupo.totalMiembros ?? 0 }} miembros
+              </span>
+              <button class="btn btn-secondary btn-sm" (click)="toggleLogs()">
+                <i class="material-icons" style="font-size:16px;vertical-align:middle">history</i>
+                {{ verLogs ? 'Ocultar log' : 'Ver log' }}
+              </button>
+              <button class="btn btn-primary btn-sm ml-2" (click)="back()">
+                <i class="material-icons" style="font-size:16px;vertical-align:middle">arrow_back</i>
+                Regresar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-5">
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Buscar por nombre..."
+                  [(ngModel)]="busquedaMiembro"
+                  (keyup.enter)="buscarMiembro()"
+                />
+                <div class="input-group-append">
+                  <button class="btn btn-outline-primary" (click)="buscarMiembro()">
+                    <i class="material-icons" style="font-size:18px;vertical-align:middle">search</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>#</td>
+                <td>Nombre</td>
+                <td>Rol</td>
+                <td>Fecha de unión</td>
+                <td>Acciones</td>
+              </tr>
+              <tr *ngFor="let m of miembros; let i = index">
+                <td>{{ i + 1 }}</td>
+                <!-- FIX: mostrar nombreUsuario en vez del ID -->
+                <td>{{ m.nombreUsuario || m.usuarioId }}</td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="{
+                      'badge-primary':   m.rol === RolMembresia.ADMINISTRADOR,
+                      'badge-secondary': m.rol === RolMembresia.MIEMBRO
+                    }">
+                    {{ m.rol }}
+                  </span>
+                </td>
+                <td>{{ m.fechaUnion | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <button class="btn btn-info btn-sm"
+                    (click)="promover(m)"
+                    [title]="m.rol === RolMembresia.MIEMBRO ? 'Promover a administrador' : 'Degradar a miembro'">
+                    <i class="material-icons">
+                      {{ m.rol === RolMembresia.MIEMBRO ? 'arrow_upward' : 'arrow_downward' }}
+                    </i>
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="remover(m)" title="Remover del grupo">
+                    <i class="material-icons">person_remove</i>
+                  </button>
+                  <button class="btn btn-warning btn-sm"
+                    (click)="bloquear(m)"
+                    title="Bloquear usuario"
+                    [disabled]="m.rol === RolMembresia.ADMINISTRADOR">
+                    <i class="material-icons">block</i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="miembros.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">
+                  <i class="material-icons d-block mb-2" style="font-size:36px">group_off</i>
+                  No hay miembros en este grupo.
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log de cambios -->
+  <div class="row mt-3" *ngIf="verLogs">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0">
+            <i class="material-icons mr-2" style="vertical-align:middle">history</i>
+            Log de membresía
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <td>Fecha</td>
+                <td>Usuario afectado</td>
+                <td>Acción</td>
+                <td>Realizado por</td>
+              </tr>
+              <tr *ngFor="let log of logs">
+                <td>{{ log.fechaAccion | date:'dd/MM/yyyy HH:mm' }}</td>
+                <!-- FIX: mostrar nombre en vez de ID -->
+                <td>{{ log.nombreAfectado || log.usuarioAfectadoId }}</td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="{
+                      'badge-success': log.accion === 'union',
+                      'badge-warning': log.accion === 'salida',
+                      'badge-info':    log.accion === 'promovido',
+                      'badge-danger':  log.accion === 'removido' || log.accion === 'bloqueado'
+                    }">
+                    {{ log.accion }}
+                  </span>
+                </td>
+                <td>{{ log.nombreActor || log.usuarioActorId || 'Sistema' }}</td>
+              </tr>
+              <tr *ngIf="logs.length === 0">
+                <td colspan="4" class="text-center text-muted py-3">Sin registros de cambios.</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
