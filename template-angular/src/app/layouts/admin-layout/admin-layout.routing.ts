@@ -239,5 +239,16 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
+{
+    path: 'citas',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/citas/citas.module').then(m => m.CitasModule)
+      }
+    ]
+  },
 
 ];

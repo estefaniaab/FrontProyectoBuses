@@ -30,8 +30,9 @@ export const ROUTES: RouteInfo[] = [
   { path: '/programaciones-ruta/list', title: 'Programaciones', icon: 'ni-calendar-grid-58 text-orange', class: '' },
   // Monitoreo
   { path: '/monitoreo/seguimiento', title: 'Monitoreo buses', icon: 'ni-pin-3 text-danger', class: ''},
-  // Mensajería  ← NUEVO
+  // Mensajería
   { path: '/mensajes', title: 'Mensajes', icon: 'ni-email-83 text-primary', class: ''},
+  { path: '/citas/agendar', title: 'Agendar Cita', icon: 'ni-calendar-grid-58 text-success', class: ''},
   // Ciudadano / viajes
   { path: '/ciudadanos/list', title: 'Ciudadanos', icon: 'ni-single-02 text-success', class: ''},
   { path: '/boletos/list', title: 'Boletos', icon: 'ni-tag text-purple', class: '' },

@@ -1,0 +1,198 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+
+        <div class="card-header border-0">
+          <h3 class="mb-0">Agendar Cita</h3>
+        </div>
+
+        <div class="card-body">
+
+          <form [formGroup]="formGroup">
+
+            <div class="row">
+
+              <div class="col-md-6">
+
+                <div class="form-group">
+
+                  <label class="form-control-label">
+                    Tipo de Atención
+                  </label>
+
+                  <select
+                    class="form-control"
+                    formControlName="tipoAtencion">
+
+                    <option [value]="tipoAtencionEnum.PRESENCIAL">
+                      Presencial
+                    </option>
+
+                    <option [value]="tipoAtencionEnum.VIRTUAL">
+                      Virtual
+                    </option>
+
+                  </select>
+
+                </div>
+
+              </div>
+
+              <div class="col-md-6 d-flex align-items-end">
+
+                <button
+                  type="button"
+                  class="btn btn-primary w-100"
+                  (click)="consultarDisponibilidad()">
+
+                  <i class="fas fa-calendar"></i>
+                  Consultar Disponibilidad
+
+                </button>
+
+              </div>
+
+            </div>
+
+            <div
+              class="row mt-4"
+              *ngIf="horariosAgrupados.length > 0">
+
+              <div class="col-md-6">
+
+                <div class="form-group">
+
+                  <label class="form-control-label">
+                    Seleccione una Fecha
+                  </label>
+
+                  <input
+                    type="date"
+                    class="form-control"
+                    [(ngModel)]="fechaSeleccionada"
+                    [ngModelOptions]="{standalone:true}"
+                    (change)="cambiarFecha()">
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div
+              class="row mt-3"
+              *ngIf="horariosDelDia.length > 0">
+
+              <div class="col-md-12">
+
+                <label class="form-control-label mb-3">
+                  Horarios Disponibles
+                </label>
+
+                <div class="d-flex flex-wrap">
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary mr-2 mb-2"
+                    *ngFor="let horario of horariosDelDia"
+                    (click)="seleccionarHorario(horario.fecha)">
+
+                    {{ horario.horaStr }}
+
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="row mt-3">
+
+              <div class="col-md-6">
+
+                <div class="form-group">
+
+                  <label class="form-control-label">
+                    Tipo Consulta
+                  </label>
+
+                  <select
+                    class="form-control"
+                    formControlName="tipoConsulta">
+
+                    <option [value]="tipoConsultaEnum.TARJETA">
+                      Problema con tarjeta
+                    </option>
+
+                    <option [value]="tipoConsultaEnum.RECLAMO">
+                      Reclamo
+                    </option>
+
+                    <option [value]="tipoConsultaEnum.REEMBOLSO">
+                      Reembolso
+                    </option>
+
+                    <option [value]="tipoConsultaEnum.OTRO">
+                      Otro
+                    </option>
+
+                  </select>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="row">
+
+              <div class="col-md-12">
+
+                <div class="form-group">
+
+                  <label class="form-control-label">
+                    Motivo
+                  </label>
+
+                  <textarea
+                    rows="4"
+                    class="form-control"
+                    formControlName="motivo">
+                  </textarea>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="row mt-4">
+
+              <div class="col-md-12 text-right">
+
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  (click)="agendar()">
+
+                  <i class="fas fa-check"></i>
+                  Agendar Cita
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
