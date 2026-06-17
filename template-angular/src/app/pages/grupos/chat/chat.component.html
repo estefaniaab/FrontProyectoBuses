@@ -1,0 +1,143 @@
+<div class="header bg-gradient-primary pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow" style="height: calc(100vh - 180px); display: flex; flex-direction: column;">
+
+        <!-- Header -->
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center"
+             style="background: #075e54 !important; border-radius: 8px 8px 0 0;">
+          <div class="d-flex align-items-center">
+            <button class="btn btn-sm btn-link text-white mr-2 p-0" (click)="back()">
+              <i class="material-icons">arrow_back</i>
+            </button>
+            <!-- Foto del grupo -->
+            <img *ngIf="grupo?.fotoUrl" [src]="grupo?.fotoUrl"
+                 width="40" height="40" class="rounded-circle mr-2" style="object-fit:cover;">
+            <div *ngIf="!grupo?.fotoUrl"
+                 class="rounded-circle bg-success d-flex align-items-center justify-content-center mr-2"
+                 style="width:40px;height:40px;flex-shrink:0">
+              <i class="material-icons text-white" style="font-size:20px">group</i>
+            </div>
+            <div>
+              <div class="text-white font-weight-bold">{{ grupo?.nombre ?? 'Chat' }}</div>
+              <small class="text-white" style="opacity:0.8">{{ grupo?.totalMiembros ?? 0 }} miembros</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center">
+            <span *ngIf="soloLectura" class="badge badge-warning mr-2">Solo lectura</span>
+            <span class="badge" [ngClass]="conectado ? 'badge-success' : 'badge-danger'">
+              {{ conectado ? 'En línea' : 'Sin conexión' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Sin acceso -->
+        <div *ngIf="sinAcceso" class="flex-grow-1 d-flex align-items-center justify-content-center flex-column text-center p-4">
+          <i class="material-icons text-warning mb-3" style="font-size:64px">lock</i>
+          <h4>Sin acceso al chat</h4>
+          <p class="text-muted">Debes ser miembro de este grupo para ver los mensajes.</p>
+          <button class="btn btn-success" (click)="back()">Volver a grupos</button>
+        </div>
+
+        <!-- Error conexión -->
+        <div *ngIf="errorConexion && !sinAcceso" class="alert alert-danger mx-3 mt-2 mb-0">
+          No se pudo conectar al servidor de chat.
+        </div>
+
+        <!-- Mensajes -->
+        <div *ngIf="!sinAcceso"
+          #mensajesContainer
+          class="flex-grow-1 py-3 px-3"
+          style="overflow-y: auto; background: #ece5dd;">
+
+          <div *ngIf="mensajes.length === 0" class="text-center text-muted py-5">
+            <i class="material-icons d-block mb-2" style="font-size:48px">chat_bubble_outline</i>
+            No hay mensajes desde que te uniste al grupo.
+          </div>
+
+          <div *ngFor="let m of mensajes" class="mb-2"
+               [ngClass]="esMio(m) ? 'd-flex justify-content-end' : 'd-flex justify-content-start'">
+            <div
+              style="max-width:70%; border-radius:8px; padding:8px 12px; position:relative;"
+              [ngStyle]="{
+                'background-color': m.eliminado ? '#f0f0f0' :
+                                    esMio(m) ? '#dcf8c6' : '#fff',
+                'box-shadow': '0 1px 2px rgba(0,0,0,0.15)'
+              }">
+
+              <!-- Nombre del emisor (no propios) -->
+              <div *ngIf="!esMio(m) && !m.eliminado"
+                   style="font-size:12px; font-weight:600; color:#075e54; margin-bottom:2px">
+                {{ m.nombreUsuario }}
+              </div>
+
+              <!-- Contenido -->
+              <div [ngStyle]="{ 'color': m.eliminado ? '#999' : '#333', 'font-style': m.eliminado ? 'italic' : 'normal' }">
+                {{ m.contenido }}
+              </div>
+
+              <!-- Footer del mensaje -->
+              <div class="d-flex align-items-center justify-content-end mt-1" style="gap:4px">
+                <span style="font-size:10px; color:#999">
+                  {{ m.fechaEnvio | date:'HH:mm' }}
+                </span>
+
+                <!-- Doble check estilo WhatsApp -->
+                <span *ngIf="esMio(m) && !m.eliminado" style="font-size:12px;">
+                  <i class="material-icons"
+                     [ngStyle]="{ 'font-size': '14px', 'color': (m.lecturas ?? 0) > 0 ? '#53bdeb' : '#999' }">
+                    {{ (m.lecturas ?? 0) > 0 ? 'done_all' : 'done' }}
+                  </i>
+                </span>
+
+                <!-- Eliminar (solo propios o admin) -->
+                <button *ngIf="puedeEliminar(m) && !m.eliminado && !soloLectura"
+                  class="btn btn-link p-0 ml-1"
+                  style="font-size:12px; color:#999;"
+                  title="Eliminar mensaje"
+                  (click)="eliminarMensaje(m)">
+                  <i class="material-icons" style="font-size:14px">delete</i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solo lectura banner -->
+        <div *ngIf="soloLectura && !sinAcceso"
+             class="card-footer bg-warning text-center py-2">
+          <i class="material-icons mr-1" style="vertical-align:middle; font-size:16px">history</i>
+          <small>Estás viendo tu historial. Ya no eres miembro de este grupo.</small>
+        </div>
+
+        <!-- Input de mensaje -->
+        <div *ngIf="!sinAcceso && !soloLectura" class="card-footer bg-transparent"
+             style="background:#f0f0f0 !important;">
+          <div class="input-group">
+            <textarea
+              class="form-control"
+              rows="1"
+              placeholder="Escribe un mensaje..."
+              [(ngModel)]="nuevoMensaje"
+              (keydown)="enviarConEnter($event)"
+              [disabled]="!conectado"
+              style="resize:none; border-radius:20px 0 0 20px; border:none;">
+            </textarea>
+            <div class="input-group-append">
+              <button
+                class="btn btn-success"
+                (click)="enviar()"
+                [disabled]="!nuevoMensaje.trim() || !conectado"
+                style="border-radius:0 20px 20px 0;">
+                <i class="material-icons" style="vertical-align:middle">send</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -44,6 +44,10 @@ export const ROUTES: RouteInfo[] = [
   { path: '/reportes/rangos-etarios', title: 'Rangos etarios', icon: 'ni-chart-pie-35 text-info', class: ''},
   { path: '/reportes/dashboard', title: 'Reportes', icon: 'ni-chart-bar-32 text-red', class: '' },
   { path: '/reportes/tendencia-incidentes', title: 'Tendencia incidentes', icon: 'ni-chart-bar-32 text-danger', class: '' },
+  // Grupos
+  { path: '/grupos/list', title: 'Grupos', icon: 'ni-app text-success', class: '' },
+  { path: '/grupos/bandeja', title: 'Bandeja mensajes', icon: 'ni-email-83 text-blue', class: '' },
+  { path: '/grupos/alertas', title: 'Alertas masivas', icon: 'ni-bell-55 text-red', class: '' },
 ];
 
 @Component({

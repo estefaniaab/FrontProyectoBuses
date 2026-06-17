@@ -1,0 +1,160 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+
+  <!-- Botón crear + historial -->
+  <div class="row mb-3">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">
+            <i class="material-icons mr-2" style="vertical-align:middle">campaign</i>
+            Alertas masivas
+          </h3>
+          <button class="btn btn-danger btn-sm" (click)="mostrarFormulario = !mostrarFormulario">
+            <i class="material-icons mr-1" style="vertical-align:middle">add</i>
+            Nueva alerta
+          </button>
+        </div>
+
+        <!-- Formulario nueva alerta -->
+        <div *ngIf="mostrarFormulario" class="card-body border-top">
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Título <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="nueva.titulo" placeholder="Título de la alerta">
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Alcance</label>
+                <select class="form-control" [(ngModel)]="nueva.alcance">
+                  <option value="todos">Todos los usuarios</option>
+                  <option value="por_ruta">Usuarios por ruta</option>
+                  <option value="por_zona">Usuarios por zona</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Prioridad</label>
+                <div class="custom-control custom-switch mt-2">
+                  <input type="checkbox" class="custom-control-input" id="urgente" [(ngModel)]="nueva.urgente">
+                  <label class="custom-control-label" for="urgente">
+                    <span [ngClass]="nueva.urgente ? 'text-danger font-weight-bold' : ''">
+                      {{ nueva.urgente ? '🔴 Urgente' : 'Normal' }}
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Por ruta -->
+            <div class="col-md-6" *ngIf="nueva.alcance === 'por_ruta'">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Ruta</label>
+                <select class="form-control" [(ngModel)]="nueva.rutaId">
+                  <option [ngValue]="undefined">Selecciona una ruta...</option>
+                  <option *ngFor="let r of rutas" [ngValue]="r.id">{{ r.nombre }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Por zona -->
+            <div class="col-md-6" *ngIf="nueva.alcance === 'por_zona'">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Zona (barrio o ciudad)</label>
+                <input type="text" class="form-control" [(ngModel)]="nueva.zona" placeholder="Ej: El Poblado, Laureles...">
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Mensaje <span class="text-danger">*</span></label>
+                <textarea class="form-control" rows="3" [(ngModel)]="nueva.mensaje"
+                          placeholder="Escribe el mensaje de la alerta..."></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-control-label font-weight-bold">Programar envío (opcional)</label>
+                <input type="datetime-local" class="form-control" [(ngModel)]="nueva.fechaProgramada">
+              </div>
+            </div>
+
+            <div class="col-12 text-right">
+              <button class="btn btn-secondary mr-2" (click)="mostrarFormulario = false">Cancelar</button>
+              <button class="btn btn-danger" (click)="enviar()">
+                <i class="material-icons mr-1" style="vertical-align:middle">send</i>
+                Enviar alerta
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial de alertas -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header bg-transparent">
+          <h3 class="mb-0">Historial de alertas</h3>
+        </div>
+        <div class="card-body">
+
+          <div *ngIf="cargando" class="text-center py-4">
+            <div class="spinner-border text-danger"></div>
+          </div>
+
+          <div class="table-responsive" *ngIf="!cargando">
+            <table class="table">
+              <tr>
+                <td>Fecha</td>
+                <td>Título</td>
+                <td>Alcance</td>
+                <td>Urgente</td>
+                <td>Destinatarios</td>
+                <td>Estadística</td>
+              </tr>
+              <tr *ngFor="let a of alertas">
+                <td>{{ a.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ a.titulo }}</td>
+                <td>
+                  <span class="badge badge-info">{{ a.alcance }}</span>
+                  <small *ngIf="a.zona" class="d-block text-muted">{{ a.zona }}</small>
+                </td>
+                <td>
+                  <span *ngIf="a.urgente" class="badge badge-danger">🔴 Urgente</span>
+                  <span *ngIf="!a.urgente" class="badge badge-secondary">Normal</span>
+                </td>
+                <td>{{ a.totalDestinatarios }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 mr-2" style="height:8px; min-width:80px">
+                      <div class="progress-bar bg-success"
+                           [style.width.%]="porcentajeLeidos(a)"></div>
+                    </div>
+                    <small>{{ a.totalLeidos }}/{{ a.totalDestinatarios }} leídos</small>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="alertas.length === 0">
+                <td colspan="6" class="text-center text-muted py-4">No hay alertas enviadas.</td>
+              </tr>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

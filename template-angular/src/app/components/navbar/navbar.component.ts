@@ -1,13 +1,15 @@
-import { Component, OnInit, ElementRef, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { SecurityService } from '../../services/security.service';
 import { User } from '../../models/Users/user.model';
-import { Subscription } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 import { ProfileService } from '../../services/Profile/profile.service';
 import { Profile } from '../../models/Profiles/profile.model';
 import { ChatNotificationService, NotificacionMensaje } from '../../services/Chat-Notification/chat-notification.service';
+import { NotificacionService } from '../../services/Grupo/notificacion.service';
+import { Notificacion } from '../../models/Grupos/grupo.model';
 
 @Component({
   selector: 'app-navbar',
@@ -15,15 +17,26 @@ import { ChatNotificationService, NotificacionMensaje } from '../../services/Cha
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  public focus: boolean;
+  public focus: boolean = false;
   public listTitles: any[] = [];
   public location: Location;
 
   currentUser: User | null = null;
   userSubscription!: Subscription;
+  private intervalSub?: Subscription;
 
   displayName: string = 'Usuario';
   profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
+
+  // ── Notificaciones ────────────────────────────────────────────────────────
+  notificaciones: Notificacion[] = [];
+  noLeidas = 0;
+  mostrarBandeja = false;
+
+  get usuarioId(): string {
+    const session = localStorage.getItem('session');
+    return session ? JSON.parse(session)?.id ?? '' : '';
+  }
 
   // Variables para notificaciones
   contadorNotificaciones = 0;
@@ -37,7 +50,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private router: Router,
     public securityService: SecurityService,
     private profileService: ProfileService,
-    private chatNotificationService: ChatNotificationService
+    private chatNotificationService: ChatNotificationService,
+    private notificacionService: NotificacionService,
   ) {
     this.location = location;
   }
@@ -70,6 +84,61 @@ export class NavbarComponent implements OnInit, OnDestroy {
       // Conectar al servicio de notificaciones
       this.chatNotificationService.conectar(user.id);
       this.cargarNotificaciones();
+
+      // Cargar notificaciones cuando el usuario esté listo
+      this.contarNoLeidas();
+      this.intervalSub = interval(30000).subscribe(() => this.contarNoLeidas());
+    });
+  }
+
+  // ── Métodos notificaciones ────────────────────────────────────────────────
+
+  contarNoLeidas(): void {
+    if (!this.usuarioId) return;
+    this.notificacionService.contarNoLeidas(this.usuarioId).subscribe({
+      next: ({ count }) => (this.noLeidas = count),
+      error: () => {},
+    });
+  }
+
+  cargarNotificaciones(): void {
+    if (!this.usuarioId) return;
+    this.notificacionService.listarPorUsuario(this.usuarioId).subscribe({
+      next: n => {
+        this.notificaciones = n;
+        this.noLeidas = n.filter(x => !x.leido).length;
+      },
+      error: () => {},
+    });
+  }
+
+  toggleBandeja(): void {
+    this.mostrarBandeja = !this.mostrarBandeja;
+    if (this.mostrarBandeja) this.cargarNotificaciones();
+  }
+
+  cerrarBandeja(): void {
+    this.mostrarBandeja = false;
+  }
+
+  marcarLeida(notif: Notificacion): void {
+    if (notif.leido) return;
+    this.notificacionService.marcarLeida(notif.id!).subscribe({
+      next: () => {
+        notif.leido = true;
+        this.noLeidas = Math.max(0, this.noLeidas - 1);
+      },
+      error: () => {},
+    });
+  }
+
+  marcarTodasLeidas(): void {
+    this.notificacionService.marcarTodasLeidas(this.usuarioId).subscribe({
+      next: () => {
+        this.notificaciones.forEach(n => (n.leido = true));
+        this.noLeidas = 0;
+      },
+      error: () => {},
     });
   }
 
@@ -107,6 +176,36 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.showNotificaciones = false;
   }
 
+  irAlGrupo(notif: Notificacion): void {
+    this.marcarLeida(notif);
+    if (notif.referenciaId) {
+      this.router.navigate(['/grupos/chat', notif.referenciaId]);
+    }
+    this.mostrarBandeja = false;
+  }
+
+  iconoNotificacion(tipo: string): string {
+    const iconos: Record<string, string> = {
+      bienvenida_grupo: 'group_add',
+      salida_grupo:     'exit_to_app',
+      remocion_grupo:   'person_remove',
+      bloqueo_grupo:    'block',
+    };
+    return iconos[tipo] ?? 'notifications';
+  }
+
+  colorNotificacion(tipo: string): string {
+    const colores: Record<string, string> = {
+      bienvenida_grupo: '#2dce89',
+      salida_grupo:     '#adb5bd',
+      remocion_grupo:   '#f5365c',
+      bloqueo_grupo:    '#fb6340',
+    };
+    return colores[tipo] ?? '#5e72e4';
+  }
+
+  // ── Métodos originales ────────────────────────────────────────────────────
+
   goToMyProfile(): void {
     this.router.navigate(['/profiles/me']);
   }
@@ -118,11 +217,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   getTitle() {
     let titlee = this.location.prepareExternalUrl(this.location.path());
-
-    if (titlee.charAt(0) === '#') {
-      titlee = titlee.slice(1);
-    }
-
+    if (titlee.charAt(0) === '#') titlee = titlee.slice(1);
     for (let item = 0; item < this.listTitles.length; item++) {
       if (this.listTitles[item].path === titlee) {
         return this.listTitles[item].title;

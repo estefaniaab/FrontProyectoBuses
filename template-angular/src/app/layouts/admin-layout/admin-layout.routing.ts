@@ -216,6 +216,18 @@ export const AdminLayoutRoutes: Routes = [
     loadChildren: () =>
       import('src/app/pages/incidentes/incidentes.module').then(m => m.IncidentesModule)
   },
+  {
+    path: 'grupos',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/grupos/grupos.module').then(m => m.GruposModule)
+      }
+    ]
+  },
+
 
   {
     path: 'monitoreo',

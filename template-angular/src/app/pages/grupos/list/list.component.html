@@ -1,0 +1,108 @@
+<div class="header bg-gradient-success pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <h3 class="mb-0">Grupos</h3>
+              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Crear grupo">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+            <div class="col-md-8">
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Buscar por nombre o descripción..."
+                  [(ngModel)]="busqueda"
+                  (keyup.enter)="buscar()"
+                />
+                <div class="input-group-append">
+                  <button class="btn btn-outline-primary" (click)="buscar()">
+                    <i class="material-icons" style="font-size:18px;vertical-align:middle">search</i>
+                  </button>
+                  <button *ngIf="busqueda" class="btn btn-outline-secondary" (click)="limpiarBusqueda()">
+                    <i class="material-icons" style="font-size:18px;vertical-align:middle">clear</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <div *ngIf="cargando" class="text-center py-4">
+            <div class="spinner-border text-success" role="status"></div>
+          </div>
+
+          <div class="table-responsive" *ngIf="!cargando">
+            <table class="table">
+              <tr>
+                <td>Id</td>
+                <td>Nombre</td>
+                <td>Descripción</td>
+                <td>Miembros</td>
+                <td>Público</td>
+                <td>Fecha creación</td>
+                <td>Acciones</td>
+              </tr>
+
+              <tr *ngFor="let grupo of grupos">
+                <td>{{ grupo.id }}</td>
+                <td>{{ grupo.nombre }}</td>
+                <td class="text-truncate" style="max-width:200px">
+                  {{ grupo.descripcion || 'Sin descripción' }}
+                </td>
+                <td>
+                  <span class="badge badge-success">
+                    <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
+                    {{ grupo.totalMiembros ?? 0 }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="grupo.esPublico ? 'badge-info' : 'badge-secondary'">
+                    {{ grupo.esPublico ? 'Público' : 'Privado' }}
+                  </span>
+                </td>
+                <td>{{ grupo.fechaCreacion | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <button class="btn btn-success btn-sm" (click)="unirse(grupo)" title="Unirse">
+                    <i class="material-icons">login</i>
+                  </button>
+                  <button class="btn btn-warning btn-sm" (click)="abandonar(grupo)" title="Abandonar">
+                    <i class="material-icons">logout</i>
+                  </button>
+                  <button class="btn btn-primary btn-sm" (click)="chat(grupo)" title="Entrar al chat">
+                    <i class="material-icons">chat</i>
+                  </button>
+                  <button class="btn btn-info btn-sm" (click)="manage(grupo.id!)" title="Administrar miembros">
+                    <i class="material-icons">manage_accounts</i>
+                  </button>
+                  <button class="btn btn-secondary btn-sm" (click)="router.navigate(['/grupos/update', grupo.id])" title="Editar">
+                    <i class="material-icons">edit</i>
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="delete(grupo.id!)" title="Eliminar">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="grupos.length === 0">
+                <td colspan="7" class="text-center text-muted py-4">
+                  <i class="material-icons d-block mb-2" style="font-size:36px">search_off</i>
+                  No se encontraron grupos.
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
