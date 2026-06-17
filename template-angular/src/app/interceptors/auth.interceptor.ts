@@ -22,7 +22,6 @@ export class AuthInterceptor implements HttpInterceptor {
       const data = JSON.parse(session);
       token = data?.token || null;
     }
-
     if (
       request.url.includes('/login') ||
       request.url.includes('/token-validation') ||
@@ -31,6 +30,8 @@ export class AuthInterceptor implements HttpInterceptor {
       request.url.includes('/auth/microsoft') ||
       request.url.includes('recaptcha.google.com') ||
       request.url.includes('/auth/password') ||
+      request.url.includes('firebase-messaging-sw.js') ||
+      request.url.includes('/assets/') ||
       request.method === 'OPTIONS'
     ) {
       return next.handle(request);
@@ -56,7 +57,7 @@ export class AuthInterceptor implements HttpInterceptor {
           });
           localStorage.removeItem('session');
           this.router.navigateByUrl('/login');
-        } else if (err.status === 403) {  // ✅ agregar
+        } else if (err.status === 403) {
           Swal.fire({
             title: 'Acceso denegado',
             text: 'No tienes permisos para acceder a este recurso.',

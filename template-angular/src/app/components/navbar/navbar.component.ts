@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, HostListener } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { ProfileService } from '../../services/Profile/profile.service';
 import { Profile } from '../../models/Profiles/profile.model';
 import { NotificacionService } from '../../services/Grupo/notificacion.service';
 import { Notificacion } from '../../models/Grupos/grupo.model';
+import { ChatNotificationService, NotificacionMensaje } from '../../services/Chat-Notification/chat-notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -23,14 +24,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   userSubscription!: Subscription;
   private intervalSub?: Subscription;
+  private notificacionSubscription!: Subscription;
 
   displayName: string = 'Usuario';
   profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
 
-  // ── Notificaciones ────────────────────────────────────────────────────────
+  // ── Notificaciones grupos ─────────────────────────────────────────────────
   notificaciones: Notificacion[] = [];
   noLeidas = 0;
   mostrarBandeja = false;
+
+  // ── Notificaciones chat ───────────────────────────────────────────────────
+  contadorNotificaciones = 0;
+  listaNotificaciones: NotificacionMensaje[] = [];
+  showNotificaciones = false;
 
   get usuarioId(): string {
     const session = localStorage.getItem('session');
@@ -44,6 +51,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     public securityService: SecurityService,
     private profileService: ProfileService,
     private notificacionService: NotificacionService,
+    private chatNotificationService: ChatNotificationService,
   ) {
     this.location = location;
   }
@@ -73,13 +81,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }
       });
 
-      // Cargar notificaciones cuando el usuario esté listo
+      // Conectar chat notifications
+      this.chatNotificationService.conectar(user.id);
+      this.cargarNotificacionesChat();
+
+      // Cargar notificaciones de grupos
       this.contarNoLeidas();
       this.intervalSub = interval(30000).subscribe(() => this.contarNoLeidas());
     });
   }
 
-  // ── Métodos notificaciones ────────────────────────────────────────────────
+  // ── Notificaciones grupos ─────────────────────────────────────────────────
 
   contarNoLeidas(): void {
     if (!this.usuarioId) return;
@@ -144,6 +156,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       salida_grupo:     'exit_to_app',
       remocion_grupo:   'person_remove',
       bloqueo_grupo:    'block',
+      nuevo_mensaje:    'chat',
+      alerta_masiva:    'campaign',
+      alerta_urgente:   'warning',
     };
     return iconos[tipo] ?? 'notifications';
   }
@@ -154,8 +169,47 @@ export class NavbarComponent implements OnInit, OnDestroy {
       salida_grupo:     '#adb5bd',
       remocion_grupo:   '#f5365c',
       bloqueo_grupo:    '#fb6340',
+      nuevo_mensaje:    '#5e72e4',
+      alerta_masiva:    '#11cdef',
+      alerta_urgente:   '#f5365c',
     };
     return colores[tipo] ?? '#5e72e4';
+  }
+
+  // ── Notificaciones chat ───────────────────────────────────────────────────
+
+  cargarNotificacionesChat(): void {
+    this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
+    this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
+
+    if (this.notificacionSubscription) {
+      this.notificacionSubscription.unsubscribe();
+    }
+
+    this.notificacionSubscription = this.chatNotificationService.onNotificaciones().subscribe(() => {
+      this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
+      this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
+    });
+  }
+
+  toggleNotificaciones(event: Event): void {
+    event.stopPropagation();
+    this.showNotificaciones = !this.showNotificaciones;
+  }
+
+  @HostListener('document:click')
+  cerrarNotificaciones(): void {
+    this.showNotificaciones = false;
+  }
+
+  marcarTodasLeidasChat(): void {
+    this.chatNotificationService.marcarTodosLeidos();
+  }
+
+  abrirNotificacion(notificacion: NotificacionMensaje): void {
+    this.chatNotificationService.marcarComoLeido(notificacion.emisorId);
+    this.router.navigate(['/mensajes/chat', notificacion.emisorId]);
+    this.showNotificaciones = false;
   }
 
   // ── Métodos originales ────────────────────────────────────────────────────
@@ -182,5 +236,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.userSubscription) this.userSubscription.unsubscribe();
     if (this.intervalSub) this.intervalSub.unsubscribe();
+    if (this.notificacionSubscription) this.notificacionSubscription.unsubscribe();
   }
 }

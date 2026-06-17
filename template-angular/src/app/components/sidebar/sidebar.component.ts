@@ -13,6 +13,7 @@ declare interface RouteInfo {
 
 export const ROUTES: RouteInfo[] = [
   { path: '/dashboard', title: 'Dashboard', icon: 'ni-tv-2 text-primary', class: ''},
+  { path: '/dashboard-buses', title: 'Dashboard Buses', icon: 'ni-delivery-fast text-success', class: ''},
   // Seguridad
   { path: '/users/list', title: 'Usuarios', icon: 'ni-single-02 text-yellow', class: ''},
   { path: '/roles/list', title: 'Roles', icon: 'ni-badge text-blue', class: ''},
@@ -27,17 +28,21 @@ export const ROUTES: RouteInfo[] = [
   { path: '/conductores/list', title: 'Conductores', icon: 'ni-badge text-warning', class: '' },
   { path: '/turnos/list', title: 'Turnos', icon: 'ni-time-alarm text-info', class: '' },
   { path: '/programaciones-ruta/list', title: 'Programaciones', icon: 'ni-calendar-grid-58 text-orange', class: '' },
+  // Monitoreo
+  { path: '/monitoreo/seguimiento', title: 'Monitoreo buses', icon: 'ni-pin-3 text-danger', class: ''},
+  // Mensajería
+  { path: '/mensajes', title: 'Mensajes', icon: 'ni-email-83 text-primary', class: ''},
+  { path: '/citas/agendar', title: 'Agendar Cita', icon: 'ni-calendar-grid-58 text-success', class: ''},
   // Ciudadano / viajes
   { path: '/ciudadanos/list', title: 'Ciudadanos', icon: 'ni-single-02 text-success', class: ''},
   { path: '/boletos/list', title: 'Boletos', icon: 'ni-tag text-purple', class: '' },
   { path: '/recargas/create', title: 'Recargar tarjeta', icon: 'ni-credit-card text-blue', class: '' },
   { path: '/recargas/admin', title: 'Recargas Admin', icon: 'ni-money-coins text-green', class: ''},
-  // Este se reemplaza dinámicamente por /historial/admin/ciudadano/:ciudadanoId
-  { path: '', title: 'Historial', icon: 'ni-collection text-info', class: '', key: 'MI_HISTORIAL' },
+  { path: '', title: 'Historial', icon: 'ni-collection text-info', class: '', key: 'MI_HISTORIAL'},
   { path: '/historial/admin', title: 'Historial Admin', icon: 'ni-collection text-default', class: ''},
   // Reportes
   { path: '/reportes/rangos-etarios', title: 'Rangos etarios', icon: 'ni-chart-pie-35 text-info', class: ''},
-  { path: '/reportes/dashboard',     title: 'Reportes',         icon: 'ni-chart-bar-32 text-red',      class: '' },
+  { path: '/reportes/dashboard', title: 'Reportes', icon: 'ni-chart-bar-32 text-red', class: '' },
   { path: '/reportes/tendencia-incidentes', title: 'Tendencia incidentes', icon: 'ni-chart-bar-32 text-danger', class: '' },
   // Grupos
   { path: '/grupos/list', title: 'Grupos', icon: 'ni-app text-success', class: '' },

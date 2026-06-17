@@ -1,9 +1,11 @@
 <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
   <div class="container-fluid">
-    <!-- Brand -->
-    <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" routerLinkActive="active" [routerLink]="['/dashboard']">{{getTitle()}}</a>
 
-    <!-- Form -->
+    <!-- Brand -->
+    <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block"
+       routerLinkActive="active" [routerLink]="['/dashboard']">{{getTitle()}}</a>
+
+    <!-- Search -->
     <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
       <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
         <div class="input-group input-group-alternative">
@@ -11,45 +13,39 @@
             <span class="input-group-text"><i class="fas fa-search"></i></span>
           </div>
           <input class="form-control" placeholder="Search" type="text"
-            (focus)="focus = true" (blur)="focus = false">
+                 (focus)="focus = true" (blur)="focus = false">
         </div>
       </div>
     </form>
 
-    <!-- User + Notificaciones -->
     <ul class="navbar-nav align-items-center d-none d-md-flex">
 
-      <!-- ── Campana de notificaciones ──────────────────────────────────── -->
+      <!-- ── Campana notificaciones grupos ─────────────────────────────── -->
       <li class="nav-item mr-2" style="position: relative;">
         <a class="nav-link nav-link-icon text-white"
            style="cursor:pointer; position: relative;"
            (click)="toggleBandeja()">
           <i class="ni ni-bell-55" style="font-size: 20px;"></i>
-          <span
-            *ngIf="noLeidas > 0"
-            class="badge badge-danger badge-pill"
-            style="position:absolute; top:2px; right:2px; font-size:9px; min-width:16px; height:16px;
+          <span *ngIf="noLeidas > 0"
+                class="badge badge-danger badge-pill"
+                style="position:absolute; top:2px; right:2px; font-size:9px; min-width:16px; height:16px;
                    display:flex; align-items:center; justify-content:center; padding:0 4px;">
             {{ noLeidas > 99 ? '99+' : noLeidas }}
           </span>
         </a>
 
-        <!-- Bandeja desplegable -->
-        <div
-          *ngIf="mostrarBandeja"
-          style="position:absolute; right:0; top:48px; width:360px; max-height:480px;
+        <div *ngIf="mostrarBandeja"
+             style="position:absolute; right:0; top:48px; width:360px; max-height:480px;
                  overflow-y:auto; background:#fff; border-radius:8px;
                  box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index:9999;">
 
-          <!-- Header -->
           <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom"
                style="background:#f8f9fa; border-radius:8px 8px 0 0; position:sticky; top:0; z-index:1;">
             <strong style="font-size:14px; color:#333;">Notificaciones</strong>
             <div>
               <button *ngIf="noLeidas > 0"
-                class="btn btn-link btn-sm p-0 mr-2"
-                style="font-size:12px;"
-                (click)="marcarTodasLeidas()">
+                      class="btn btn-link btn-sm p-0 mr-2" style="font-size:12px;"
+                      (click)="marcarTodasLeidas()">
                 Marcar todas leídas
               </button>
               <button class="btn btn-link btn-sm p-0 text-muted" (click)="cerrarBandeja()">
@@ -58,7 +54,6 @@
             </div>
           </div>
 
-          <!-- Lista -->
           <div *ngFor="let n of notificaciones"
                class="px-3 py-2 border-bottom"
                [ngStyle]="{ 'background-color': n.leido ? '#fff' : '#f0f7ff', 'cursor': 'pointer' }"
@@ -81,23 +76,62 @@
                 </div>
               </div>
               <span *ngIf="!n.leido"
-                style="width:8px; height:8px; background:#5e72e4; border-radius:50%;
+                    style="width:8px; height:8px; background:#5e72e4; border-radius:50%;
                        flex-shrink:0; margin-top:4px; margin-left:6px;">
               </span>
             </div>
           </div>
 
-          <!-- Vacío -->
           <div *ngIf="notificaciones.length === 0" class="text-center text-muted py-4">
             <i class="ni ni-bell-55 d-block mb-2" style="font-size:28px"></i>
             <span style="font-size:13px">Sin notificaciones</span>
           </div>
-
         </div>
       </li>
-      <!-- ── Fin campana ─────────────────────────────────────────────────── -->
 
-      <!-- Perfil de usuario -->
+      <!-- ── Campana notificaciones chat ────────────────────────────────── -->
+      <li class="nav-item notification-container" (click)="toggleNotificaciones($event)">
+        <i class="fas fa-bell notification-icon"></i>
+        <span *ngIf="contadorNotificaciones > 0" class="notification-counter">
+          {{ contadorNotificaciones > 99 ? '99+' : contadorNotificaciones }}
+        </span>
+
+        <div *ngIf="showNotificaciones" class="notification-dropdown" (click)="$event.stopPropagation()">
+          <div class="notification-header">
+            <span>Mensajes</span>
+            <button *ngIf="contadorNotificaciones > 0" class="mark-read-btn" (click)="marcarTodasLeidasChat()">
+              Marcar todas
+            </button>
+          </div>
+
+          <div class="notification-list">
+            <div *ngIf="listaNotificaciones.length === 0" class="notification-empty">
+              <i class="fas fa-bell-slash"></i>
+              <span>No hay mensajes nuevos</span>
+            </div>
+
+            <div *ngFor="let notif of listaNotificaciones"
+                 class="notification-item"
+                 [class.unread]="notif.cantidadNoLeidos > 0"
+                 (click)="abrirNotificacion(notif)">
+              <div class="notification-content">
+                <div>
+                  <div class="notification-name">{{ notif.emisorNombre }}</div>
+                  <div class="notification-text">
+                    {{ notif.cantidadNoLeidos }} mensaje{{ notif.cantidadNoLeidos !== 1 ? 's' : '' }} nuevo{{ notif.cantidadNoLeidos !== 1 ? 's' : '' }}
+                  </div>
+                </div>
+                <span *ngIf="notif.cantidadNoLeidos > 0" class="notification-badge">
+                  {{ notif.cantidadNoLeidos }}
+                </span>
+              </div>
+              <div class="notification-date">{{ notif.fecha | date:'dd/MM HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- ── Perfil de usuario ──────────────────────────────────────────── -->
       <li class="nav-item" ngbDropdown placement="bottom-right">
         <a class="nav-link pr-0" role="button" ngbDropdownToggle>
           <div class="media align-items-center">

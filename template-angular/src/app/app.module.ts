@@ -32,6 +32,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatChipsModule} from "@angular/material/chips";
 import {DragDropModule} from "@angular/cdk/drag-drop";
+import { AlertaBusComponent } from './pages/alerta/alerta-bus/alerta-bus.component';
 
 @NgModule({
   imports: [
@@ -65,6 +66,7 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
     ForgotPasswordComponent,
     ResetPasswordComponent,
     Verify2faComponent,
+    AlertaBusComponent,
   ],
   providers: [
     {

@@ -1,0 +1,126 @@
+<div class="header bg-gradient-success pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <!-- HEADER -->
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">🚌 ¡Tu bus está cerca!</h3>
+            </div>
+            <div class="col-auto">
+              <span class="badge badge-success" *ngIf="!cargando">En línea</span>
+              <span class="badge badge-default" *ngIf="cargando">Actualizando...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- INFO + ETA -->
+          <div class="row mb-4">
+
+            <!-- Datos del bus -->
+            <div class="col-md-4">
+              <div class="card card-stats mb-4 mb-md-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Ruta</h5>
+                  <span class="h3 font-weight-bold mb-0">{{ nombreRuta || '—' }}</span>
+                  <p class="mt-1 mb-0 text-muted text-sm" *ngIf="placaBus">
+                    Bus <strong>{{ placaBus }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ETA -->
+            <div class="col-md-4">
+              <div class="card card-stats mb-4 mb-md-0"
+                   [style.border-left]="'4px solid ' + etaColor">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Llega en</h5>
+                  <span class="h2 font-weight-bold mb-0"
+                        [style.color]="etaColor">{{ etaTexto }}</span>
+                  <p class="mt-1 mb-0 text-muted text-sm">
+                    <span *ngIf="!cargando">⟳ actualizado ahora</span>
+                    <span *ngIf="cargando">actualizando...</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="col-md-4">
+              <div class="card card-stats mb-4 mb-md-0">
+                <div class="card-body">
+                  <h5 class="card-title text-uppercase text-muted mb-0">Estado</h5>
+                  <span class="badge badge-success h4 mb-0"
+                        *ngIf="busInfo && !busInfo.retrasado">En movimiento</span>
+                  <span class="badge badge-danger h4 mb-0"
+                        *ngIf="busInfo?.retrasado">Detenido</span>
+                  <span class="h4 mb-0 text-muted"
+                        *ngIf="!busInfo">—</span>
+                  <p class="mt-1 mb-0 text-muted text-sm" *ngIf="busInfo">
+                    {{ busInfo.velocidad || 0 }} km/h
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- MAPA -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4 class="mb-0">📍 Posición en tiempo real</h4>
+            </div>
+            <div class="card-body p-0 position-relative">
+
+              <div id="mapa-alerta" style="height: 320px; width: 100%;"></div>
+
+              <!-- Overlay de carga -->
+              <div *ngIf="cargando"
+                   style="
+                     position:absolute; inset:0;
+                     background:rgba(255,255,255,0.8);
+                     display:flex; flex-direction:column;
+                     align-items:center; justify-content:center;
+                     gap:12px; z-index:1000;">
+                <div class="spinner-border text-success" role="status">
+                  <span class="sr-only">Cargando...</span>
+                </div>
+                <span class="text-muted">Cargando ubicación del bus...</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <button class="btn btn-primary btn-lg btn-block" (click)="irAMapa()">
+                🗺️ &nbsp; Ver en mapa completo
+                <br>
+                <small class="font-weight-normal">Seguimiento en tiempo real</small>
+              </button>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <button class="btn btn-success btn-lg btn-block" (click)="irAbordar()">
+                💳 &nbsp; Preparar pago
+                <br>
+                <small class="font-weight-normal">Abordar ahora</small>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

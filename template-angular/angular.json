@@ -26,9 +26,10 @@
               "chart.js"
             ],
           "assets": [
-  "src/favicon.ico",
-  "src/assets"
-],
+            "src/favicon.ico",
+            "src/assets",
+            "src/firebase-messaging-sw.js"
+          ],
             "styles": [
               "src/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css",
               "src/assets/vendor/nucleo/css/nucleo.css",
@@ -120,7 +121,8 @@
             "scripts": [],
             "assets": [
               "src/favicon.ico",
-              "src/app/assets"
+              "src/app/assets",
+              "src/firebase-messaging-sw.js"
             ]
           }
         },

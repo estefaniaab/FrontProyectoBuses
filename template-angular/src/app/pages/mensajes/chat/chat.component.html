@@ -1,0 +1,146 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow" style="height:80vh; display:flex; flex-direction:column;">
+
+        <!-- HEADER CHAT -->
+        <div class="card-header bg-transparent" style="flex-shrink:0;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <a routerLink="/mensajes" class="btn btn-sm btn-outline-secondary">
+              ← Volver
+            </a>
+            <div *ngIf="destinatarioFoto; else inicialDestino"
+                 style="width:40px; height:40px; border-radius:50%; overflow:hidden;">
+              <img [src]="destinatarioFoto" alt="Foto de perfil"
+                   style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <ng-template #inicialDestino>
+              <div style="
+                width:40px; height:40px; background:#5e72e4;
+                border-radius:50%; display:flex; align-items:center;
+                justify-content:center; color:white; font-weight:bold; font-size:16px;">
+                {{ (destinatarioNombre || destinatarioId)?.charAt(0)?.toUpperCase() }}
+              </div>
+            </ng-template>
+            <div>
+              <h4 class="mb-0">{{ destinatarioNombre || destinatarioId }}</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div
+          #scrollContainer
+          style="flex:1; overflow-y:auto; padding:16px; background:#f8f9fa;">
+
+          <div *ngIf="mensajes.length === 0" class="text-center text-muted py-4">
+            No hay mensajes aún. ¡Sé el primero en escribir!
+          </div>
+
+          <div *ngFor="let msg of mensajes"
+               style="margin-bottom:12px; display:flex;"
+               [style.justify-content]="esMio(msg) ? 'flex-end' : 'flex-start'">
+
+            <div style="max-width:70%;">
+              <!-- Burbuja -->
+              <div [ngStyle]="{
+                'padding': '10px 14px',
+                'border-radius': '18px',
+                'background': esMio(msg) ? '#5e72e4' : 'white',
+                'color': esMio(msg) ? 'white' : '#32325d',
+                'border-bottom-right-radius': esMio(msg) ? '4px' : '18px',
+                'border-bottom-left-radius': esMio(msg) ? '18px' : '4px',
+                'box-shadow': esMio(msg) ? 'none' : '0 1px 4px rgba(0,0,0,0.1)'
+              }">
+                <div style="font-size:14px;">{{ msg.contenido }}</div>
+
+                <!-- Ubicación adjunta -->
+                <div *ngIf="msg.latitud && msg.longitud" style="margin-top:6px;">
+                  <button
+                    (click)="abrirMapa(msg.latitud!, msg.longitud!)"
+                    [ngStyle]="{
+                      'background': 'rgba(255,255,255,0.2)',
+                      'border': '1px solid rgba(255,255,255,0.4)',
+                      'border-radius': '8px',
+                      'padding': '4px 8px',
+                      'font-size': '11px',
+                      'cursor': 'pointer',
+                      'color': esMio(msg) ? 'white' : '#5e72e4'
+                    }">
+                    📍 Ver ubicación en mapa
+                  </button>
+                </div>
+              </div>
+
+              <!-- Hora y estado -->
+              <div [ngStyle]="{
+                'font-size': '10px',
+                'margin-top': '2px',
+                'color': '#adb5bd',
+                'text-align': esMio(msg) ? 'right' : 'left'
+              }">
+                {{ msg.fechaEnvio | date:'HH:mm' }}
+                <span *ngIf="esMio(msg)">
+                  {{ fueLeido(msg) ? '✓✓' : '✓' }}
+                  <span *ngIf="fueLeido(msg) && fechaLeido(msg)" style="font-size:9px;">
+                    leído {{ fechaLeido(msg) | date:'HH:mm' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="card-footer bg-white" style="flex-shrink:0; padding:12px 16px;">
+
+          <!-- Adjuntar ubicación -->
+          <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+            <input
+              type="checkbox"
+              id="adjuntarUbicacion"
+              [(ngModel)]="adjuntarUbicacion">
+            <label for="adjuntarUbicacion" style="margin:0; font-size:13px; cursor:pointer;">
+              📍 Adjuntar mi ubicación actual
+            </label>
+            <small *ngIf="adjuntarUbicacion && miLatitud" style="color:#2dce89; font-size:11px;">
+              ✓ Ubicación lista
+            </small>
+            <small *ngIf="adjuntarUbicacion && !miLatitud" style="color:#f5365c; font-size:11px;">
+              Obteniendo ubicación...
+            </small>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:flex-end;">
+            <textarea
+              class="form-control"
+              [(ngModel)]="nuevoMensaje"
+              placeholder="Escribe un mensaje... (máx 500 caracteres)"
+              rows="2"
+              maxlength="500"
+              style="resize:none; border-radius:12px;"
+              (keydown.enter)="$event.preventDefault(); enviar()">
+            </textarea>
+
+            <div style="text-align:right;">
+              <div style="font-size:10px; color:#adb5bd; margin-bottom:4px;">
+                {{ nuevoMensaje.length }}/500
+              </div>
+              <button
+                class="btn btn-primary"
+                style="border-radius:50%; width:44px; height:44px; padding:0;"
+                [disabled]="!nuevoMensaje.trim() || enviando"
+                (click)="enviar()">
+                ➤
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -228,4 +228,39 @@ export const AdminLayoutRoutes: Routes = [
     ]
   },
 
+
+  {
+    path: 'monitoreo',
+    loadChildren: () =>
+      import('src/app/pages/monitoreo/monitoreo.module').then(m => m.MonitoreoModule)
+  },
+
+  {
+    path: 'dashboard-buses',
+    loadChildren: () => import('src/app/pages/dashboard-buses/dashboard-buses.module').then(m => m.DashboardBusesModule)
+  },
+
+  {
+    path: 'mensajes',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/mensajes/mensajes.module').then(m => m.MensajesModule)
+      }
+    ]
+  },
+{
+    path: 'citas',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/citas/citas.module').then(m => m.CitasModule)
+      }
+    ]
+  },
+
 ];
