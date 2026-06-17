@@ -11,7 +11,7 @@ import { ChatNotificationService } from '../Chat-Notification/chat-notification.
 })
 export class MensajesService {
 
-  private url = environment.url_ms_notifications;
+  private url = environment.url_ms_business;
   private socket!: Socket;
 
   constructor(
@@ -27,7 +27,7 @@ export class MensajesService {
       this.socket.disconnect();
     }
 
-    this.socket = io('http://localhost:3001/api/mensajes', {
+    this.socket = io('http://localhost:3000/api/mensajes', {
       query: { usuarioId: userId },
       transports: ['websocket'],
     });

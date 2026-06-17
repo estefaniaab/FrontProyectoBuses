@@ -63,7 +63,7 @@ export class ChatNotificationService {
     }
 
     this.socket = io(
-      'http://localhost:3001/api/notificaciones',
+      'http://localhost:3000/api/notificaciones',
       {
         query: { usuarioId },
         transports: ['websocket']
