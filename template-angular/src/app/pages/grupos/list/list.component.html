@@ -93,10 +93,13 @@
                       <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
                       {{ grupo.totalMiembros ?? 0 }}
                     </span>
-                  </td>
                   <td>
                     <button class="btn btn-success btn-sm" (click)="unirse(grupo)" title="Unirse">
                       <i class="material-icons">login</i>
+                    </button>
+                    <!-- AGREGAR botón chat -->
+                    <button class="btn btn-primary btn-sm" (click)="chat(grupo)" title="Ver chat / historial">
+                      <i class="material-icons">chat</i>
                     </button>
                   </td>
                 </tr>

@@ -2,7 +2,6 @@
 
 <div class="container-fluid mt--7">
 
-  <!-- Botón crear + historial -->
   <div class="row mb-3">
     <div class="col">
       <div class="card shadow">
@@ -11,7 +10,7 @@
             <i class="material-icons mr-2" style="vertical-align:middle">campaign</i>
             Alertas masivas
           </h3>
-          <button class="btn btn-danger btn-sm" (click)="mostrarFormulario = !mostrarFormulario">
+          <button class="btn btn-danger btn-sm" (click)="mostrarFormulario = !mostrarFormulario; onAlcanceChange()">
             <i class="material-icons mr-1" style="vertical-align:middle">add</i>
             Nueva alerta
           </button>
@@ -31,7 +30,7 @@
             <div class="col-md-3">
               <div class="form-group">
                 <label class="form-control-label font-weight-bold">Alcance</label>
-                <select class="form-control" [(ngModel)]="nueva.alcance">
+                <select class="form-control" [(ngModel)]="nueva.alcance" (change)="onAlcanceChange()">
                   <option value="todos">Todos los usuarios</option>
                   <option value="por_ruta">Usuarios por ruta</option>
                   <option value="por_zona">Usuarios por zona</option>
@@ -57,7 +56,7 @@
             <div class="col-md-6" *ngIf="nueva.alcance === 'por_ruta'">
               <div class="form-group">
                 <label class="form-control-label font-weight-bold">Ruta</label>
-                <select class="form-control" [(ngModel)]="nueva.rutaId">
+                <select class="form-control" [(ngModel)]="nueva.rutaId" (change)="calcularDestinatarios()">
                   <option [ngValue]="undefined">Selecciona una ruta...</option>
                   <option *ngFor="let r of rutas" [ngValue]="r.id">{{ r.nombre }}</option>
                 </select>
@@ -68,7 +67,15 @@
             <div class="col-md-6" *ngIf="nueva.alcance === 'por_zona'">
               <div class="form-group">
                 <label class="form-control-label font-weight-bold">Zona (barrio o ciudad)</label>
-                <input type="text" class="form-control" [(ngModel)]="nueva.zona" placeholder="Ej: El Poblado, Laureles...">
+                <div class="input-group">
+                  <input type="text" class="form-control" [(ngModel)]="nueva.zona"
+                         placeholder="Ej: El Poblado, Laureles...">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" (click)="calcularDestinatarios()">
+                      <i class="material-icons" style="font-size:16px;vertical-align:middle">search</i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -87,11 +94,39 @@
               </div>
             </div>
 
+            <!-- HU-ENTR-3-008: Contador de destinatarios -->
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-group w-100">
+                <label class="form-control-label font-weight-bold">Destinatarios estimados</label>
+                <div class="p-3 rounded border d-flex align-items-center"
+                     [ngStyle]="{ 'background-color': contadorDestinatarios !== null ? '#f0fff4' : '#f8f9fa' }">
+                  <div *ngIf="calculandoDestinatarios" class="spinner-border spinner-border-sm text-success mr-2"></div>
+                  <i *ngIf="!calculandoDestinatarios" class="material-icons mr-2"
+                     [ngStyle]="{ 'color': contadorDestinatarios !== null ? '#2dce89' : '#adb5bd' }">
+                    people
+                  </i>
+                  <span *ngIf="contadorDestinatarios !== null" class="font-weight-bold" style="font-size:18px; color:#2dce89">
+                    {{ contadorDestinatarios }} usuarios
+                  </span>
+                  <span *ngIf="contadorDestinatarios === null && !calculandoDestinatarios" class="text-muted">
+                    {{ nueva.alcance === 'por_ruta' ? 'Selecciona una ruta' :
+                    nueva.alcance === 'por_zona' ? 'Ingresa una zona y haz clic en buscar' :
+                      'Calculando...' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div class="col-12 text-right">
-              <button class="btn btn-secondary mr-2" (click)="mostrarFormulario = false">Cancelar</button>
+              <button class="btn btn-secondary mr-2" (click)="mostrarFormulario = false; contadorDestinatarios = null">
+                Cancelar
+              </button>
               <button class="btn btn-danger" (click)="enviar()">
                 <i class="material-icons mr-1" style="vertical-align:middle">send</i>
                 Enviar alerta
+                <span *ngIf="contadorDestinatarios !== null" class="badge badge-light ml-1">
+                  {{ contadorDestinatarios }}
+                </span>
               </button>
             </div>
 
@@ -122,9 +157,9 @@
                 <td>Alcance</td>
                 <td>Urgente</td>
                 <td>Destinatarios</td>
-                <td>Estadística</td>
+                <td>Estadística lectura</td>
               </tr>
-              <tr *ngFor="let a of alertas">
+              <tr *ngFor="let a of alertas" (click)="marcarAlertaLeida(a.id!)" style="cursor:pointer">
                 <td>{{ a.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ a.titulo }}</td>
                 <td>
@@ -139,10 +174,9 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="progress flex-grow-1 mr-2" style="height:8px; min-width:80px">
-                      <div class="progress-bar bg-success"
-                           [style.width.%]="porcentajeLeidos(a)"></div>
+                      <div class="progress-bar bg-success" [style.width.%]="porcentajeLeidos(a)"></div>
                     </div>
-                    <small>{{ a.totalLeidos }}/{{ a.totalDestinatarios }} leídos</small>
+                    <small>{{ a.totalLeidos }}/{{ a.totalDestinatarios }} leídos ({{ porcentajeLeidos(a) }}%)</small>
                   </div>
                 </td>
               </tr>

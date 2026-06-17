@@ -31,7 +31,6 @@ export const ROUTES: RouteInfo[] = [
   // Monitoreo
   { path: '/monitoreo/seguimiento', title: 'Monitoreo buses', icon: 'ni-pin-3 text-danger', class: ''},
   // Mensajería
-  { path: '/mensajes', title: 'Mensajes', icon: 'ni-email-83 text-primary', class: ''},
   { path: '/citas/agendar', title: 'Agendar Cita', icon: 'ni-calendar-grid-58 text-success', class: ''},
   // Ciudadano / viajes
   { path: '/ciudadanos/list', title: 'Ciudadanos', icon: 'ni-single-02 text-success', class: ''},

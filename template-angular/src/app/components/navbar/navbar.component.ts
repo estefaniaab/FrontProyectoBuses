@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, OnDestroy, HostListener } from '@angular
 import { ROUTES } from '../sidebar/sidebar.component';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { SecurityService } from '../../services/security.service';
 import { User } from '../../models/Users/user.model';
 import { interval, Subscription } from 'rxjs';
@@ -10,6 +11,7 @@ import { Profile } from '../../models/Profiles/profile.model';
 import { ChatNotificationService, NotificacionMensaje } from '../../services/Chat-Notification/chat-notification.service';
 import { NotificacionService } from '../../services/Grupo/notificacion.service';
 import { Notificacion } from '../../models/Grupos/grupo.model';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -44,10 +46,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return session ? JSON.parse(session)?.id ?? '' : '';
   }
 
+  get token(): string {
+    const session = localStorage.getItem('session');
+    return session ? `Bearer ${JSON.parse(session)?.token ?? ''}` : '';
+  }
+
   constructor(
     location: Location,
     private element: ElementRef,
     private router: Router,
+    private http: HttpClient,
     public securityService: SecurityService,
     private profileService: ProfileService,
     private notificacionService: NotificacionService,
@@ -80,7 +88,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.cargarNotificacionesChat();
 
       this.contarNoLeidas();
-      this.intervalSub = interval(30000).subscribe(() => this.contarNoLeidas());
+      this.intervalSub = interval(10000).subscribe(() => this.contarNoLeidas());
     });
   }
 
@@ -89,7 +97,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   contarNoLeidas(): void {
     if (!this.usuarioId) return;
     this.notificacionService.contarNoLeidas(this.usuarioId).subscribe({
-      next: ({ count }) => (this.noLeidas = count),
+      next: ({ count }) => {
+        if (count !== this.noLeidas) {
+          this.cargarNotificaciones();
+        }
+        this.noLeidas = count;
+      },
       error: () => {},
     });
   }
@@ -98,11 +111,44 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!this.usuarioId) return;
     this.notificacionService.listarPorUsuario(this.usuarioId).subscribe({
       next: n => {
+        const nuevasUrgentes = n.filter(x =>
+          !x.leido &&
+          x.tipo === 'alerta_urgente' &&
+          !this.notificaciones.find(old => old.id === x.id)
+        );
+
         this.notificaciones = n;
         this.noLeidas = n.filter(x => !x.leido).length;
+
+        if (nuevasUrgentes.length > 0) {
+          this.reproducirSonidoAlerta();
+        }
       },
       error: () => {},
     });
+  }
+
+  private reproducirSonidoAlerta(): void {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+      oscillator.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(880, ctx.currentTime + 0.2);
+      oscillator.frequency.setValueAtTime(440, ctx.currentTime + 0.3);
+
+      gainNode.gain.setValueAtTime(0.4, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.5);
+    } catch {}
   }
 
   toggleBandeja(): void {
@@ -113,8 +159,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   cerrarBandeja(): void { this.mostrarBandeja = false; }
 
   marcarLeida(notif: Notificacion): void {
-    if (notif.leido) return;
-    this.notificacionService.marcarLeida(notif.id!).subscribe({
+    if (notif.leido || !notif.id) return;
+    this.notificacionService.marcarLeida(notif.id).subscribe({
       next: () => { notif.leido = true; this.noLeidas = Math.max(0, this.noLeidas - 1); },
       error: () => {},
     });
@@ -129,7 +175,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   irAlGrupo(notif: Notificacion): void {
     this.marcarLeida(notif);
-    if (notif.referenciaId) this.router.navigate(['/grupos/chat', notif.referenciaId]);
+
+    if (['alerta_masiva', 'alerta_urgente'].includes(notif.tipo)) {
+      if (notif.referenciaId) {
+        this.http.patch(
+          `${environment.url_ms_business}/alertas/${notif.referenciaId}/leido`,
+          {},
+          { headers: { Authorization: this.token } }
+        ).subscribe({ error: () => {} });
+      }
+      this.router.navigate(['/grupos/alertas']);
+    } else if (['nuevo_mensaje', 'bienvenida_grupo', 'remocion_grupo', 'bloqueo_grupo'].includes(notif.tipo)) {
+      this.router.navigate(['/grupos/chat', notif.referenciaId]);
+    } else {
+      this.router.navigate(['/grupos/bandeja']);
+    }
     this.mostrarBandeja = false;
   }
 

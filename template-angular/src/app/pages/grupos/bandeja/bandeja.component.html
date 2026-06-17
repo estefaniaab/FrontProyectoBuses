@@ -11,13 +11,40 @@
               <h3 class="mb-0">
                 <i class="material-icons mr-2" style="vertical-align:middle">inbox</i>
                 Bandeja de mensajes
-                <span *ngIf="noLeidas > 0" class="badge badge-danger ml-2">{{ noLeidas }}</span>
+                <span *ngIf="noLeidos > 0" class="badge badge-danger ml-2">{{ noLeidos }}</span>
               </h3>
             </div>
             <div class="col text-right">
-              <button *ngIf="noLeidas > 0" class="btn btn-sm btn-outline-primary" (click)="marcarTodasLeidas()">
-                Marcar todas como leídas
+              <button *ngIf="noLeidos > 0" class="btn btn-sm btn-outline-primary mr-2"
+                      (click)="marcarTodasLeidas()">
+                Marcar todas leídas
               </button>
+            </div>
+          </div>
+
+          <!-- Buscador nuevo mensaje individual -->
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="material-icons" style="font-size:16px">edit</i>
+                  </span>
+                </div>
+                <input type="text" class="form-control"
+                       placeholder="Nuevo mensaje — buscar usuario..."
+                       [(ngModel)]="busquedaUsuario"
+                       (input)="buscarUsuarios()" />
+              </div>
+              <div *ngIf="busquedaUsuario && usuariosBuscados.length > 0"
+                   class="list-group mt-1" style="position:absolute;z-index:100;width:50%">
+                <button *ngFor="let u of usuariosBuscados"
+                        class="list-group-item list-group-item-action py-2"
+                        (click)="irAlChat(u.id)">
+                  <i class="material-icons mr-1" style="font-size:14px;vertical-align:middle">person</i>
+                  {{ u.name }} <small class="text-muted">{{ u.email }}</small>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -27,22 +54,44 @@
           <!-- Filtros -->
           <div class="row mb-3">
             <div class="col-md-8">
-              <div class="btn-group" role="group">
-                <button class="btn btn-sm" [ngClass]="filtro === 'todos' ? 'btn-primary' : 'btn-outline-primary'"
+              <div class="btn-group flex-wrap" role="group">
+                <button class="btn btn-sm" [ngClass]="filtro==='todos' ? 'btn-primary' : 'btn-outline-primary'"
                         (click)="cambiarFiltro('todos')">Todos</button>
-                <button class="btn btn-sm" [ngClass]="filtro === 'no_leidos' ? 'btn-primary' : 'btn-outline-primary'"
+                <button class="btn btn-sm" [ngClass]="filtro==='no_leidos' ? 'btn-primary' : 'btn-outline-primary'"
                         (click)="cambiarFiltro('no_leidos')">No leídos</button>
-                <button class="btn btn-sm" [ngClass]="filtro === 'grupo' ? 'btn-primary' : 'btn-outline-primary'"
-                        (click)="cambiarFiltro('grupo')">Grupales</button>
-                <button class="btn btn-sm" [ngClass]="filtro === 'alerta' ? 'btn-primary' : 'btn-outline-primary'"
-                        (click)="cambiarFiltro('alerta')">Alertas</button>
+                <button class="btn btn-sm" [ngClass]="filtro==='individual' ? 'btn-warning' : 'btn-outline-warning'"
+                        (click)="cambiarFiltro('individual')">
+                  <i class="material-icons" style="font-size:14px;vertical-align:middle">person</i>
+                  Individuales
+                </button>
+                <button class="btn btn-sm" [ngClass]="filtro==='grupal' ? 'btn-primary' : 'btn-outline-primary'"
+                        (click)="cambiarFiltro('grupal')">
+                  <i class="material-icons" style="font-size:14px;vertical-align:middle">group</i>
+                  Grupales
+                </button>
+                <button class="btn btn-sm" [ngClass]="filtro==='alerta' ? 'btn-danger' : 'btn-outline-danger'"
+                        (click)="cambiarFiltro('alerta')">
+                  <i class="material-icons" style="font-size:14px;vertical-align:middle">campaign</i>
+                  Alertas
+                </button>
               </div>
             </div>
             <div class="col-md-4">
-              <input type="text" class="form-control form-control-sm"
-                     placeholder="Buscar..."
-                     [(ngModel)]="busqueda"
-                     (input)="aplicarFiltro()">
+              <div class="row">
+                <div class="col-8">
+                  <input type="text" class="form-control form-control-sm"
+                         placeholder="Buscar en bandeja..."
+                         [(ngModel)]="busqueda" (input)="aplicarFiltro()">
+                </div>
+                <div class="col-4">
+                  <input type="date" class="form-control form-control-sm"
+                         [(ngModel)]="fechaFiltro"
+                         (change)="aplicarFiltro()"
+                         title="Filtrar por fecha">
+                </div>
+              </div>
+              <!-- Indicador fecha activa -->
+
             </div>
           </div>
 
@@ -51,50 +100,83 @@
             <div class="spinner-border text-info"></div>
           </div>
 
-          <!-- Lista -->
+          <!-- Lista unificada -->
           <div *ngIf="!cargando">
-            <div *ngFor="let n of notificacionesFiltradas"
+            <div *ngFor="let item of itemsFiltrados"
                  class="d-flex align-items-start p-3 border-bottom"
-                 [ngStyle]="{ 'background-color': n.leido ? '#fff' : '#f0f7ff', 'cursor': 'pointer' }"
-                 (click)="abrir(n)">
+                 [ngStyle]="{ 'background-color': item.leido ? '#fff' : '#f0f7ff', 'cursor': 'pointer' }"
+                 (click)="abrir(item)">
 
-              <!-- Icono -->
-              <div class="mr-3 mt-1">
-                <span class="rounded-circle d-flex align-items-center justify-content-center"
-                      [ngStyle]="{ 'background-color': colorTipo(n.tipo) + '20',
-                                   'width': '44px', 'height': '44px', 'flex-shrink': '0' }">
-                  <i class="material-icons" [ngStyle]="{ 'color': colorTipo(n.tipo), 'font-size': '22px' }">
-                    {{ iconoTipo(n.tipo) }}
-                  </i>
-                </span>
+              <!-- Avatar / Icono -->
+              <div class="mr-3 mt-1" style="flex-shrink:0">
+                <ng-container *ngIf="item.tipo === 'individual'">
+                  <img *ngIf="getFotoUsuario(item.emisorId!)"
+                       [src]="getFotoUsuario(item.emisorId!)"
+                       width="44" height="44" class="rounded-circle" style="object-fit:cover">
+                  <div *ngIf="!getFotoUsuario(item.emisorId!)"
+                       class="rounded-circle d-flex align-items-center justify-content-center"
+                       [ngStyle]="{ 'background-color': colorTipo('individual') + '20',
+                                    'width': '44px', 'height': '44px' }">
+                    <i class="material-icons" [ngStyle]="{ 'color': colorTipo('individual'), 'font-size': '22px' }">
+                      person
+                    </i>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="item.tipo !== 'individual'">
+                  <span class="rounded-circle d-flex align-items-center justify-content-center"
+                        [ngStyle]="{ 'background-color': colorTipo(item.notificacion?.tipo ?? item.tipo) + '20',
+                                     'width': '44px', 'height': '44px' }">
+                    <i class="material-icons"
+                       [ngStyle]="{ 'color': colorTipo(item.notificacion?.tipo ?? item.tipo), 'font-size': '22px' }">
+                      {{ iconoTipo(item.notificacion?.tipo ?? item.tipo) }}
+                    </i>
+                  </span>
+                </ng-container>
               </div>
 
               <!-- Contenido -->
-              <div class="flex-grow-1">
-                <div class="d-flex justify-content-between">
-                  <span [ngStyle]="{ 'font-weight': n.leido ? '400' : '700', 'font-size': '14px', 'color': '#333' }">
-                    {{ n.titulo }}
+              <div class="flex-grow-1" style="min-width:0">
+                <div class="d-flex justify-content-between align-items-start">
+                  <span [ngStyle]="{ 'font-weight': item.leido ? '400' : '700',
+                                     'font-size': '14px', 'color': '#333' }">
+                    {{ item.tipo === 'individual' ? getNombreUsuario(item.emisorId!) : item.titulo }}
                   </span>
-                  <small class="text-muted">{{ n.fechaCreacion | date:'dd/MM HH:mm' }}</small>
+                  <small class="text-muted ml-2" style="flex-shrink:0">
+                    {{ item.fecha | date:'dd/MM HH:mm' }}
+                  </small>
                 </div>
-                <div class="text-muted" style="font-size:13px; margin-top:2px">{{ n.mensaje }}</div>
-                <div class="mt-1">
+
+                <div class="text-muted text-truncate" style="font-size:13px; margin-top:2px">
+                  {{ item.preview }}
+                </div>
+
+                <!-- Etiqueta tipo -->
+                <div class="mt-1 d-flex align-items-center" style="gap:6px">
                   <span class="badge badge-pill"
-                        [ngStyle]="{ 'background-color': colorTipo(n.tipo) + '20',
-                                     'color': colorTipo(n.tipo), 'font-size': '10px' }">
-                    {{ n.tipo.replace('_', ' ') }}
+                        [ngStyle]="{ 'background-color': colorTipo(item.tipo) + '20',
+                                     'color': colorTipo(item.tipo), 'font-size': '10px' }">
+                    <i class="material-icons" style="font-size:10px;vertical-align:middle">
+                      {{ item.tipo === 'individual' ? 'person' : item.tipo === 'alerta' ? 'campaign' : 'group' }}
+                    </i>
+                    {{ etiquetaTipo(item) }}
                   </span>
+                  <!-- Flecha indicando que se puede responder -->
+                  <small *ngIf="item.tipo === 'individual' || item.tipo === 'grupal'"
+                         class="text-muted">
+                    <i class="material-icons" style="font-size:12px;vertical-align:middle">reply</i>
+                    Toca para responder
+                  </small>
                 </div>
               </div>
 
-              <!-- Indicador no leído -->
-              <div *ngIf="!n.leido" class="ml-2 mt-2"
+              <!-- Punto no leído -->
+              <div *ngIf="!item.leido" class="ml-2 mt-2"
                    style="width:10px;height:10px;background:#5e72e4;border-radius:50%;flex-shrink:0">
               </div>
             </div>
 
             <!-- Vacío -->
-            <div *ngIf="notificacionesFiltradas.length === 0" class="text-center text-muted py-5">
+            <div *ngIf="itemsFiltrados.length === 0" class="text-center text-muted py-5">
               <i class="material-icons d-block mb-2" style="font-size:48px">inbox</i>
               No hay mensajes en esta bandeja.
             </div>
