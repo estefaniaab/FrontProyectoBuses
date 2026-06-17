@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { GrupoService } from 'src/app/services/Grupo/grupo.service';
@@ -15,6 +16,12 @@ interface Mensaje {
   eliminado?: boolean;
   lecturas?: number;
   leido?: boolean;
+}
+
+interface LecturaDetalle {
+  usuarioId: string;
+  fechaLectura: string;
+  nombreUsuario?: string;
 }
 
 @Component({
@@ -34,6 +41,20 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   errorConexion = false;
   sinAcceso = false;
   soloLectura = false;
+  esAdmin = false; // FIX: para permitir eliminar mensajes de otros
+
+  // ── Reenvío ───────────────────────────────────────────────────────────────
+  mensajeSeleccionado?: Mensaje;
+  mostrarModalReenvio = false;
+  misGrupos: (Grupo & { rol?: string })[] = [];
+  gruposSeleccionados: Set<number> = new Set();
+  reenviando = false;
+
+  // ── Lecturas ──────────────────────────────────────────────────────────────
+  mostrarLecturas = false;
+  lecturasDetalle: LecturaDetalle[] = [];
+  cargandoLecturas = false;
+  mensajeLecturas?: Mensaje;
 
   get usuarioActual(): { id: string; nombre: string } {
     const session = localStorage.getItem('session');
@@ -42,22 +63,41 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return { id: data?.id ?? '', nombre: data?.name ?? 'Anónimo' };
   }
 
+  get token(): string {
+    const session = localStorage.getItem('session');
+    return session ? `Bearer ${JSON.parse(session)?.token ?? ''}` : '';
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private grupoService: GrupoService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
     this.grupoId = Number(this.route.snapshot.params['id']);
     this.cargarGrupo();
-    // Verificar si es solo lectura
+
     this.grupoService.verificarMembresia(this.grupoId, this.usuarioActual.id).subscribe({
       next: ({ soloLectura }) => {
         this.soloLectura = soloLectura;
         this.conectarSocket();
       },
       error: () => this.conectarSocket(),
+    });
+
+    this.grupoService.misGrupos(this.usuarioActual.id).subscribe({
+      next: grupos => (this.misGrupos = grupos),
+    });
+
+    // FIX: verificar si el usuario es admin del grupo
+    this.grupoService.listarMiembros(this.grupoId).subscribe({
+      next: miembros => {
+        const yo = miembros.find(m => m.usuarioId === this.usuarioActual.id);
+        this.esAdmin = yo?.rol === 'administrador';
+      },
+      error: () => {},
     });
   }
 
@@ -89,13 +129,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.socket.on('historialMensajes', (mensajes: Mensaje[]) => {
       this.mensajes = mensajes;
-      // Marcar mensajes recibidos como leídos
       setTimeout(() => this.marcarMensajesLeidos(), 500);
     });
 
     this.socket.on('nuevoMensaje', (mensaje: Mensaje) => {
       this.mensajes.push(mensaje);
-      // Marcar como leído automáticamente si estamos en el chat
       if (mensaje.id && !this.esMio(mensaje)) {
         this.socket.emit('marcarLeido', {
           mensajeId: mensaje.id,
@@ -105,19 +143,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // HU-ENTR-3-005: Actualizar doble check
     this.socket.on('mensajeLeido', (data: { mensajeId: number; lecturas: number }) => {
       const msg = this.mensajes.find(m => m.id === data.mensajeId);
       if (msg) msg.lecturas = data.lecturas;
     });
 
-    // HU-ENTR-3-005: Mensaje eliminado
     this.socket.on('mensajeEliminado', (data: { mensajeId: number }) => {
       const msg = this.mensajes.find(m => m.id === data.mensajeId);
-      if (msg) {
-        msg.eliminado = true;
-        msg.contenido = '🚫 Mensaje eliminado';
-      }
+      if (msg) { msg.eliminado = true; msg.contenido = '🚫 Mensaje eliminado'; }
     });
 
     this.socket.on('errorChat', () => { this.sinAcceso = true; this.socket.disconnect(); });
@@ -138,7 +171,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   enviar(): void {
     if (!this.nuevoMensaje.trim() || !this.conectado || this.sinAcceso || this.soloLectura) return;
-
     const { id, nombre } = this.usuarioActual;
     this.socket.emit('enviarMensaje', {
       grupoId:       this.grupoId,
@@ -158,8 +190,70 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  // FIX: admin puede eliminar cualquier mensaje, autor solo el suyo
   puedeEliminar(mensaje: Mensaje): boolean {
-    return mensaje.usuarioId === this.usuarioActual.id;
+    return mensaje.usuarioId === this.usuarioActual.id || this.esAdmin;
+  }
+
+  // ── Ver quiénes leyeron ───────────────────────────────────────────────────
+  verLecturas(mensaje: Mensaje): void {
+    if (!mensaje.id || !this.esMio(mensaje)) return;
+    this.mensajeLecturas = mensaje;
+    this.lecturasDetalle = [];
+    this.cargandoLecturas = true;
+    this.mostrarLecturas = true;
+
+    this.http.get<LecturaDetalle[]>(
+      `${environment.url_ms_business}/mensajes/${mensaje.id}/lecturas`,
+      { headers: { Authorization: this.token } }
+    ).subscribe({
+      next: lecturas => { this.lecturasDetalle = lecturas; this.cargandoLecturas = false; },
+      error: () => { this.cargandoLecturas = false; },
+    });
+  }
+
+  cerrarLecturas(): void {
+    this.mostrarLecturas = false;
+    this.mensajeLecturas = undefined;
+    this.lecturasDetalle = [];
+  }
+
+  // ── Reenvío ───────────────────────────────────────────────────────────────
+  abrirReenvio(mensaje: Mensaje): void {
+    if (mensaje.eliminado) return;
+    this.mensajeSeleccionado = mensaje;
+    this.gruposSeleccionados = new Set();
+    this.mostrarModalReenvio = true;
+  }
+
+  cerrarReenvio(): void {
+    this.mostrarModalReenvio = false;
+    this.mensajeSeleccionado = undefined;
+    this.gruposSeleccionados = new Set();
+  }
+
+  toggleGrupoDestino(grupoId: number): void {
+    if (this.gruposSeleccionados.has(grupoId)) {
+      this.gruposSeleccionados.delete(grupoId);
+    } else {
+      this.gruposSeleccionados.add(grupoId);
+    }
+  }
+
+  reenviar(): void {
+    if (!this.mensajeSeleccionado || this.gruposSeleccionados.size === 0 || this.reenviando) return;
+    this.reenviando = true;
+    const { id, nombre } = this.usuarioActual;
+    const contenido = `↩ ${this.mensajeSeleccionado.contenido}`;
+    for (const grupoId of Array.from(this.gruposSeleccionados)) {
+      this.socket.emit('enviarMensaje', { grupoId, usuarioId: id, nombreUsuario: nombre, contenido });
+    }
+    this.reenviando = false;
+    this.cerrarReenvio();
+  }
+
+  gruposParaReenvio(): (Grupo & { rol?: string })[] {
+    return this.misGrupos.filter(g => g.id !== this.grupoId);
   }
 
   esMio(mensaje: Mensaje): boolean {

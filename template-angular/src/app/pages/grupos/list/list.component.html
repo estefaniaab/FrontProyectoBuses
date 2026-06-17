@@ -6,101 +6,182 @@
       <div class="card shadow">
 
         <div class="card-header bg-transparent">
-          <div class="row align-items-center">
-            <div class="col-md-4">
-              <h3 class="mb-0">Grupos</h3>
-              <button class="btn btn-success btn-sm mt-2" (click)="create()" title="Crear grupo">
-                <i class="material-icons">add</i>
+          <div class="row align-items-center mb-2">
+            <div class="col"><h3 class="mb-0">Grupos</h3></div>
+            <div class="col text-right">
+              <button class="btn btn-success btn-sm" (click)="create()" title="Crear grupo">
+                <i class="material-icons" style="vertical-align:middle">add</i>
+                Crear grupo
               </button>
             </div>
-            <div class="col-md-8">
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Buscar por nombre o descripción..."
-                  [(ngModel)]="busqueda"
-                  (keyup.enter)="buscar()"
-                />
-                <div class="input-group-append">
-                  <button class="btn btn-outline-primary" (click)="buscar()">
-                    <i class="material-icons" style="font-size:18px;vertical-align:middle">search</i>
-                  </button>
-                  <button *ngIf="busqueda" class="btn btn-outline-secondary" (click)="limpiarBusqueda()">
-                    <i class="material-icons" style="font-size:18px;vertical-align:middle">clear</i>
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
+
+          <ul class="nav nav-tabs border-0">
+            <li class="nav-item">
+              <a class="nav-link" [ngClass]="{ 'active': pestanaActiva === 'publicos' }"
+                 style="cursor:pointer" (click)="cambiarPestana('publicos')">
+                <i class="material-icons mr-1" style="font-size:16px;vertical-align:middle">public</i>
+                Grupos públicos
+                <span *ngIf="gruposPublicosFiltrados.length > 0" class="badge badge-info ml-1">
+                  {{ gruposPublicosFiltrados.length }}
+                </span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [ngClass]="{ 'active': pestanaActiva === 'misGrupos' }"
+                 style="cursor:pointer" (click)="cambiarPestana('misGrupos')">
+                <i class="material-icons mr-1" style="font-size:16px;vertical-align:middle">group</i>
+                Mis grupos
+                <span *ngIf="misGrupos.length > 0" class="badge badge-success ml-1">
+                  {{ misGrupos.length }}
+                </span>
+              </a>
+            </li>
+          </ul>
         </div>
 
         <div class="card-body">
 
-          <div *ngIf="cargando" class="text-center py-4">
-            <div class="spinner-border text-success" role="status"></div>
+          <!-- ── Grupos públicos ────────────────────────────────────────── -->
+          <div *ngIf="pestanaActiva === 'publicos'">
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <div class="input-group">
+                  <input type="text" class="form-control"
+                         placeholder="Buscar por nombre o descripción..."
+                         [(ngModel)]="busquedaPublicos" (keyup.enter)="buscarPublicos()" />
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-primary" (click)="buscarPublicos()">
+                      <i class="material-icons" style="font-size:18px;vertical-align:middle">search</i>
+                    </button>
+                    <button *ngIf="busquedaPublicos" class="btn btn-outline-secondary"
+                            (click)="limpiarBusquedaPublicos()">
+                      <i class="material-icons" style="font-size:18px;vertical-align:middle">clear</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="cargandoPublicos" class="text-center py-4">
+              <div class="spinner-border text-success"></div>
+            </div>
+
+            <div class="table-responsive" *ngIf="!cargandoPublicos">
+              <table class="table">
+                <tr>
+                  <td>#</td><td>Grupo</td><td>Descripción</td><td>Miembros</td><td>Acciones</td>
+                </tr>
+                <!-- FIX: usar gruposPublicosFiltrados -->
+                <tr *ngFor="let grupo of gruposPublicosFiltrados; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img *ngIf="grupo.fotoUrl" [src]="grupo.fotoUrl"
+                           width="36" height="36" class="rounded-circle mr-2" style="object-fit:cover; flex-shrink:0">
+                      <div *ngIf="!grupo.fotoUrl"
+                           class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center mr-2"
+                           style="width:36px;height:36px;flex-shrink:0">
+                        <i class="material-icons text-white" style="font-size:18px">group</i>
+                      </div>
+                      <span class="font-weight-bold">{{ grupo.nombre }}</span>
+                    </div>
+                  </td>
+                  <td class="text-truncate" style="max-width:200px">{{ grupo.descripcion || 'Sin descripción' }}</td>
+                  <td>
+                    <span class="badge badge-success">
+                      <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
+                      {{ grupo.totalMiembros ?? 0 }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-success btn-sm" (click)="unirse(grupo)" title="Unirse">
+                      <i class="material-icons">login</i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="gruposPublicosFiltrados.length === 0">
+                  <td colspan="5" class="text-center text-muted py-4">
+                    <i class="material-icons d-block mb-2" style="font-size:36px">search_off</i>
+                    No hay grupos públicos disponibles para unirse.
+                  </td>
+                </tr>
+              </table>
+            </div>
           </div>
 
-          <div class="table-responsive" *ngIf="!cargando">
-            <table class="table">
-              <tr>
-                <td>Id</td>
-                <td>Nombre</td>
-                <td>Descripción</td>
-                <td>Miembros</td>
-                <td>Público</td>
-                <td>Fecha creación</td>
-                <td>Acciones</td>
-              </tr>
+          <!-- ── Mis grupos ─────────────────────────────────────────────── -->
+          <div *ngIf="pestanaActiva === 'misGrupos'">
+            <div *ngIf="cargandoMisGrupos" class="text-center py-4">
+              <div class="spinner-border text-primary"></div>
+            </div>
 
-              <tr *ngFor="let grupo of grupos">
-                <td>{{ grupo.id }}</td>
-                <td>{{ grupo.nombre }}</td>
-                <td class="text-truncate" style="max-width:200px">
-                  {{ grupo.descripcion || 'Sin descripción' }}
-                </td>
-                <td>
-                  <span class="badge badge-success">
-                    <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
-                    {{ grupo.totalMiembros ?? 0 }}
-                  </span>
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="grupo.esPublico ? 'badge-info' : 'badge-secondary'">
-                    {{ grupo.esPublico ? 'Público' : 'Privado' }}
-                  </span>
-                </td>
-                <td>{{ grupo.fechaCreacion | date:'dd/MM/yyyy' }}</td>
-                <td>
-                  <button class="btn btn-success btn-sm" (click)="unirse(grupo)" title="Unirse">
-                    <i class="material-icons">login</i>
-                  </button>
-                  <button class="btn btn-warning btn-sm" (click)="abandonar(grupo)" title="Abandonar">
-                    <i class="material-icons">logout</i>
-                  </button>
-                  <button class="btn btn-primary btn-sm" (click)="chat(grupo)" title="Entrar al chat">
-                    <i class="material-icons">chat</i>
-                  </button>
-                  <button class="btn btn-info btn-sm" (click)="manage(grupo.id!)" title="Administrar miembros">
-                    <i class="material-icons">manage_accounts</i>
-                  </button>
-                  <button class="btn btn-secondary btn-sm" (click)="router.navigate(['/grupos/update', grupo.id])" title="Editar">
-                    <i class="material-icons">edit</i>
-                  </button>
-                  <button class="btn btn-danger btn-sm" (click)="delete(grupo.id!)" title="Eliminar">
-                    <i class="material-icons">delete</i>
-                  </button>
-                </td>
-              </tr>
-
-              <tr *ngIf="grupos.length === 0">
-                <td colspan="7" class="text-center text-muted py-4">
-                  <i class="material-icons d-block mb-2" style="font-size:36px">search_off</i>
-                  No se encontraron grupos.
-                </td>
-              </tr>
-            </table>
+            <div class="table-responsive" *ngIf="!cargandoMisGrupos">
+              <table class="table">
+                <tr>
+                  <td>#</td><td>Grupo</td><td>Descripción</td><td>Miembros</td>
+                  <td>Mi rol</td><td>Tipo</td><td>Acciones</td>
+                </tr>
+                <tr *ngFor="let grupo of misGrupos; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img *ngIf="grupo.fotoUrl" [src]="grupo.fotoUrl"
+                           width="36" height="36" class="rounded-circle mr-2" style="object-fit:cover; flex-shrink:0">
+                      <div *ngIf="!grupo.fotoUrl"
+                           class="rounded-circle bg-gradient-primary d-flex align-items-center justify-content-center mr-2"
+                           style="width:36px;height:36px;flex-shrink:0">
+                        <i class="material-icons text-white" style="font-size:18px">group</i>
+                      </div>
+                      <span class="font-weight-bold">{{ grupo.nombre }}</span>
+                    </div>
+                  </td>
+                  <td class="text-truncate" style="max-width:200px">{{ grupo.descripcion || 'Sin descripción' }}</td>
+                  <td>
+                    <span class="badge badge-success">
+                      <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
+                      {{ grupo.totalMiembros ?? 0 }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="grupo.rol === 'administrador' ? 'badge-primary' : 'badge-secondary'">
+                      {{ grupo.rol }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="grupo.esPublico ? 'badge-info' : 'badge-dark'">
+                      {{ grupo.esPublico ? 'Público' : 'Privado' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-primary btn-sm" (click)="chat(grupo)" title="Chat">
+                      <i class="material-icons">chat</i>
+                    </button>
+                    <button class="btn btn-info btn-sm" (click)="manage(grupo.id!)" title="Administrar">
+                      <i class="material-icons">manage_accounts</i>
+                    </button>
+                    <button class="btn btn-warning btn-sm" (click)="abandonar(grupo)" title="Abandonar">
+                      <i class="material-icons">logout</i>
+                    </button>
+                    <button class="btn btn-secondary btn-sm"
+                            (click)="router.navigate(['/grupos/update', grupo.id])" title="Editar">
+                      <i class="material-icons">edit</i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" (click)="delete(grupo.id!)" title="Eliminar">
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="misGrupos.length === 0">
+                  <td colspan="7" class="text-center text-muted py-4">
+                    <i class="material-icons d-block mb-2" style="font-size:36px">group_off</i>
+                    No perteneces a ningún grupo todavía.
+                  </td>
+                </tr>
+              </table>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

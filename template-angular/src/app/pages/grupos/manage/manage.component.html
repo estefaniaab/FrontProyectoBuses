@@ -18,11 +18,16 @@
                 <i class="material-icons" style="font-size:12px;vertical-align:middle">people</i>
                 {{ grupo.totalMiembros ?? 0 }} miembros
               </span>
-              <button class="btn btn-secondary btn-sm" (click)="toggleLogs()">
+              <button *ngIf="esAdministrador()"
+                      class="btn btn-success btn-sm ml-1" (click)="toggleAgregarMiembro()">
+                <i class="material-icons" style="font-size:16px;vertical-align:middle">person_add</i>
+                {{ mostrarAgregarMiembro ? 'Cancelar' : 'Agregar' }}
+              </button>
+              <button class="btn btn-secondary btn-sm ml-1" (click)="toggleLogs()">
                 <i class="material-icons" style="font-size:16px;vertical-align:middle">history</i>
                 {{ verLogs ? 'Ocultar log' : 'Ver log' }}
               </button>
-              <button class="btn btn-primary btn-sm ml-2" (click)="back()">
+              <button class="btn btn-primary btn-sm ml-1" (click)="back()">
                 <i class="material-icons" style="font-size:16px;vertical-align:middle">arrow_back</i>
                 Regresar
               </button>
@@ -31,13 +36,55 @@
         </div>
 
         <div class="card-body">
+
+          <!-- ── Agregar miembro ────────────────────────────────────────── -->
+          <div *ngIf="mostrarAgregarMiembro && esAdministrador()" class="mb-4 p-3 border rounded bg-light">
+            <h5 class="mb-3">
+              <i class="material-icons mr-1" style="vertical-align:middle; color:#2dce89">person_add</i>
+              Agregar nuevo miembro
+            </h5>
+            <div class="input-group mb-2">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Buscar usuario por nombre o email..."
+                [(ngModel)]="busquedaAgregar"
+              />
+            </div>
+
+            <!-- Resultados búsqueda -->
+            <div *ngIf="busquedaAgregar && usuariosFiltrados.length > 0"
+                 class="list-group"
+                 style="max-height:200px; overflow-y:auto;">
+              <button
+                *ngFor="let u of usuariosFiltrados"
+                type="button"
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                (click)="agregarMiembro(u)">
+                <span>
+                  <i class="material-icons mr-1" style="font-size:16px;vertical-align:middle">person</i>
+                  <strong>{{ u.name }}</strong>
+                  <small class="text-muted ml-2">{{ u.email }}</small>
+                </span>
+                <i class="material-icons text-success">add_circle</i>
+              </button>
+            </div>
+
+            <div *ngIf="busquedaAgregar && usuariosFiltrados.length === 0"
+                 class="text-muted text-center py-2">
+              <i class="material-icons d-block" style="font-size:24px">search_off</i>
+              No se encontraron usuarios disponibles.
+            </div>
+          </div>
+
+          <!-- ── Buscador miembros existentes ──────────────────────────── -->
           <div class="row mb-3">
             <div class="col-md-5">
               <div class="input-group">
                 <input
                   type="text"
                   class="form-control"
-                  placeholder="Buscar por nombre..."
+                  placeholder="Buscar miembro por nombre..."
                   [(ngModel)]="busquedaMiembro"
                   (keyup.enter)="buscarMiembro()"
                 />
@@ -50,6 +97,7 @@
             </div>
           </div>
 
+          <!-- ── Tabla miembros ─────────────────────────────────────────── -->
           <div class="table-responsive">
             <table class="table">
               <tr>
@@ -61,11 +109,10 @@
               </tr>
               <tr *ngFor="let m of miembros; let i = index">
                 <td>{{ i + 1 }}</td>
-                <!-- FIX: mostrar nombreUsuario en vez del ID -->
                 <td>{{ m.nombreUsuario || m.usuarioId }}</td>
                 <td>
                   <span class="badge"
-                    [ngClass]="{
+                        [ngClass]="{
                       'badge-primary':   m.rol === RolMembresia.ADMINISTRADOR,
                       'badge-secondary': m.rol === RolMembresia.MIEMBRO
                     }">
@@ -75,8 +122,8 @@
                 <td>{{ m.fechaUnion | date:'dd/MM/yyyy' }}</td>
                 <td>
                   <button class="btn btn-info btn-sm"
-                    (click)="promover(m)"
-                    [title]="m.rol === RolMembresia.MIEMBRO ? 'Promover a administrador' : 'Degradar a miembro'">
+                          (click)="promover(m)"
+                          [title]="m.rol === RolMembresia.MIEMBRO ? 'Promover a administrador' : 'Degradar a miembro'">
                     <i class="material-icons">
                       {{ m.rol === RolMembresia.MIEMBRO ? 'arrow_upward' : 'arrow_downward' }}
                     </i>
@@ -85,9 +132,9 @@
                     <i class="material-icons">person_remove</i>
                   </button>
                   <button class="btn btn-warning btn-sm"
-                    (click)="bloquear(m)"
-                    title="Bloquear usuario"
-                    [disabled]="m.rol === RolMembresia.ADMINISTRADOR">
+                          (click)="bloquear(m)"
+                          title="Bloquear usuario"
+                          [disabled]="m.rol === RolMembresia.ADMINISTRADOR">
                     <i class="material-icons">block</i>
                   </button>
                 </td>
@@ -105,7 +152,7 @@
     </div>
   </div>
 
-  <!-- Log de cambios -->
+  <!-- ── Log de cambios ────────────────────────────────────────────────── -->
   <div class="row mt-3" *ngIf="verLogs">
     <div class="col">
       <div class="card shadow">
@@ -126,11 +173,10 @@
               </tr>
               <tr *ngFor="let log of logs">
                 <td>{{ log.fechaAccion | date:'dd/MM/yyyy HH:mm' }}</td>
-                <!-- FIX: mostrar nombre en vez de ID -->
                 <td>{{ log.nombreAfectado || log.usuarioAfectadoId }}</td>
                 <td>
                   <span class="badge"
-                    [ngClass]="{
+                        [ngClass]="{
                       'badge-success': log.accion === 'union',
                       'badge-warning': log.accion === 'salida',
                       'badge-info':    log.accion === 'promovido',
@@ -150,4 +196,5 @@
       </div>
     </div>
   </div>
+
 </div>

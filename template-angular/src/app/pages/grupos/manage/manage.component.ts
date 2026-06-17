@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import {
   Grupo,
@@ -8,6 +9,7 @@ import {
   RolMembresia,
 } from 'src/app/models/Grupos/grupo.model';
 import { GrupoService } from 'src/app/services/Grupo/grupo.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-manage-grupos',
@@ -24,15 +26,36 @@ export class ManageComponent implements OnInit {
 
   RolMembresia = RolMembresia;
 
+  // ── Agregar miembros ──────────────────────────────────────────────────────
+  usuarios: any[] = [];
+  busquedaAgregar = '';
+  mostrarAgregarMiembro = false;
+
   get usuarioActual(): string {
     const session = localStorage.getItem('session');
     return session ? JSON.parse(session)?.id ?? '' : '';
+  }
+
+  get token(): string {
+    const session = localStorage.getItem('session');
+    return session ? `Bearer ${JSON.parse(session)?.token ?? ''}` : '';
+  }
+
+  get usuariosFiltrados(): any[] {
+    const idsActuales = this.miembros.map(m => m.usuarioId);
+    const term = this.busquedaAgregar.toLowerCase();
+    return this.usuarios.filter(
+      u => u.id !== this.usuarioActual &&
+        !idsActuales.includes(u.id) &&
+        (u.name?.toLowerCase().includes(term) || u.email?.toLowerCase().includes(term))
+    );
   }
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private grupoService: GrupoService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +81,47 @@ export class ManageComponent implements OnInit {
   buscarMiembro(): void { this.cargarMiembros(); }
 
   back(): void { this.router.navigate(['/grupos/list']); }
+
+  esAdministrador(): boolean {
+    return this.miembros.some(
+      m => m.usuarioId === this.usuarioActual && m.rol === RolMembresia.ADMINISTRADOR
+    );
+  }
+
+  toggleAgregarMiembro(): void {
+    this.mostrarAgregarMiembro = !this.mostrarAgregarMiembro;
+    if (this.mostrarAgregarMiembro && this.usuarios.length === 0) {
+      this.http.get<any[]>(`${environment.url_ms_security}/users`, {
+        headers: { Authorization: this.token },
+      }).subscribe({
+        next: users => (this.usuarios = users),
+        error: err => console.error('Error cargando usuarios:', err),
+      });
+    }
+  }
+
+  agregarMiembro(usuario: any): void {
+    Swal.fire({
+      title: `¿Agregar a ${usuario.name}?`,
+      text: 'El usuario recibirá una notificación de bienvenida.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Agregar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#2dce89',
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.grupoService.unirse(this.grupoId, usuario.id).subscribe({
+          next: () => {
+            Swal.fire('Listo', `${usuario.name} fue agregado al grupo.`, 'success');
+            this.cargarMiembros();
+            this.busquedaAgregar = '';
+          },
+          error: err => Swal.fire('Error', err.error?.message || 'No se pudo agregar.', 'error'),
+        });
+      }
+    });
+  }
 
   promover(miembro: MembresiaGrupo): void {
     const nuevoRol = miembro.rol === RolMembresia.MIEMBRO
