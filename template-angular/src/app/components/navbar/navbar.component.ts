@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, HostListener } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -44,10 +44,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return session ? JSON.parse(session)?.id ?? '' : '';
   }
 
-  // Variables para notificaciones
-
-  private notificacionSubscription!: Subscription;
-
   constructor(
     location: Location,
     private element: ElementRef,
@@ -67,29 +63,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (!user || !user.id) return;
 
       this.currentUser = user;
-
       this.displayName = user.githubUsername && user.githubUsername.trim() !== ''
         ? user.githubUsername
         : (user.name || 'Usuario');
 
       this.profileService.getMyProfile().subscribe({
         next: (profile: Profile) => {
-          if (profile?.photo && profile.photo.trim() !== '') {
-            this.profileImage = profile.photo;
-          } else {
-            this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
-          }
+          this.profileImage = profile?.photo?.trim()
+            ? profile.photo
+            : 'assets/img/theme/team-4-800x800.jpg';
         },
-        error: () => {
-          this.profileImage = 'assets/img/theme/team-4-800x800.jpg';
-        }
+        error: () => { this.profileImage = 'assets/img/theme/team-4-800x800.jpg'; }
       });
 
-      // Conectar al servicio de notificaciones
       this.chatNotificationService.conectar(user.id);
-      this.cargarNotificaciones();
+      this.cargarNotificacionesChat();
 
-      // Cargar notificaciones cuando el usuario esté listo
       this.contarNoLeidas();
       this.intervalSub = interval(30000).subscribe(() => this.contarNoLeidas());
     });
@@ -121,70 +110,26 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.mostrarBandeja) this.cargarNotificaciones();
   }
 
-  cerrarBandeja(): void {
-    this.mostrarBandeja = false;
-  }
+  cerrarBandeja(): void { this.mostrarBandeja = false; }
 
   marcarLeida(notif: Notificacion): void {
     if (notif.leido) return;
     this.notificacionService.marcarLeida(notif.id!).subscribe({
-      next: () => {
-        notif.leido = true;
-        this.noLeidas = Math.max(0, this.noLeidas - 1);
-      },
+      next: () => { notif.leido = true; this.noLeidas = Math.max(0, this.noLeidas - 1); },
       error: () => {},
     });
   }
 
   marcarTodasLeidas(): void {
     this.notificacionService.marcarTodasLeidas(this.usuarioId).subscribe({
-      next: () => {
-        this.notificaciones.forEach(n => (n.leido = true));
-        this.noLeidas = 0;
-      },
+      next: () => { this.notificaciones.forEach(n => (n.leido = true)); this.noLeidas = 0; },
       error: () => {},
     });
   }
 
-  cargarNotificaciones(): void {
-    this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
-    this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
-
-    if (this.notificacionSubscription) {
-      this.notificacionSubscription.unsubscribe();
-    }
-
-    this.notificacionSubscription = this.chatNotificationService.onNotificaciones().subscribe(() => {
-      this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
-      this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
-    });
-  }
-
-  toggleNotificaciones(event: Event): void {
-    event.stopPropagation();
-    this.showNotificaciones = !this.showNotificaciones;
-  }
-
-  @HostListener('document:click')
-  cerrarNotificaciones(): void {
-    this.showNotificaciones = false;
-  }
-
-  marcarTodasLeidas(): void {
-    this.chatNotificationService.marcarTodosLeidos();
-  }
-
-  abrirNotificacion(notificacion: NotificacionMensaje): void {
-    this.chatNotificationService.marcarComoLeido(notificacion.emisorId);
-    this.router.navigate(['/mensajes/chat', notificacion.emisorId]);
-    this.showNotificaciones = false;
-  }
-
   irAlGrupo(notif: Notificacion): void {
     this.marcarLeida(notif);
-    if (notif.referenciaId) {
-      this.router.navigate(['/grupos/chat', notif.referenciaId]);
-    }
+    if (notif.referenciaId) this.router.navigate(['/grupos/chat', notif.referenciaId]);
     this.mostrarBandeja = false;
   }
 
@@ -220,9 +165,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
     this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
 
-    if (this.notificacionSubscription) {
-      this.notificacionSubscription.unsubscribe();
-    }
+    if (this.notificacionSubscription) this.notificacionSubscription.unsubscribe();
 
     this.notificacionSubscription = this.chatNotificationService.onNotificaciones().subscribe(() => {
       this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
@@ -236,13 +179,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:click')
-  cerrarNotificaciones(): void {
-    this.showNotificaciones = false;
-  }
+  cerrarNotificaciones(): void { this.showNotificaciones = false; }
 
-  marcarTodasLeidasChat(): void {
-    this.chatNotificationService.marcarTodosLeidos();
-  }
+  marcarTodasLeidasChat(): void { this.chatNotificationService.marcarTodosLeidos(); }
 
   abrirNotificacion(notificacion: NotificacionMensaje): void {
     this.chatNotificationService.marcarComoLeido(notificacion.emisorId);
@@ -252,9 +191,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // ── Métodos originales ────────────────────────────────────────────────────
 
-  goToMyProfile(): void {
-    this.router.navigate(['/profiles/me']);
-  }
+  goToMyProfile(): void { this.router.navigate(['/profiles/me']); }
 
   logout(): void {
     this.chatNotificationService.desconectar();
@@ -265,21 +202,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     let titlee = this.location.prepareExternalUrl(this.location.path());
     if (titlee.charAt(0) === '#') titlee = titlee.slice(1);
     for (let item = 0; item < this.listTitles.length; item++) {
-      if (this.listTitles[item].path === titlee) {
-        return this.listTitles[item].title;
-      }
+      if (this.listTitles[item].path === titlee) return this.listTitles[item].title;
     }
-
     return 'Dashboard';
   }
 
   ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
-    }
-    if (this.notificacionSubscription) {
-      this.notificacionSubscription.unsubscribe();
-    }
     if (this.userSubscription) this.userSubscription.unsubscribe();
     if (this.intervalSub) this.intervalSub.unsubscribe();
     if (this.notificacionSubscription) this.notificacionSubscription.unsubscribe();
