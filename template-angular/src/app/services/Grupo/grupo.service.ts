@@ -7,6 +7,7 @@ import {
   MembresiaGrupo,
   LogMembresiaGrupo,
   RolMembresia,
+  VerificarMembresiaResponse,
 } from '../../models/Grupos/grupo.model';
 
 @Injectable({ providedIn: 'root' })
@@ -15,20 +16,22 @@ export class GrupoService {
 
   constructor(private http: HttpClient) {}
 
-  // FIX: parámetro cambiado a 'busqueda' para buscar en nombre Y descripción
   list(busqueda?: string): Observable<Grupo[]> {
     let url = this.base;
-    if (busqueda?.trim()) {
-      url += `?busqueda=${encodeURIComponent(busqueda.trim())}`;
-    }
+    if (busqueda?.trim()) url += `?busqueda=${encodeURIComponent(busqueda.trim())}`;
     return this.http.get<Grupo[]>(url);
+  }
+
+  // HU-ENTR-3: Mis grupos (públicos y privados donde soy miembro)
+  misGrupos(usuarioId: string): Observable<(Grupo & { rol: string })[]> {
+    return this.http.get<(Grupo & { rol: string })[]>(`${this.base}/mis-grupos/${usuarioId}`);
   }
 
   view(id: number): Observable<Grupo> {
     return this.http.get<Grupo>(`${this.base}/${id}`);
   }
 
-  create(grupo: Partial<Grupo>): Observable<Grupo> {
+  create(grupo: Partial<Grupo> & { miembrosIniciales?: string[] }): Observable<Grupo> {
     return this.http.post<Grupo>(this.base, grupo);
   }
 
@@ -48,11 +51,10 @@ export class GrupoService {
     return this.http.delete<{ message: string }>(`${this.base}/${grupoId}/abandonar/${usuarioId}`);
   }
 
-  // FIX: verificar si el usuario es miembro antes de entrar al chat
-
-  verificarMembresia(grupoId: number, usuarioId: string): Observable<{ esMiembro: boolean; soloLectura: boolean }> {
-    return this.http.get<{ esMiembro: boolean; soloLectura: boolean }>(`${this.base}/${grupoId}/membresia/${usuarioId}`);
+  verificarMembresia(grupoId: number, usuarioId: string): Observable<VerificarMembresiaResponse> {
+    return this.http.get<VerificarMembresiaResponse>(`${this.base}/${grupoId}/membresia/${usuarioId}`);
   }
+
   listarMiembros(grupoId: number, nombre?: string): Observable<MembresiaGrupo[]> {
     let url = `${this.base}/${grupoId}/miembros`;
     if (nombre?.trim()) url += `?nombre=${encodeURIComponent(nombre.trim())}`;

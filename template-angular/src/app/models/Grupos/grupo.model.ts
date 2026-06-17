@@ -63,4 +63,7 @@ export interface Notificacion {
   referenciaId?: number;
   fechaCreacion?: string;
 }
-
+export interface VerificarMembresiaResponse {
+  esMiembro: boolean;
+  soloLectura: boolean;
+}

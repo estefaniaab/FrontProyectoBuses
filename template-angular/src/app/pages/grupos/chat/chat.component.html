@@ -12,7 +12,6 @@
             <button class="btn btn-sm btn-link text-white mr-2 p-0" (click)="back()">
               <i class="material-icons">arrow_back</i>
             </button>
-            <!-- Foto del grupo -->
             <img *ngIf="grupo?.fotoUrl" [src]="grupo?.fotoUrl"
                  width="40" height="40" class="rounded-circle mr-2" style="object-fit:cover;">
             <div *ngIf="!grupo?.fotoUrl"
@@ -48,9 +47,9 @@
 
         <!-- Mensajes -->
         <div *ngIf="!sinAcceso"
-          #mensajesContainer
-          class="flex-grow-1 py-3 px-3"
-          style="overflow-y: auto; background: #ece5dd;">
+             #mensajesContainer
+             class="flex-grow-1 py-3 px-3"
+             style="overflow-y: auto; background: #ece5dd;">
 
           <div *ngIf="mensajes.length === 0" class="text-center text-muted py-5">
             <i class="material-icons d-block mb-2" style="font-size:48px">chat_bubble_outline</i>
@@ -59,45 +58,56 @@
 
           <div *ngFor="let m of mensajes" class="mb-2"
                [ngClass]="esMio(m) ? 'd-flex justify-content-end' : 'd-flex justify-content-start'">
-            <div
-              style="max-width:70%; border-radius:8px; padding:8px 12px; position:relative;"
-              [ngStyle]="{
-                'background-color': m.eliminado ? '#f0f0f0' :
-                                    esMio(m) ? '#dcf8c6' : '#fff',
+            <div style="max-width:70%; border-radius:8px; padding:8px 12px; position:relative;"
+                 [ngStyle]="{
+                'background-color': m.eliminado ? '#f0f0f0' : esMio(m) ? '#dcf8c6' : '#fff',
                 'box-shadow': '0 1px 2px rgba(0,0,0,0.15)'
               }">
 
-              <!-- Nombre del emisor (no propios) -->
               <div *ngIf="!esMio(m) && !m.eliminado"
                    style="font-size:12px; font-weight:600; color:#075e54; margin-bottom:2px">
                 {{ m.nombreUsuario }}
               </div>
 
-              <!-- Contenido -->
+              <div *ngIf="m.contenido?.startsWith('↩') && !m.eliminado"
+                   style="font-size:10px; color:#999; margin-bottom:2px">
+                <i class="material-icons" style="font-size:12px;vertical-align:middle">reply</i>
+                Reenviado
+              </div>
+
               <div [ngStyle]="{ 'color': m.eliminado ? '#999' : '#333', 'font-style': m.eliminado ? 'italic' : 'normal' }">
                 {{ m.contenido }}
               </div>
 
-              <!-- Footer del mensaje -->
               <div class="d-flex align-items-center justify-content-end mt-1" style="gap:4px">
-                <span style="font-size:10px; color:#999">
-                  {{ m.fechaEnvio | date:'HH:mm' }}
-                </span>
+                <span style="font-size:10px; color:#999">{{ m.fechaEnvio | date:'HH:mm' }}</span>
 
-                <!-- Doble check estilo WhatsApp -->
-                <span *ngIf="esMio(m) && !m.eliminado" style="font-size:12px;">
+                <!-- Doble check — clic para ver quiénes leyeron -->
+                <span *ngIf="esMio(m) && !m.eliminado"
+                      style="cursor:pointer"
+                      title="Ver quiénes leyeron"
+                      (click)="verLecturas(m)">
                   <i class="material-icons"
                      [ngStyle]="{ 'font-size': '14px', 'color': (m.lecturas ?? 0) > 0 ? '#53bdeb' : '#999' }">
                     {{ (m.lecturas ?? 0) > 0 ? 'done_all' : 'done' }}
                   </i>
+                  <small *ngIf="(m.lecturas ?? 0) > 0"
+                         style="font-size:10px; color:#53bdeb; margin-left:1px">
+                    {{ m.lecturas }}
+                  </small>
                 </span>
 
-                <!-- Eliminar (solo propios o admin) -->
+                <!-- Reenviar -->
+                <button *ngIf="!m.eliminado && !soloLectura"
+                        class="btn btn-link p-0 ml-1" style="font-size:12px; color:#999;"
+                        title="Reenviar mensaje" (click)="abrirReenvio(m)">
+                  <i class="material-icons" style="font-size:14px">reply</i>
+                </button>
+
+                <!-- Eliminar -->
                 <button *ngIf="puedeEliminar(m) && !m.eliminado && !soloLectura"
-                  class="btn btn-link p-0 ml-1"
-                  style="font-size:12px; color:#999;"
-                  title="Eliminar mensaje"
-                  (click)="eliminarMensaje(m)">
+                        class="btn btn-link p-0 ml-1" style="font-size:12px; color:#999;"
+                        title="Eliminar mensaje" (click)="eliminarMensaje(m)">
                   <i class="material-icons" style="font-size:14px">delete</i>
                 </button>
               </div>
@@ -106,8 +116,7 @@
         </div>
 
         <!-- Solo lectura banner -->
-        <div *ngIf="soloLectura && !sinAcceso"
-             class="card-footer bg-warning text-center py-2">
+        <div *ngIf="soloLectura && !sinAcceso" class="card-footer bg-warning text-center py-2">
           <i class="material-icons mr-1" style="vertical-align:middle; font-size:16px">history</i>
           <small>Estás viendo tu historial. Ya no eres miembro de este grupo.</small>
         </div>
@@ -116,21 +125,13 @@
         <div *ngIf="!sinAcceso && !soloLectura" class="card-footer bg-transparent"
              style="background:#f0f0f0 !important;">
           <div class="input-group">
-            <textarea
-              class="form-control"
-              rows="1"
-              placeholder="Escribe un mensaje..."
-              [(ngModel)]="nuevoMensaje"
-              (keydown)="enviarConEnter($event)"
-              [disabled]="!conectado"
-              style="resize:none; border-radius:20px 0 0 20px; border:none;">
-            </textarea>
+            <textarea class="form-control" rows="1" placeholder="Escribe un mensaje..."
+                      [(ngModel)]="nuevoMensaje" (keydown)="enviarConEnter($event)" [disabled]="!conectado"
+                      style="resize:none; border-radius:20px 0 0 20px; border:none;"></textarea>
             <div class="input-group-append">
-              <button
-                class="btn btn-success"
-                (click)="enviar()"
-                [disabled]="!nuevoMensaje.trim() || !conectado"
-                style="border-radius:0 20px 20px 0;">
+              <button class="btn btn-success" (click)="enviar()"
+                      [disabled]="!nuevoMensaje.trim() || !conectado"
+                      style="border-radius:0 20px 20px 0;">
                 <i class="material-icons" style="vertical-align:middle">send</i>
               </button>
             </div>
@@ -139,5 +140,126 @@
 
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ── Modal Lecturas ────────────────────────────────────────────────────── -->
+<div *ngIf="mostrarLecturas"
+     style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1040;"
+     (click)="cerrarLecturas()">
+</div>
+
+<div *ngIf="mostrarLecturas"
+     style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            width:340px;max-width:90vw;background:#fff;border-radius:12px;
+            z-index:1050;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.3);"
+     (click)="$event.stopPropagation()">
+
+  <div class="d-flex justify-content-between align-items-center px-4 py-3"
+       style="background:#075e54;">
+    <span class="text-white font-weight-bold">
+      <i class="material-icons mr-1" style="vertical-align:middle">done_all</i>
+      Leído por
+    </span>
+    <button class="btn btn-link text-white p-0" (click)="cerrarLecturas()">
+      <i class="material-icons">close</i>
+    </button>
+  </div>
+
+  <div style="max-height:300px; overflow-y:auto;">
+    <div *ngIf="cargandoLecturas" class="text-center py-4">
+      <div class="spinner-border text-success" style="width:24px;height:24px;"></div>
+    </div>
+
+    <div *ngIf="!cargandoLecturas && lecturasDetalle.length === 0"
+         class="text-center text-muted py-4">
+      <i class="material-icons d-block mb-1" style="font-size:32px">visibility_off</i>
+      Nadie ha leído este mensaje aún.
+    </div>
+
+    <div *ngFor="let l of lecturasDetalle"
+         class="d-flex align-items-center px-4 py-2 border-bottom">
+      <div class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center mr-3"
+           style="width:36px;height:36px;flex-shrink:0">
+        <i class="material-icons text-white" style="font-size:18px">person</i>
+      </div>
+      <div class="flex-grow-1">
+        <div style="font-size:13px; font-weight:500; color:#333">{{ l.nombreUsuario || l.usuarioId }}</div>
+        <small class="text-muted">{{ l.fechaLectura | date:'dd/MM/yyyy HH:mm' }}</small>
+      </div>
+      <i class="material-icons" style="color:#53bdeb; font-size:18px">done_all</i>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Reenvío ─────────────────────────────────────────────────────── -->
+<div *ngIf="mostrarModalReenvio"
+     style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1040;"
+     (click)="cerrarReenvio()">
+</div>
+
+<div *ngIf="mostrarModalReenvio"
+     style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            width:400px;max-width:90vw;background:#fff;border-radius:12px;
+            z-index:1050;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.3);"
+     (click)="$event.stopPropagation()">
+
+  <div class="d-flex justify-content-between align-items-center px-4 py-3"
+       style="background:#075e54;">
+    <span class="text-white font-weight-bold">
+      <i class="material-icons mr-1" style="vertical-align:middle">reply</i>
+      Reenviar mensaje
+    </span>
+    <button class="btn btn-link text-white p-0" (click)="cerrarReenvio()">
+      <i class="material-icons">close</i>
+    </button>
+  </div>
+
+  <div class="px-4 py-2" style="background:#f0f0f0; border-bottom:1px solid #ddd;">
+    <small class="text-muted d-block mb-1">Mensaje a reenviar:</small>
+    <div style="font-size:13px; color:#333; max-height:60px; overflow:hidden;">
+      {{ mensajeSeleccionado?.contenido }}
+    </div>
+  </div>
+
+  <div style="max-height:300px; overflow-y:auto;">
+    <div *ngIf="gruposParaReenvio().length === 0" class="text-center text-muted py-4">
+      <i class="material-icons d-block mb-1" style="font-size:32px">group_off</i>
+      No perteneces a otros grupos.
+    </div>
+
+    <div *ngFor="let g of gruposParaReenvio()"
+         class="d-flex align-items-center px-4 py-2"
+         style="cursor:pointer; border-bottom:1px solid #f0f0f0;"
+         [ngStyle]="{ 'background-color': gruposSeleccionados.has(g.id!) ? '#e8f5e9' : '#fff' }"
+         (click)="toggleGrupoDestino(g.id!)">
+      <img *ngIf="g.fotoUrl" [src]="g.fotoUrl"
+           width="40" height="40" class="rounded-circle mr-3" style="object-fit:cover; flex-shrink:0">
+      <div *ngIf="!g.fotoUrl"
+           class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center mr-3"
+           style="width:40px;height:40px;flex-shrink:0">
+        <i class="material-icons text-white" style="font-size:18px">group</i>
+      </div>
+      <div class="flex-grow-1">
+        <div style="font-size:14px; font-weight:500; color:#333">{{ g.nombre }}</div>
+        <small class="text-muted">{{ g.totalMiembros ?? 0 }} miembros</small>
+      </div>
+      <i class="material-icons"
+         [ngStyle]="{ 'color': gruposSeleccionados.has(g.id!) ? '#2dce89' : '#ccc' }">
+        {{ gruposSeleccionados.has(g.id!) ? 'check_circle' : 'radio_button_unchecked' }}
+      </i>
+    </div>
+  </div>
+
+  <div class="px-4 py-3 d-flex justify-content-between align-items-center" style="border-top:1px solid #eee;">
+    <small class="text-muted">
+      {{ gruposSeleccionados.size }} grupo{{ gruposSeleccionados.size !== 1 ? 's' : '' }} seleccionado{{ gruposSeleccionados.size !== 1 ? 's' : '' }}
+    </small>
+    <button class="btn btn-success btn-sm"
+            [disabled]="gruposSeleccionados.size === 0 || reenviando"
+            (click)="reenviar()">
+      <i class="material-icons mr-1" style="vertical-align:middle;font-size:16px">reply</i>
+      Reenviar
+    </button>
   </div>
 </div>

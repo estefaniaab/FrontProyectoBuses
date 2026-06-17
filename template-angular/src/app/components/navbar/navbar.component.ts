@@ -24,14 +24,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   userSubscription!: Subscription;
   private intervalSub?: Subscription;
+  private notificacionSubscription!: Subscription;
 
   displayName: string = 'Usuario';
   profileImage: string = 'assets/img/theme/team-4-800x800.jpg';
 
-  // ── Notificaciones ────────────────────────────────────────────────────────
+  // ── Notificaciones grupos ─────────────────────────────────────────────────
   notificaciones: Notificacion[] = [];
   noLeidas = 0;
   mostrarBandeja = false;
+
+  // ── Notificaciones chat ───────────────────────────────────────────────────
+  contadorNotificaciones = 0;
+  listaNotificaciones: NotificacionMensaje[] = [];
+  showNotificaciones = false;
 
   get usuarioId(): string {
     const session = localStorage.getItem('session');
@@ -39,9 +45,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   // Variables para notificaciones
-  contadorNotificaciones = 0;
-  listaNotificaciones: NotificacionMensaje[] = [];
-  showNotificaciones = false;
+
   private notificacionSubscription!: Subscription;
 
   constructor(
@@ -50,8 +54,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private router: Router,
     public securityService: SecurityService,
     private profileService: ProfileService,
-    private chatNotificationService: ChatNotificationService,
     private notificacionService: NotificacionService,
+    private chatNotificationService: ChatNotificationService,
   ) {
     this.location = location;
   }
@@ -91,7 +95,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Métodos notificaciones ────────────────────────────────────────────────
+  // ── Notificaciones grupos ─────────────────────────────────────────────────
 
   contarNoLeidas(): void {
     if (!this.usuarioId) return;
@@ -190,6 +194,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       salida_grupo:     'exit_to_app',
       remocion_grupo:   'person_remove',
       bloqueo_grupo:    'block',
+      nuevo_mensaje:    'chat',
+      alerta_masiva:    'campaign',
+      alerta_urgente:   'warning',
     };
     return iconos[tipo] ?? 'notifications';
   }
@@ -200,8 +207,47 @@ export class NavbarComponent implements OnInit, OnDestroy {
       salida_grupo:     '#adb5bd',
       remocion_grupo:   '#f5365c',
       bloqueo_grupo:    '#fb6340',
+      nuevo_mensaje:    '#5e72e4',
+      alerta_masiva:    '#11cdef',
+      alerta_urgente:   '#f5365c',
     };
     return colores[tipo] ?? '#5e72e4';
+  }
+
+  // ── Notificaciones chat ───────────────────────────────────────────────────
+
+  cargarNotificacionesChat(): void {
+    this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
+    this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
+
+    if (this.notificacionSubscription) {
+      this.notificacionSubscription.unsubscribe();
+    }
+
+    this.notificacionSubscription = this.chatNotificationService.onNotificaciones().subscribe(() => {
+      this.listaNotificaciones = this.chatNotificationService.obtenerNotificaciones();
+      this.contadorNotificaciones = this.chatNotificationService.obtenerNoLeidos();
+    });
+  }
+
+  toggleNotificaciones(event: Event): void {
+    event.stopPropagation();
+    this.showNotificaciones = !this.showNotificaciones;
+  }
+
+  @HostListener('document:click')
+  cerrarNotificaciones(): void {
+    this.showNotificaciones = false;
+  }
+
+  marcarTodasLeidasChat(): void {
+    this.chatNotificationService.marcarTodosLeidos();
+  }
+
+  abrirNotificacion(notificacion: NotificacionMensaje): void {
+    this.chatNotificationService.marcarComoLeido(notificacion.emisorId);
+    this.router.navigate(['/mensajes/chat', notificacion.emisorId]);
+    this.showNotificaciones = false;
   }
 
   // ── Métodos originales ────────────────────────────────────────────────────
@@ -234,5 +280,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.notificacionSubscription) {
       this.notificacionSubscription.unsubscribe();
     }
+    if (this.userSubscription) this.userSubscription.unsubscribe();
+    if (this.intervalSub) this.intervalSub.unsubscribe();
+    if (this.notificacionSubscription) this.notificacionSubscription.unsubscribe();
   }
 }

@@ -10,13 +10,25 @@ import { GrupoService } from 'src/app/services/Grupo/grupo.service';
   styleUrls: ['./list.component.scss'],
 })
 export class ListComponent implements OnInit {
-  grupos: Grupo[] = [];
-  busqueda = '';
-  cargando = false;
+  gruposPublicos: Grupo[] = [];
+  busquedaPublicos = '';
+  cargandoPublicos = false;
+
+  misGrupos: (Grupo & { rol?: string })[] = [];
+  busquedaMisGrupos = '';
+  cargandoMisGrupos = false;
+
+  pestanaActiva: 'publicos' | 'misGrupos' = 'publicos';
 
   get usuarioActual(): string {
     const session = localStorage.getItem('session');
     return session ? JSON.parse(session)?.id ?? '' : '';
+  }
+
+  // FIX: excluir de grupos públicos los que ya soy miembro
+  get gruposPublicosFiltrados(): Grupo[] {
+    const misIds = new Set(this.misGrupos.map(g => g.id));
+    return this.gruposPublicos.filter(g => !misIds.has(g.id));
   }
 
   constructor(
@@ -24,22 +36,37 @@ export class ListComponent implements OnInit {
     private grupoService: GrupoService,
   ) {}
 
-  ngOnInit(): void { this.list(); }
+  ngOnInit(): void {
+    this.cargarGruposPublicos();
+    this.cargarMisGrupos();
+  }
 
-  list(): void {
-    this.cargando = true;
-    this.grupoService.list(this.busqueda).subscribe({
-      next: grupos => { this.grupos = grupos; this.cargando = false; },
-      error: ()     => { this.cargando = false; },
+  cambiarPestana(pestana: 'publicos' | 'misGrupos'): void {
+    this.pestanaActiva = pestana;
+  }
+
+  cargarGruposPublicos(): void {
+    this.cargandoPublicos = true;
+    this.grupoService.list(this.busquedaPublicos).subscribe({
+      next: grupos => { this.gruposPublicos = grupos; this.cargandoPublicos = false; },
+      error: ()     => { this.cargandoPublicos = false; },
     });
   }
 
-  buscar(): void { this.list(); }
-  limpiarBusqueda(): void { this.busqueda = ''; this.list(); }
-  create(): void  { this.router.navigate(['/grupos/create']); }
+  buscarPublicos(): void { this.cargarGruposPublicos(); }
+  limpiarBusquedaPublicos(): void { this.busquedaPublicos = ''; this.cargarGruposPublicos(); }
+
+  cargarMisGrupos(): void {
+    this.cargandoMisGrupos = true;
+    this.grupoService.misGrupos(this.usuarioActual).subscribe({
+      next: grupos => { this.misGrupos = grupos; this.cargandoMisGrupos = false; },
+      error: ()     => { this.cargandoMisGrupos = false; },
+    });
+  }
+
+  create(): void    { this.router.navigate(['/grupos/create']); }
   manage(id: number): void { this.router.navigate(['/grupos/manage', id]); }
 
-  // FIX: verificar membresía antes de entrar al chat
   chat(grupo: Grupo): void {
     this.grupoService.verificarMembresia(grupo.id!, this.usuarioActual).subscribe({
       next: ({ esMiembro }) => {
@@ -54,11 +81,10 @@ export class ListComponent implements OnInit {
           });
         }
       },
-      error: () => {
-        Swal.fire('Error', 'No se pudo verificar tu membresía.', 'error');
-      },
+      error: () => Swal.fire('Error', 'No se pudo verificar tu membresía.', 'error'),
     });
   }
+
   unirse(grupo: Grupo): void {
     Swal.fire({
       title: `¿Unirte a "${grupo.nombre}"?`,
@@ -73,7 +99,8 @@ export class ListComponent implements OnInit {
         this.grupoService.unirse(grupo.id!, this.usuarioActual).subscribe({
           next: () => {
             Swal.fire('¡Bienvenido!', `Te uniste al grupo "${grupo.nombre}"`, 'success');
-            this.list();
+            this.cargarGruposPublicos();
+            this.cargarMisGrupos();
           },
           error: err => Swal.fire('Error', err.error?.message || 'No se pudo unir al grupo', 'error'),
         });
@@ -95,7 +122,8 @@ export class ListComponent implements OnInit {
         this.grupoService.abandonar(grupo.id!, this.usuarioActual).subscribe({
           next: () => {
             Swal.fire('Listo', 'Has abandonado el grupo.', 'success');
-            this.list();
+            this.cargarGruposPublicos();
+            this.cargarMisGrupos();
           },
           error: err => Swal.fire('Error', err.error?.message || 'No se pudo abandonar', 'error'),
         });
@@ -116,7 +144,11 @@ export class ListComponent implements OnInit {
     }).then(result => {
       if (result.isConfirmed) {
         this.grupoService.delete(id).subscribe({
-          next: () => { Swal.fire('Eliminado!', 'Grupo eliminado.', 'success'); this.list(); },
+          next: () => {
+            Swal.fire('Eliminado!', 'Grupo eliminado.', 'success');
+            this.cargarGruposPublicos();
+            this.cargarMisGrupos();
+          },
           error: err => Swal.fire('Error', err.error?.message || 'No se pudo eliminar.', 'error'),
         });
       }
