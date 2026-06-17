@@ -33,6 +33,8 @@ export const ROUTES: RouteInfo[] = [
   // Mensajería
   { path: '/mensajes', title: 'Mensajes', icon: 'ni-email-83 text-primary', class: ''},
   { path: '/citas/agendar', title: 'Agendar Cita', icon: 'ni-calendar-grid-58 text-success', class: ''},
+  { path: '/pqrs', title: 'PQR', icon: 'ni-email-83 text-warning', class: ''},
+  { path: '/clima/configuracion', title: 'Alertas clima', icon: 'ni-cloud-rain-35 text-info', class: ''},
   // Ciudadano / viajes
   { path: '/ciudadanos/list', title: 'Ciudadanos', icon: 'ni-single-02 text-success', class: ''},
   { path: '/boletos/list', title: 'Boletos', icon: 'ni-tag text-purple', class: '' },

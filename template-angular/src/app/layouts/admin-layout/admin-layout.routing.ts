@@ -262,5 +262,16 @@ export const AdminLayoutRoutes: Routes = [
       }
     ]
   },
+{
+    path: 'pqrs',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/pqrs/pqrs.module').then(m => m.PQRSModule)
+      }
+    ]
+  },
 
 ];
