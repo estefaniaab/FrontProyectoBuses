@@ -273,4 +273,16 @@ export const AdminLayoutRoutes: Routes = [
     ]
   },
 
+{
+    path: 'clima',
+    canActivate: [AuthenticatedGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('src/app/pages/clima-config/clima-config.module').then(m => m.ClimaConfigModule)
+      }
+    ]
+  },
+
 ];
