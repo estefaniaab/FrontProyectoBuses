@@ -18,4 +18,4 @@ EXPOSE 4200
 
 # Comando por defecto para levantar el servidor de desarrollo de Angular
 # --host 0.0.0.0 permite que el contenedor acepte conexiones externas de tu máquina
-CMD ["npm", "run", "start", "--", "--host", "0.0.0.0"]
+CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--poll", "2000"]

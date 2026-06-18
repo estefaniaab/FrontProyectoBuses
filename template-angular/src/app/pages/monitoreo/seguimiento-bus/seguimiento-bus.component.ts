@@ -10,7 +10,7 @@ import * as L from 'leaflet';
 import Swal from 'sweetalert2';
 
 import { MonitoreoService } from 'src/app/services/monitoreo/monitoreo.service';
-import { RutaService } from 'src/app/services/ruta/ruta.service';
+import { RutaService } from 'src/app/services/Ruta/ruta.service';
 import { NodoService } from 'src/app/services/Nodo/nodo.service';
 import { FirebaseService } from 'src/app/services/Firebase/firebase.service';
 import { NotificacionesService } from 'src/app/services/Notificaciones/notificaciones.service';
