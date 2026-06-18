@@ -18,123 +18,148 @@
 
 <div class="container mt--8 pb-5">
   <div class="row justify-content-center">
-    <div class="col-lg-7 col-md-9">
+    <div class="col-lg-8 col-md-10">
       <div class="card bg-secondary shadow border-0">
-        <div class="card-body px-lg-5 py-lg-5">
 
-          <div class="text-center text-muted mb-4">
-            <small>Completa los datos obligatorios</small>
+        <div class="card-header bg-white border-0 py-3 text-center">
+          <div class="btn-group shadow-sm">
+            <button (click)="pestana = 'nueva'"
+                    [class.btn-danger]="pestana === 'nueva'"
+                    [class.btn-outline-danger]="pestana !== 'nueva'"
+                    class="btn btn-sm px-4 font-weight-bold">
+              <i class="ni ni-calendar-grid-58 mr-1"></i> Agendar Cita
+            </button>
+            <button (click)="pestana = 'mis-citas'"
+                    [class.btn-danger]="pestana === 'mis-citas'"
+                    [class.btn-outline-danger]="pestana !== 'mis-citas'"
+                    class="btn btn-sm px-4 font-weight-bold">
+              <i class="ni ni-bullet-list-67 mr-1"></i> Mis Citas
+            </button>
           </div>
+        </div>
 
-          <form [formGroup]="formGroup" role="form">
+        <div class="card-body px-lg-5 py-lg-5 bg-white rounded-bottom">
 
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <div class="input-group input-group-alternative mb-1"
-                       [class.is-invalid]="formGroup.controls.tipoAtencion.errors && (formGroup.controls.tipoAtencion.dirty || formGroup.controls.tipoAtencion.touched)">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-badge"></i></span>
-                    </div>
-                    <select class="form-control" formControlName="tipoAtencion">
-                      <option [value]="tipoAtencionEnum.PRESENCIAL">Presencial</option>
-                      <option [value]="tipoAtencionEnum.VIRTUAL">Virtual</option>
-                    </select>
-                  </div>
-                  <small class="text-danger" *ngIf="formGroup.controls.tipoAtencion.errors && (formGroup.controls.tipoAtencion.dirty || formGroup.controls.tipoAtencion.touched)">
-                    Campo obligatorio
-                  </small>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <div class="input-group input-group-alternative mb-1"
-                       [class.is-invalid]="formGroup.controls.tipoConsulta.errors && (formGroup.controls.tipoConsulta.dirty || formGroup.controls.tipoConsulta.touched)">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-bullet-list-67"></i></span>
-                    </div>
-                    <select class="form-control" formControlName="tipoConsulta">
-                      <option value="" disabled selected hidden>Tipo Consulta</option>
-                      <option [value]="tipoConsultaEnum.TARJETA">Problema con tarjeta</option>
-                      <option [value]="tipoConsultaEnum.RECLAMO">Reclamo</option>
-                      <option [value]="tipoConsultaEnum.REEMBOLSO">Reembolso</option>
-                      <option [value]="tipoConsultaEnum.OTRO">Otro</option>
-                    </select>
-                  </div>
-                  <small class="text-danger" *ngIf="formGroup.controls.tipoConsulta.errors && (formGroup.controls.tipoConsulta.dirty || formGroup.controls.tipoConsulta.touched)">
-                    Campo obligatorio
-                  </small>
-                </div>
-              </div>
+          <div *ngIf="pestana === 'nueva'">
+            <div class="text-center text-muted mb-4">
+              <small>Completa los datos obligatorios</small>
             </div>
 
-            <div class="row my-3">
-              <div class="col-12 text-center">
-                <button type="button" class="btn btn-primary px-4" [disabled]="cargando" (click)="consultarDisponibilidad()">
-                  <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'ni ni-calendar-grid-58 mr-2'"></i>
-                  {{ cargando ? ' Consultando...' : ' Consultar Disponibilidad' }}
-                </button>
-              </div>
-            </div>
+            <form [formGroup]="formGroup" role="form">
 
-            <div class="row" *ngIf="horariosAgrupados.length > 0">
-              <div class="col-md-8 mx-auto">
-                <div class="form-group">
-                  <div class="input-group input-group-alternative mb-1">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-time-alarm"></i></span>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative mb-1"
+                         [class.is-invalid]="formGroup.controls.tipoAtencion.errors && (formGroup.controls.tipoAtencion.dirty || formGroup.controls.tipoAtencion.touched)">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-badge"></i></span>
+                      </div>
+                      <select class="form-control" formControlName="tipoAtencion">
+                        <option [value]="tipoAtencionEnum.PRESENCIAL">Presencial</option>
+                        <option [value]="tipoAtencionEnum.VIRTUAL">Virtual</option>
+                      </select>
                     </div>
-                    <input type="date" class="form-control" [(ngModel)]="fechaSeleccionada" [ngModelOptions]="{standalone:true}" (change)="cambiarFecha()">
+                    <small class="text-danger" *ngIf="formGroup.controls.tipoAtencion.errors && (formGroup.controls.tipoAtencion.dirty || formGroup.controls.tipoAtencion.touched)">
+                      Campo obligatorio
+                    </small>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative mb-1"
+                         [class.is-invalid]="formGroup.controls.tipoConsulta.errors && (formGroup.controls.tipoConsulta.dirty || formGroup.controls.tipoConsulta.touched)">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-bullet-list-67"></i></span>
+                      </div>
+                      <select class="form-control" formControlName="tipoConsulta">
+                        <option value="" disabled selected hidden>Tipo Consulta</option>
+                        <option [value]="tipoConsultaEnum.TARJETA">Problema con tarjeta</option>
+                        <option [value]="tipoConsultaEnum.RECLAMO">Reclamo</option>
+                        <option [value]="tipoConsultaEnum.REEMBOLSO">Reembolso</option>
+                        <option [value]="tipoConsultaEnum.OTRO">Otro</option>
+                      </select>
+                    </div>
+                    <small class="text-danger" *ngIf="formGroup.controls.tipoConsulta.errors && (formGroup.controls.tipoConsulta.dirty || formGroup.controls.tipoConsulta.touched)">
+                      Campo obligatorio
+                    </small>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div class="row my-3" *ngIf="horariosDelDia.length > 0">
-              <div class="col-12 text-center">
-                <small class="text-muted d-block mb-2 font-weight-bold">Horarios Disponibles</small>
-                <div class="d-flex flex-wrap justify-content-center">
-                  <button type="button"
-                          *ngFor="let horario of horariosDelDia"
-                          (click)="seleccionarHorario(horario.fecha)"
-                          class="btn btn-sm mx-1 mb-2"
-                          [ngClass]="formGroup.value.fechaHora === horario.fecha ? 'btn-primary' : 'btn-outline-primary'">
-                    {{ horario.horaStr }}
+              <div class="row my-3">
+                <div class="col-12 text-center">
+                  <button type="button" class="btn btn-primary px-4" [disabled]="cargando" (click)="consultarDisponibilidad()">
+                    <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'ni ni-calendar-grid-58 mr-2'"></i>
+                    {{ cargando ? ' Consultando...' : ' Consultar Disponibilidad' }}
                   </button>
                 </div>
-                <small class="text-danger d-block mt-1" *ngIf="formGroup.controls.fechaHora.errors && formGroup.controls.fechaHora.touched">
-                  Debes seleccionar un horario obligatorio
-                </small>
               </div>
-            </div>
 
-            <div class="row">
-              <div class="col-12">
-                <div class="form-group">
-                  <div class="input-group input-group-alternative mb-1"
-                       [class.is-invalid]="formGroup.controls.motivo.errors && (formGroup.controls.motivo.dirty || formGroup.controls.motivo.touched)">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-align-left-2"></i></span>
+              <div class="row" *ngIf="horariosAgrupados.length > 0">
+                <div class="col-md-8 mx-auto">
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative mb-1">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-time-alarm"></i></span>
+                      </div>
+                      <input type="date" class="form-control" [(ngModel)]="fechaSeleccionada" [ngModelOptions]="{standalone:true}" (change)="cambiarFecha()">
                     </div>
-                    <textarea rows="4" class="form-control pt-3" formControlName="motivo" placeholder="Escribe aquí el motivo detallado de tu cita..."></textarea>
                   </div>
-                  <small class="text-danger" *ngIf="formGroup.controls.motivo.errors && (formGroup.controls.motivo.dirty || formGroup.controls.motivo.touched)">
-                    Campo obligatorio
+                </div>
+              </div>
+
+              <div class="row my-3" *ngIf="horariosDelDia.length > 0">
+                <div class="col-12 text-center">
+                  <small class="text-muted d-block mb-2 font-weight-bold">Horarios Disponibles</small>
+                  <div class="d-flex flex-wrap justify-content-center">
+                    <button type="button"
+                            *ngFor="let horario of horariosDelDia"
+                            (click)="seleccionarHorario(horario.fecha)"
+                            class="btn btn-sm mx-1 mb-2"
+                            [ngClass]="formGroup.value.fechaHora === horario.fecha ? 'btn-primary' : 'btn-outline-primary'">
+                      {{ horario.horaStr }}
+                    </button>
+                  </div>
+                  <small class="text-danger d-block mt-1" *ngIf="formGroup.controls.fechaHora.errors && formGroup.controls.fechaHora.touched">
+                    Debes seleccionar un horario obligatorio
                   </small>
                 </div>
               </div>
-            </div>
 
-            <div class="text-center">
-              <button type="button"
-                      class="btn btn-success mt-4 px-5 shadow"
-                      (click)="agendar()">
-                Confirmar Cita
-              </button>
-            </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative mb-1"
+                         [class.is-invalid]="formGroup.controls.motivo.errors && (formGroup.controls.motivo.dirty || formGroup.controls.motivo.touched)">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-align-left-2"></i></span>
+                      </div>
+                      <textarea rows="4" class="form-control pt-3" formControlName="motivo" placeholder="Escribe aquí el motivo detallado de tu cita..."></textarea>
+                    </div>
+                    <small class="text-danger" *ngIf="formGroup.controls.motivo.errors && (formGroup.controls.motivo.dirty || formGroup.controls.motivo.touched)">
+                      Campo obligatorio
+                    </small>
+                  </div>
+                </div>
+              </div>
 
-          </form>
+              <div class="text-center">
+                <button type="button"
+                        class="btn btn-success mt-4 px-5 shadow"
+                        (click)="agendar()">
+                  Confirmar Cita
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+          <div *ngIf="pestana === 'mis-citas'">
+            <app-list></app-list>
+          </div>
+
         </div>
       </div>
     </div>

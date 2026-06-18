@@ -59,7 +59,7 @@ export class CitasService {
 
     return this.http.get<any>(
 
-      `${environment.url_ms_business}/citas/cancelar-publica/${token}`
+      `${environment.url_ms_business}/citas/cancelar/${token}`
 
     );
 
