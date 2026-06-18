@@ -264,7 +264,6 @@ export const AdminLayoutRoutes: Routes = [
   },
 {
     path: 'pqrs',
-    canActivate: [AuthenticatedGuard],
     children: [
       {
         path: '',

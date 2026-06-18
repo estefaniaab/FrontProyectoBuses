@@ -14,7 +14,6 @@ export class PqrsService {
 
   private getHeaders() {
     const token = localStorage.getItem('token');
-
     return {
       headers: new HttpHeaders({
         Authorization: `Bearer ${token}`,
@@ -27,6 +26,22 @@ export class PqrsService {
   }
 
   view(radicado: string): Observable<PQRS> {
-    return this.http.get<PQRS>(`${this.url}/pqrs/${radicado}`);
+    return this.http.get<PQRS>(`${this.url}/pqrs/${radicado}`, this.getHeaders());
+  }
+
+  list(): Observable<PQRS[]> {
+    return this.http.get<PQRS[]>(`${this.url}/pqrs`, this.getHeaders());
+  }
+
+  findByUsuario(usuarioId: string): Observable<PQRS[]> {
+    return this.http.get<PQRS[]>(`${this.url}/pqrs/usuario/${usuarioId}`, this.getHeaders());
+  }
+
+  updateEstado(radicado: string, dto: { estado: string; respuesta: string }): Observable<any> {
+      return this.http.patch<any>(`${this.url}/pqrs/${radicado}/estado`, dto, this.getHeaders());
+    }
+
+  delete(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.url}/pqrs/${id}`, this.getHeaders());
   }
 }

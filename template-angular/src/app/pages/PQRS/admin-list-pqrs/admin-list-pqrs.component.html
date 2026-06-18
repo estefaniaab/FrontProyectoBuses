@@ -1,0 +1,53 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h3 class="mb-0">PQRS por Usuario</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+              <tr>
+                <th>Usuario</th>
+                <th>Total PQRS</th>
+                <th>Último Radicado</th>
+                <th>Acciones</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of resumenUsuarios">
+                <td>{{ item.nombreUsuario }}</td>
+                <td>
+                  <span class="badge badge-info">{{ item.cantidadPQRS }}</span>
+                </td>
+                <td>{{ item.ultimoPQRS | date:'dd/MM/yyyy, h:mm a' }}</td>
+                <td>
+                  <button class="btn btn-info btn-sm" (click)="verHistorial(item.usuarioId)" title="Ver solicitudes">
+                    <i class="material-icons">visibility</i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="resumenUsuarios.length === 0">
+                <td colspan="4" class="text-center text-muted">
+                  No hay solicitudes PQRS registradas en el sistema.
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
