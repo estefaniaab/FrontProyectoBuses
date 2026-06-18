@@ -1,0 +1,57 @@
+<div class="table-responsive">
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-danger" role="status"></div>
+    <p class="text-muted mt-2">Cargando tus citas...</p>
+  </div>
+
+  <table *ngIf="!cargando && listaCitas.length > 0" class="table align-items-center table-flush border rounded">
+    <thead class="thead-light">
+    <tr>
+      <th scope="col" class="font-weight-bold text-dark">Tipo de Consulta</th>
+      <th scope="col" class="font-weight-bold text-dark">Modalidad</th>
+      <th scope="col" class="font-weight-bold text-dark">Fecha y Hora</th>
+      <th scope="col" class="font-weight-bold text-dark">Estado</th>
+      <th scope="col" class="font-weight-bold text-dark text-center">Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let cita of listaCitas">
+      <td>
+        <span class="mb-0 text-sm font-weight-bold text-primary">{{ cita.tipoConsulta }}</span>
+      </td>
+      <td>
+          <span class="badge badge-dot mr-4">
+            <i [class]="cita.tipoAtencion === 'Virtual' ? 'bg-info' : 'bg-warning'"></i>
+            {{ cita.tipoAtencion }}
+          </span>
+      </td>
+      <td>
+        <span class="text-sm font-weight-bold">{{ cita.fechaHora | date:'dd/MM/yyyy - hh:mm a' }}</span>
+      </td>
+      <td>
+          <span class="badge badge-pill shadow-sm text-uppercase"
+                [ngClass]="{
+                  'badge-success': cita.estado === 'agendada',
+                  'badge-danger': cita.estado === 'cancelada',
+                  'badge-light text-muted': cita.estado === 'completada'
+                }">
+            {{ cita.estado }}
+          </span>
+      </td>
+      <td class="text-center">
+        <button *ngIf="cita.estado === 'agendada'"
+                (click)="cancelarCita(cita.id)"
+                class="btn btn-sm btn-outline-danger px-3 py-1 shadow-sm">
+          <i class="fas fa-times-circle mr-1"></i> Cancelar
+        </button>
+        <span *ngIf="cita.estado !== 'agendada'" class="text-muted small">-</span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!cargando && listaCitas.length === 0" class="text-center py-5 bg-white border rounded shadow-sm">
+    <i class="ni ni-calendar-grid-58 text-muted mb-3" style="font-size: 3rem; opacity: 0.4;"></i>
+    <h4 class="text-muted font-weight-normal">No tienes ninguna cita registrada en tu historial.</h4>
+  </div>
+</div>

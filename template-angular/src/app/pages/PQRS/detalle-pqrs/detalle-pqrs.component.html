@@ -1,0 +1,104 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8"></div>
+
+<div class="container-fluid mt--7">
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9 col-md-11">
+
+      <div class="card shadow mb-4">
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col-8">
+              <h3 class="mb-0">
+                <i class="ni ni-single-copy-04 text-primary"></i>
+                Detalle del Radicado: {{ pqrs?.radicado || 'Cargando...' }}
+              </h3>
+            </div>
+            <div class="col-4 text-right">
+              <button class="btn btn-secondary btn-sm" (click)="regresar()">
+                <i class="fa fa-arrow-left"></i> Regresar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center py-5">
+            <i class="fa fa-spinner fa-spin fa-3x text-danger"></i>
+            <p class="mt-2 text-muted">Cargando información del PQRS...</p>
+          </div>
+
+          <div *ngIf="!loading && pqrs" class="row">
+            <div class="col-md-6 mb-3">
+              <small class="text-muted font-weight-bold">Tipo de Solicitud</small>
+              <p class="h4 text-dark">{{ pqrs.tipo }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <small class="text-muted font-weight-bold">Categoría</small>
+              <p class="h4 text-dark">{{ pqrs.categoria }}</p>
+            </div>
+            <div class="col-12 mb-3">
+              <small class="text-muted font-weight-bold">Descripción del Caso</small>
+              <div class="p-3 bg-secondary rounded text-dark text-justify">
+                {{ pqrs.descripcion }}
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <small class="text-muted font-weight-bold">Estado Actual</small>
+              <div>
+                <span class="badge" [ngClass]="{
+                  'badge-warning': pqrs.estado?.toUpperCase() === 'ENVIADO',
+                  'badge-info': pqrs.estado?.toUpperCase() === 'EN REVISIÓN' || pqrs.estado?.toUpperCase() === 'EN_REVISION',
+                  'badge-success': pqrs.estado?.toUpperCase() === 'RESUELTO',
+                  'badge-danger': pqrs.estado?.toUpperCase() === 'CANCELADO'
+                }">{{ pqrs.estado }}</span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3" *ngIf="pqrs?.['respuesta']">
+              <small class="text-muted font-weight-bold">Respuesta Anterior</small>
+              <p class="text-dark font-italic">"{{ pqrs?.['respuesta'] }}"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow mt-4" *ngIf="!loading && esModoEdicion">
+        <div class="card-header bg-transparent border-0">
+          <h3 class="mb-0"><i class="fa fa-gavel text-warning"></i> Gestionar y Responder</h3>
+        </div>
+
+        <div class="card-body bg-secondary-custom p-4" style="background-color: #f8f9fe; border-top: 1px solid #e9ecef;">
+          <div class="row">
+            <div class="col-12 form-group">
+              <label class="form-control-label font-weight-bold" for="input-estado">Cambiar Estado del Radicado</label>
+              <select id="input-estado" class="form-control shadow-sm" [(ngModel)]="nuevoEstado">
+                <option value="">-- Seleccione un estado --</option>
+                <option value="Enviado">Enviado</option>
+                <option value="En Revisión">En Revisión</option>
+                <option value="Resuelto">Resuelto</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-12 form-group">
+              <label class="form-control-label font-weight-bold">Respuesta / Resolución para el Usuario</label>
+              <textarea rows="4" class="form-control shadow-sm" placeholder="Escribe aquí los argumentos o solución tomada..." [(ngModel)]="respuestaAdmin"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end bg-transparent">
+          <button class="btn btn-secondary mr-2" (click)="regresar()">
+            Cancelar
+          </button>
+          <button class="btn btn-success shadow" (click)="guardarCambios()" [disabled]="guardando">
+            <span *ngIf="!guardando"><i class="fa fa-save"></i> Guardar Cambios</span>
+            <span *ngIf="guardando"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

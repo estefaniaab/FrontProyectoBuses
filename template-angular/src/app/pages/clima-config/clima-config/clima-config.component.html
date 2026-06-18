@@ -1,0 +1,104 @@
+<div class="header bg-gradient-info pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <h1 class="text-white text-uppercase"><i class="ni ni-cloud-download-95 mr-2"></i> Mi Planificador de Clima</h1>
+      <p class="text-white opacity-8">Configura tus alertas diarias para recibir el pronóstico antes de salir de viaje.</p>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid mt--7">
+  <div class="row justify-content-center">
+    <div class="col-xl-8">
+      <div class="card bg-secondary shadow">
+        <div class="card-header bg-white border-0">
+          <div class="row align-items-center">
+            <div class="col-8">
+              <h3 class="mb-0 text-info">Configuración de Alertas Diarias</h3>
+            </div>
+            <div class="col-4 text-right">
+              <button (click)="guardar()" class="btn btn-sm btn-info shadow" [disabled]="loading">
+                <i class="fa fa-save mr-1"></i> {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <form>
+            <h6 class="heading-small text-muted mb-4">Suscripción a alertas</h6>
+            <div class="pl-lg-4">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="custom-control custom-control-alternative custom-checkbox">
+                    <input class="custom-control-input" id="activadoCheck" type="checkbox" [(ngModel)]="config.activado" name="activado">
+                    <label class="custom-control-label" for="activadoCheck">
+                      <span class="h4 font-weight-bold">Quiero recibir información del clima automáticamente cada mañana</span>
+                    </label>
+                  </div>
+                  <p class="text-muted small mt-2">
+                    El proceso automatizado calculará si se presentarán lluvias antes de tu viaje para alertarte a tiempo. Puedes desactivarlo cuando quieras.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4" *ngIf="config.activado" />
+
+            <div class="pl-lg-4" *ngIf="config.activado">
+              <h6 class="heading-small text-muted mb-4">Detalles de planificación de viaje</h6>
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-ciudad">Ciudad de Origen</label>
+                    <input type="text" id="input-ciudad" class="form-control form-control-alternative" placeholder="Ej: Manizales" [(ngModel)]="config.ciudad" name="ciudad">
+                    <small class="text-muted small">Prueba usando <strong>LluviaTest</strong> o <strong>SolTest</strong> para simular escenarios.</small>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label" for="input-hora">Horario habitual de viaje</label>
+                    <input type="time" id="input-hora" class="form-control form-control-alternative" [(ngModel)]="config.horarioViaje" name="horarioViaje">
+                    <small class="text-muted small">Las alertas llegarán máximo 2 horas antes de esta hora.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label class="form-control-label">Canal preferido de notificación</label>
+                    <select class="form-control form-control-alternative" [(ngModel)]="config.canalPreferido" name="canalPreferido">
+                      <option value="email">📧 Correo Electrónico</option>
+                      <option value="whatsapp">💬 WhatsApp</option>
+                      <option value="push">🔔 Notificación Push Web</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-lg-6" *ngIf="config.canalPreferido === 'whatsapp'">
+                  <div class="form-group">
+                    <label class="form-control-label">Número de Teléfono / WhatsApp</label>
+                    <input type="text" class="form-control form-control-alternative" placeholder="Ej: +573123456789" [(ngModel)]="config.telefono" name="telefono">
+                  </div>
+                </div>
+              </div>
+              <hr class="my-4" />
+              <div class="row justify-content-center">
+                <div class="col-md-6 text-center">
+                  <button type="button" (click)="probarAlertaYa()" class="btn btn-warning btn-block shadow-md" [disabled]="loading">
+                    <i class="ni ni-cloud-download-95 mr-2"></i> {{ loading ? 'Procesando...' : 'Verificar e Inicializar Clima Ahora' }}
+                  </button>
+                  <small class="text-muted d-block mt-2">
+                    Ejecuta manualmente el flujo de alertas simulando el proceso matutino.
+                  </small>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

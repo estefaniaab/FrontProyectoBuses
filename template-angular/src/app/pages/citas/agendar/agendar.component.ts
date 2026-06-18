@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import Swal from 'sweetalert2';
 import { CitasService } from 'src/app/services/Citas/citas.service';
 import { Cita } from 'src/app/models/Citas/cita.model';
 import { TipoAtencion } from 'src/app/models/Citas/tipo-atencion.enum';
@@ -12,6 +12,8 @@ import { TipoConsulta } from 'src/app/models/Citas/tipo-consulta.enum';
   styleUrls: ['./agendar.component.scss']
 })
 export class AgendarComponent implements OnInit {
+
+  pestana: 'nueva' | 'mis-citas' = 'nueva';
 
   formGroup!: FormGroup;
   horarios: any[] = [];
@@ -143,48 +145,43 @@ export class AgendarComponent implements OnInit {
   }
 
   agendar() {
+      if (this.formGroup.invalid) {
+        this.formGroup.markAllAsTouched();
+        return;
+      }
 
-    if (this.formGroup.invalid) {
+      const cita: Cita = { ...this.formGroup.value };
 
-      this.formGroup.markAllAsTouched();
-
-      return;
-
-    }
-
-    const cita: Cita = {
-      ...this.formGroup.value
-    };
-
-    this.service
-      .agendar(cita)
-      .subscribe({
-
+      this.service.agendar(cita).subscribe({
         next: (data) => {
-
           console.log(data);
-
-          alert('Cita agendada');
+          Swal.fire({
+            icon: 'success',
+            title: '¡Cita agendada!',
+            text: 'Tu solicitud se ha registrado correctamente.',
+            confirmButtonColor: '#2dce89',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            this.pestana = 'mis-citas';
+          });
 
           this.formGroup.reset();
-
           this.horarios = [];
           this.horariosAgrupados = [];
           this.horariosDelDia = [];
           this.fechaSeleccionada = '';
-
         },
-
         error: (err) => {
-
           console.error(err);
-
-          alert('Error al agendar');
-
+          // 🟢 Alerta de error estilizada
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al agendar tu cita.',
+            confirmButtonColor: '#f5365c'
+          });
         }
-
       });
-
-  }
+    }
 
 }
